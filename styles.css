@@ -101,3 +101,250 @@
   font-variant-numeric: tabular-nums;
   color: var(--text-accent);
 }
+
+/* ---------- Character creation wizard ---------- */
+
+.dvtt-wizard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--size-4-4);
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.dvtt-wizard__header h2 {
+  margin: 0 0 var(--size-4-2);
+}
+
+.dvtt-wizard__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-4-2);
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--size-4-4);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+}
+
+.dvtt-wizard__steps li:not(:last-child)::after {
+  content: "›";
+  margin-left: var(--size-4-2);
+  color: var(--text-faint);
+}
+
+.dvtt-wizard__steps li.is-active {
+  color: var(--text-accent);
+  font-weight: var(--font-bold);
+}
+
+.dvtt-wizard__steps li.is-done {
+  color: var(--text-muted);
+}
+
+.dvtt-wizard__body {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: var(--size-4-4);
+}
+
+.dvtt-wizard__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--size-4-2);
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: var(--size-4-3);
+}
+
+.dvtt-wizard__nav {
+  display: flex;
+  gap: var(--size-4-2);
+}
+
+/* Labeled text input */
+.dvtt-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2-1);
+  margin-bottom: var(--size-4-3);
+}
+
+.dvtt-field span {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+/* Selectable option cards (race / class / background) */
+.dvtt-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--size-4-2);
+}
+
+.dvtt-card {
+  display: block;
+  text-align: left;
+  height: auto;
+  padding: var(--size-4-2);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: var(--background-secondary);
+  cursor: pointer;
+  white-space: normal;
+}
+
+.dvtt-card:hover {
+  border-color: var(--interactive-accent);
+}
+
+.dvtt-card.is-selected {
+  border-color: var(--interactive-accent);
+  background: var(--background-modifier-hover);
+  box-shadow: 0 0 0 1px var(--interactive-accent);
+}
+
+.dvtt-card__title {
+  font-weight: var(--font-bold);
+}
+
+.dvtt-card__meta {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin-top: var(--size-2-1);
+}
+
+.dvtt-card__detail {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  margin-top: var(--size-2-1);
+}
+
+/* Ability score step */
+.dvtt-method-picker {
+  display: flex;
+  gap: var(--size-4-4);
+  margin-bottom: var(--size-4-3);
+}
+
+.dvtt-method-picker label {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-2);
+  cursor: pointer;
+}
+
+.dvtt-pointbuy-budget {
+  margin-bottom: var(--size-4-2);
+  color: var(--text-muted);
+}
+
+.dvtt-ability-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2-2);
+}
+
+.dvtt-ability-row {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-3);
+  padding: var(--size-2-2) 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.dvtt-ability-row__name {
+  flex: 0 0 96px;
+}
+
+.dvtt-ability-row__final {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.dvtt-ability-row__racial {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-accent);
+}
+
+.dvtt-pointbuy-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-2);
+}
+
+.dvtt-pointbuy-score {
+  min-width: 2ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.dvtt-ability-row input[type="number"] {
+  width: 64px;
+}
+
+/* Choice groups (skills, racial bonus picks) */
+.dvtt-choice-group {
+  margin-top: var(--size-4-4);
+}
+
+.dvtt-choice-group h4 {
+  margin: 0 0 var(--size-4-2);
+}
+
+.dvtt-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--size-2-2);
+}
+
+.dvtt-checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-2);
+  cursor: pointer;
+}
+
+.dvtt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-2-2);
+}
+
+.dvtt-chip {
+  padding: var(--size-2-1) var(--size-4-2);
+  border-radius: var(--radius-s);
+  background: var(--background-modifier-hover);
+  font-size: var(--font-ui-smaller);
+}
+
+/* Review step */
+.dvtt-review__subtitle {
+  color: var(--text-muted);
+  margin-top: 0;
+}
+
+.dvtt-review__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: var(--size-4-2);
+  margin: var(--size-4-3) 0;
+}
+
+.dvtt-errors {
+  color: var(--text-error);
+}
+
+.dvtt-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2-2);
+  font-size: var(--font-ui-small);
+}
+
+.dvtt-feature__source {
+  color: var(--text-muted);
+}
