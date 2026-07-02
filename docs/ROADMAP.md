@@ -72,6 +72,31 @@ Derived values (modifiers, proficiency bonus, spell save DC, passive perception)
 ### Phase 1 — Character sheets + notes  *(MVP — build first, fully local)*
 - [ ] Character note format: frontmatter + JSON block; read/write serializer.
 - [x] Guided **character creation** flow (race → class → background → abilities → skills). *(Static SRD data for now; result held in memory until the serializer lands.)*
+  - [x] Step-header navigation: jump directly to any completed step.
+
+#### Character creation — completeness backlog
+The wizard currently produces a bare level-1 character. Still to add, roughly
+in build order (items marked *(Phase 2)* want Open5e content first):
+
+- [ ] **Starting equipment**: class + background equipment packages and
+      choices (e.g. "(a) greataxe or (b) any martial weapon"), written into
+      `inventory`.
+- [ ] **Armor-aware AC**: compute AC from equipped armor/shield (and monk/
+      barbarian unarmored defense) instead of flat 10 + DEX.
+- [ ] **Starting level selection (1–20)**: per-level HP (average or rolled),
+      proficiency bonus, and ability score improvements at ASI levels.
+- [ ] **Spell selection for casters** *(Phase 2)*: cantrips + spells
+      known/prepared at the chosen level, from the content browser.
+- [ ] **Level-1 subclass choices** *(Phase 2 for content)*: cleric domain,
+      sorcerer origin, warlock patron.
+- [ ] **Languages & tool proficiencies** from race/background.
+- [ ] **Starting currency**: background gold, or roll class gold instead of
+      taking the equipment package.
+- [ ] **Flavor fields**: alignment, personality/ideals/bonds/flaws,
+      appearance, backstory.
+- [ ] **Variant human / feats** *(needs feat data)*.
+- [ ] **Multiclassing** *(post-MVP; ties into a level-up editor, not the
+      creation wizard)*.
 - [ ] Editable 5e **sheet view** (React): abilities, skills, saves, HP/AC, inventory, spells, features — with live auto-calc.
 - [ ] **CSS sheet renderer**: styled read mode + edit mode toggle.
 - [ ] Player **notes**: session journal + linked notes, using vault Markdown; visibility field.
