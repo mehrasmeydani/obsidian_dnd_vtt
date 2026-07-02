@@ -8,6 +8,11 @@ import { createRoot, type Root } from "react-dom/client";
  */
 export function mountReact(container: HTMLElement, node: React.ReactNode): Root {
   const root = createRoot(container);
-  root.render(<StrictMode>{node}</StrictMode>);
+  renderReact(root, node);
   return root;
+}
+
+/** Re-render an existing root, keeping the StrictMode wrapper. */
+export function renderReact(root: Root, node: React.ReactNode): void {
+  root.render(<StrictMode>{node}</StrictMode>);
 }
