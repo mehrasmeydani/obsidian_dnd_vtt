@@ -10,27 +10,30 @@
 # copy into a vault's .obsidian/plugins/ folder. Keep this repo on a native
 # Linux/Windows path (not a OneDrive-synced folder) to avoid sync churn.
 
+# Run as the host user (override with HOST_UID/HOST_GID if yours isn't 1002)
+# so bind-mounted files (node_modules, main.js, package-lock.json) stay owned
+# by you — otherwise root-owned output breaks host-side npm/vitest and rm.
+x-defaults: &defaults
+  build: .
+  user: "${HOST_UID:-1002}:${HOST_GID:-1002}"
+  environment:
+    npm_config_cache: /tmp/.npm
+  volumes:
+    - .:/app
+
 services:
   install:
-    build: .
+    <<: *defaults
     command: npm install
-    volumes:
-      - .:/app
 
   test:
-    build: .
+    <<: *defaults
     command: sh -c "npm install && npm test"
-    volumes:
-      - .:/app
 
   build:
-    build: .
+    <<: *defaults
     command: sh -c "npm install && npm run build"
-    volumes:
-      - .:/app
 
   dev:
-    build: .
+    <<: *defaults
     command: sh -c "npm install && npm run dev"
-    volumes:
-      - .:/app

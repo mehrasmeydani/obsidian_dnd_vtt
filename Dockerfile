@@ -6,7 +6,12 @@
 # VTT itself — the plugin runs inside the Obsidian desktop app on each machine.
 # The Phase 3 sync server will ship its own runtime image separately.
 
-FROM node:20-alpine
+# Debian (glibc), not Alpine (musl): the repo (incl. node_modules and
+# package-lock.json) is bind-mounted, and CI + WSL hosts are glibc. Keeping the
+# container on glibc means container-installed native binaries work on the
+# host, and lockfile updates made in here never drop the glibc variants of
+# rollup/esbuild that CI needs (npm bug #4828).
+FROM node:20-slim
 
 WORKDIR /app
 
