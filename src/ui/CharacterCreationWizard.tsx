@@ -16,10 +16,14 @@ import {
   type RaceData,
 } from "../data/srd";
 import {
+  ABILITY_SCORE_CAP,
+  MAX_LEVEL,
   POINT_BUY_BUDGET,
   POINT_BUY_MAX,
   POINT_BUY_MIN,
   STANDARD_ARRAY,
+  asiPointsSpent,
+  asiPointsTotal,
   assembleCharacter,
   bonusSkillCount,
   emptyDraft,
@@ -34,7 +38,9 @@ import {
   formatModifier,
   passivePerception,
   proficiencyBonus,
+  totalLevel,
 } from "../rules/abilityMath";
+import type { EquipmentItem } from "../data/srd";
 
 const ABILITY_LABELS: Record<Ability, string> = {
   str: "Strength",
@@ -51,6 +57,7 @@ const STEPS = [
   "Background",
   "Abilities",
   "Skills",
+  "Equipment",
   "Review",
 ] as const;
 
@@ -161,7 +168,8 @@ export function CharacterCreationWizard({
           />
         )}
         {step === 4 && <SkillsStep draft={draft} update={update} />}
-        {step === 5 && <ReviewStep draft={draft} />}
+        {step === 5 && <EquipmentStep draft={draft} update={update} />}
+        {step === 6 && <ReviewStep draft={draft} />}
       </div>
 
       <footer className="dvtt-wizard__footer">
@@ -218,18 +226,31 @@ function stepBlockers(
       break;
     case 1:
       if (!draft.charClass) blockers.push("Select a class.");
+      if (
+        !Number.isInteger(draft.level) ||
+        draft.level < 1 ||
+        draft.level > MAX_LEVEL
+      ) {
+        blockers.push(`Level must be between 1 and ${MAX_LEVEL}.`);
+      }
       break;
     case 2:
       if (!draft.background) blockers.push("Select a background.");
       break;
     case 3: {
-      // The racial bonus picker lives on this step, so it gates here.
+      // The racial bonus and ASI pickers live on this step, so they gate here.
       if (draft.race?.bonusChoice) {
         const { count, amount } = draft.race.bonusChoice;
         const left = count - draft.racialBonusAbilities.length;
         if (left > 0) {
           blockers.push(`Pick ${left} more abilit${left === 1 ? "y" : "ies"} for the racial +${amount}.`);
         }
+      }
+      const asiLeft = asiPointsTotal(draft) - asiPointsSpent(draft);
+      if (asiLeft > 0) {
+        blockers.push(
+          `Assign ${asiLeft} more improvement point${asiLeft === 1 ? "" : "s"}.`,
+        );
       }
       if (method === "standard") {
         const left = ABILITIES.filter((a) => assignments[a] === null).length;
@@ -264,8 +285,25 @@ function stepBlockers(
       }
       break;
     }
+    case 5: {
+      const choices = draft.charClass?.equipment.choices ?? [];
+      const valid =
+        draft.equipmentChoices.length === choices.length &&
+        draft.equipmentChoices.every(
+          (pick, i) => pick >= 0 && pick < choices[i].options.length,
+        );
+      if (!valid) blockers.push("Choose your starting equipment.");
+      break;
+    }
   }
   return blockers;
+}
+
+/** "Handaxe ×2, Spear" — display label for an equipment bundle. */
+function bundleLabel(items: EquipmentItem[]): string {
+  return items
+    .map((i) => ((i.quantity ?? 1) > 1 ? `${i.name} ×${i.quantity}` : i.name))
+    .join(", ");
 }
 
 function NameRaceStep({
@@ -333,12 +371,30 @@ function ClassStep({
   update: (p: Partial<CharacterDraft>) => void;
 }) {
   const selectClass = (charClass: ClassData) =>
-    // Reset skill picks; the allowed list changed.
-    update({ charClass, classSkills: [] });
+    // Reset picks that depend on the class: skills, ASI points, and
+    // equipment choices (defaulting each choice to its first option).
+    update({
+      charClass,
+      classSkills: [],
+      asiBonuses: {},
+      equipmentChoices: charClass.equipment.choices.map(() => 0),
+    });
 
   return (
     <div>
       <h3>Class</h3>
+      <label className="dvtt-field dvtt-field--narrow">
+        <span>Starting level (1–{MAX_LEVEL})</span>
+        <input
+          type="number"
+          min={1}
+          max={MAX_LEVEL}
+          value={draft.level}
+          onChange={(e) =>
+            update({ level: Number(e.target.value), asiBonuses: {} })
+          }
+        />
+      </label>
       <div className="dvtt-cards">
         {CLASSES.map((c) => (
           <button
@@ -542,6 +598,62 @@ function AbilitiesStep({
       {draft.race?.bonusChoice && (
         <RacialBonusPicker draft={draft} update={update} />
       )}
+
+      {asiPointsTotal(draft) > 0 && <AsiPicker draft={draft} update={update} />}
+    </div>
+  );
+}
+
+/**
+ * Ability Score Improvements for characters starting above the class's first
+ * ASI level: two +1 points per improvement, no score above 20.
+ */
+function AsiPicker({
+  draft,
+  update,
+}: {
+  draft: CharacterDraft;
+  update: (p: Partial<CharacterDraft>) => void;
+}) {
+  const total = asiPointsTotal(draft);
+  const spent = asiPointsSpent(draft);
+  const finals = finalAbilityScores(draft);
+
+  const adjust = (ability: Ability, delta: number) => {
+    const current = draft.asiBonuses[ability] ?? 0;
+    update({
+      asiBonuses: { ...draft.asiBonuses, [ability]: current + delta },
+    });
+  };
+
+  return (
+    <div className="dvtt-choice-group">
+      <h4>
+        Ability score improvements — level {draft.level}{" "}
+        {draft.charClass?.name} ({spent}/{total} points)
+      </h4>
+      <div className="dvtt-checkboxes">
+        {ABILITIES.map((ability) => {
+          const points = draft.asiBonuses[ability] ?? 0;
+          return (
+            <span className="dvtt-asi-row" key={ability}>
+              <span className="dvtt-asi-row__name">
+                {ABILITY_LABELS[ability]}
+              </span>
+              <button disabled={points <= 0} onClick={() => adjust(ability, -1)}>
+                −
+              </button>
+              <span className="dvtt-asi-row__points">+{points}</span>
+              <button
+                disabled={spent >= total || finals[ability] >= ABILITY_SCORE_CAP}
+                onClick={() => adjust(ability, 1)}
+              >
+                +
+              </button>
+            </span>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -692,6 +804,64 @@ function SkillsStep({
   );
 }
 
+function EquipmentStep({
+  draft,
+  update,
+}: {
+  draft: CharacterDraft;
+  update: (p: Partial<CharacterDraft>) => void;
+}) {
+  const charClass = draft.charClass;
+  const granted = [
+    ...(charClass?.equipment.fixed ?? []),
+    ...(draft.background?.equipment ?? []),
+  ];
+
+  const pick = (choiceIndex: number, optionIndex: number) => {
+    const next = [...draft.equipmentChoices];
+    next[choiceIndex] = optionIndex;
+    update({ equipmentChoices: next });
+  };
+
+  return (
+    <div>
+      <h3>Starting equipment</h3>
+
+      {granted.length > 0 && (
+        <div className="dvtt-choice-group">
+          <h4>Granted by class & background</h4>
+          <div className="dvtt-chips">
+            {granted.map((item, i) => (
+              <span className="dvtt-chip" key={`${item.name}-${i}`}>
+                {bundleLabel([item])}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {charClass?.equipment.choices.map((choice, choiceIndex) => (
+        <div className="dvtt-choice-group" key={choiceIndex}>
+          <h4>Choice {choiceIndex + 1}</h4>
+          <div className="dvtt-checkboxes">
+            {choice.options.map((bundle, optionIndex) => (
+              <label key={optionIndex}>
+                <input
+                  type="radio"
+                  name={`dvtt-equipment-${choiceIndex}`}
+                  checked={draft.equipmentChoices[choiceIndex] === optionIndex}
+                  onChange={() => pick(choiceIndex, optionIndex)}
+                />
+                {bundleLabel(bundle)}
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ReviewStep({ draft }: { draft: CharacterDraft }) {
   const errors = validateDraft(draft);
   if (errors.length > 0) {
@@ -712,7 +882,8 @@ function ReviewStep({ draft }: { draft: CharacterDraft }) {
   return (
     <div>
       <h3>
-        {character.name} — Level 1 {character.race} {character.classes[0]?.name}
+        {character.name} — Level {totalLevel(character)} {character.race}{" "}
+        {character.classes[0]?.name}
       </h3>
       <p className="dvtt-review__subtitle">{character.background}</p>
       <div className="dvtt-topline">
@@ -721,7 +892,7 @@ function ReviewStep({ draft }: { draft: CharacterDraft }) {
         <ReviewStat label="Speed" value={`${character.speed} ft`} />
         <ReviewStat
           label="Prof. bonus"
-          value={formatModifier(proficiencyBonus(1))}
+          value={formatModifier(proficiencyBonus(totalLevel(character)))}
         />
         <ReviewStat label="Passive Perc." value={passivePerception(character)} />
       </div>
@@ -747,6 +918,14 @@ function ReviewStep({ draft }: { draft: CharacterDraft }) {
         {Object.keys(character.savingThrows)
           .map((a) => ABILITY_LABELS[a as Ability])
           .join(", ")}
+      </p>
+      <p>
+        <strong>Equipment:</strong>{" "}
+        {character.inventory
+          .map((item) =>
+            item.quantity > 1 ? `${item.name} ×${item.quantity}` : item.name,
+          )
+          .join(", ") || "none"}
       </p>
       {character.features.length > 0 && (
         <div className="dvtt-choice-group">

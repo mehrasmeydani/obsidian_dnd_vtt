@@ -88,7 +88,16 @@ describe("CharacterCreationWizard", () => {
     expect(nextButton().disabled).toBe(false);
     fireEvent.click(nextButton());
 
-    // Step 6: review shows derived stats, then create.
+    // Step 6: equipment — defaults are pre-selected; swap one choice.
+    expect(screen.getByText("Vestments")).toBeTruthy(); // acolyte gear
+    expect(
+      (screen.getByLabelText("Chain mail") as HTMLInputElement).checked,
+    ).toBe(true);
+    fireEvent.click(screen.getByLabelText("Greatsword"));
+    expect(nextButton().disabled).toBe(false);
+    fireEvent.click(nextButton());
+
+    // Step 7: review shows derived stats, then create.
     expect(screen.getByText(/Level 1 Hill Dwarf Fighter/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Create character" }));
 
@@ -106,6 +115,45 @@ describe("CharacterCreationWizard", () => {
       athletics: "proficient",
       perception: "proficient",
     });
+    const gear = character.inventory.map((i) => i.name);
+    expect(gear).toContain("Chain mail"); // default kept
+    expect(gear).toContain("Greatsword"); // swapped pick
+    expect(gear).not.toContain("Longsword");
+    expect(gear).toContain("Vestments");
+  });
+
+  it("gates ability score improvements for higher starting levels", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Borin" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.click(nextButton());
+
+    // Level 4 fighter: one ASI = two +1 points to assign.
+    fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
+    fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "4" } });
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.click(nextButton());
+
+    const selects = screen.getAllByRole("combobox");
+    [15, 13, 14, 8, 12, 10].forEach((value, i) => {
+      fireEvent.change(selects[i], { target: { value: String(value) } });
+    });
+
+    // Scores assigned but ASI points not: still blocked, with a hint.
+    expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText(/Assign 2 more improvement points/)).toBeTruthy();
+
+    const asiGroup = choiceGroup(/Ability score improvements/);
+    const plusButtons = asiGroup.getAllByRole("button", { name: "+" });
+    fireEvent.click(plusButtons[0]); // STR +1
+    fireEvent.click(plusButtons[2]); // CON +1
+    expect(nextButton().disabled).toBe(false);
   });
 
   it("allows jumping between steps via the header once they are reachable", () => {
@@ -177,6 +225,10 @@ describe("CharacterCreationWizard", () => {
     const bonusGroup = choiceGroup(/Additional skills/);
     fireEvent.click(bonusGroup.getByLabelText("Stealth"));
     fireEvent.click(bonusGroup.getByLabelText("Deception"));
+    expect(nextButton().disabled).toBe(false);
+    fireEvent.click(nextButton());
+
+    // Equipment: bard defaults are valid as-is.
     expect(nextButton().disabled).toBe(false);
     fireEvent.click(nextButton());
 

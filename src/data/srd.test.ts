@@ -80,6 +80,35 @@ describe("classes", () => {
       }
 
       expect(charClass.traits.length).toBeGreaterThan(0);
+
+      // ASI levels: sorted, unique, within 2-20, and at least the PHB baseline.
+      const asi = charClass.asiLevels;
+      expect(asi.length).toBeGreaterThanOrEqual(5);
+      expect([...asi].sort((a, b) => a - b)).toEqual(asi);
+      expect(new Set(asi).size).toBe(asi.length);
+      for (const level of asi) {
+        expect(level).toBeGreaterThanOrEqual(2);
+        expect(level).toBeLessThanOrEqual(20);
+      }
+
+      // Equipment: every choice offers 2+ options, every bundle has items,
+      // every item is named with a sane quantity.
+      const allBundles = [
+        charClass.equipment.fixed,
+        ...charClass.equipment.choices.flatMap((c) => c.options),
+      ];
+      for (const choice of charClass.equipment.choices) {
+        expect(choice.options.length).toBeGreaterThanOrEqual(2);
+      }
+      for (const bundle of allBundles.slice(1)) {
+        expect(bundle.length).toBeGreaterThan(0);
+      }
+      for (const item of allBundles.flat()) {
+        expect(item.name).toBeTruthy();
+        if (item.quantity !== undefined) {
+          expect(item.quantity).toBeGreaterThan(0);
+        }
+      }
     },
   );
 });

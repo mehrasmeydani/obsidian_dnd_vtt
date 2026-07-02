@@ -70,6 +70,7 @@ function completeDraft(
     racialBonusAbilities,
     classSkills,
     bonusSkills,
+    equipmentChoices: charClass.equipment.choices.map(() => 0),
   };
 }
 
@@ -117,6 +118,16 @@ describe.each(BACKGROUNDS.map((bg) => [bg.id, bg] as const))(
       );
       const featureIds = character.features.map((f) => f.id);
       expect(new Set(featureIds).size).toBe(featureIds.length);
+
+      // Inventory: class fixed gear + first option of each choice + background.
+      const expectedGear =
+        charClass.equipment.fixed.length +
+        charClass.equipment.choices.reduce(
+          (sum, c) => sum + c.options[0].length,
+          0,
+        ) +
+        background.equipment.length;
+      expect(character.inventory).toHaveLength(expectedGear);
     });
   },
 );

@@ -5,10 +5,17 @@ import {
   type AbilityScores,
   type Character,
   type Feature,
+  type Item,
   type ProficiencyLevel,
   type Skill,
 } from "../model/schema";
-import type { BackgroundData, ClassData, RaceData, Trait } from "../data/srd";
+import type {
+  BackgroundData,
+  ClassData,
+  EquipmentItem,
+  RaceData,
+  Trait,
+} from "../data/srd";
 import { abilityModifier } from "./abilityMath";
 
 /**
@@ -52,6 +59,11 @@ export function pointBuyTotal(scores: AbilityScores): number | null {
   return total;
 }
 
+/** Ability scores cannot be raised above this by ASIs (5e rule). */
+export const ABILITY_SCORE_CAP = 20;
+
+export const MAX_LEVEL = 20;
+
 /** Everything the wizard collects before a character exists. */
 export interface CharacterDraft {
   name: string;
@@ -60,14 +72,20 @@ export interface CharacterDraft {
   background: BackgroundData | null;
   /** Overrides the background name when the background allows it. */
   backgroundName: string;
+  /** Starting level, 1-20. */
+  level: number;
   /** Scores before racial bonuses. */
   baseScores: AbilityScores;
   /** Abilities picked for the race's "+N to X abilities of your choice". */
   racialBonusAbilities: Ability[];
+  /** +1s from Ability Score Improvements (2 points per ASI level reached). */
+  asiBonuses: Partial<Record<Ability, number>>;
   /** Skills picked from the class list. */
   classSkills: Skill[];
   /** Skills picked from "choose any" pools (race and/or background). */
   bonusSkills: Skill[];
+  /** Chosen option index for each of the class's equipment choices. */
+  equipmentChoices: number[];
 }
 
 export function emptyDraft(): CharacterDraft {
@@ -77,14 +95,45 @@ export function emptyDraft(): CharacterDraft {
     charClass: null,
     background: null,
     backgroundName: "",
+    level: 1,
     baseScores: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
     racialBonusAbilities: [],
+    asiBonuses: {},
     classSkills: [],
     bonusSkills: [],
+    equipmentChoices: [],
   };
 }
 
-/** Base scores plus the race's fixed and chosen ability bonuses. */
+/** Number of Ability Score Improvements the class has gained by `level`. */
+export function asiCount(charClass: ClassData, level: number): number {
+  return charClass.asiLevels.filter((l) => l <= level).length;
+}
+
+/** Total +1 points the draft's ASIs grant (two per improvement). */
+export function asiPointsTotal(draft: CharacterDraft): number {
+  return draft.charClass ? 2 * asiCount(draft.charClass, draft.level) : 0;
+}
+
+/** +1 points already assigned to abilities. */
+export function asiPointsSpent(draft: CharacterDraft): number {
+  return ABILITIES.reduce((sum, a) => sum + (draft.asiBonuses[a] ?? 0), 0);
+}
+
+/**
+ * Max HP at `level`: full hit die at level 1, average (die/2 + 1) per level
+ * after, CON modifier each level, minimum 1 per level. Rolled HP is a future
+ * option (see roadmap backlog).
+ */
+export function startingHp(hitDie: number, conMod: number, level: number): number {
+  let hp = Math.max(1, hitDie + conMod);
+  for (let l = 2; l <= level; l++) {
+    hp += Math.max(1, Math.floor(hitDie / 2) + 1 + conMod);
+  }
+  return hp;
+}
+
+/** Base scores plus racial bonuses (fixed and chosen) plus ASI points. */
 export function finalAbilityScores(draft: CharacterDraft): AbilityScores {
   const scores = { ...draft.baseScores };
   if (draft.race) {
@@ -95,6 +144,9 @@ export function finalAbilityScores(draft: CharacterDraft): AbilityScores {
     for (const ability of draft.racialBonusAbilities) {
       scores[ability] += amount;
     }
+  }
+  for (const ability of ABILITIES) {
+    scores[ability] += draft.asiBonuses[ability] ?? 0;
   }
   return scores;
 }
@@ -127,6 +179,14 @@ export function validateDraft(draft: CharacterDraft): string[] {
   if (!draft.charClass) errors.push("Choose a class.");
   if (!draft.background) errors.push("Choose a background.");
 
+  if (
+    !Number.isInteger(draft.level) ||
+    draft.level < 1 ||
+    draft.level > MAX_LEVEL
+  ) {
+    errors.push(`Level must be between 1 and ${MAX_LEVEL}.`);
+  }
+
   for (const ability of ABILITIES) {
     const score = draft.baseScores[ability];
     if (!Number.isInteger(score) || score < 1 || score > 30) {
@@ -150,6 +210,41 @@ export function validateDraft(draft: CharacterDraft): string[] {
     }
   } else if (draft.racialBonusAbilities.length > 0) {
     errors.push("This race has no ability bonus choice.");
+  }
+
+  if (draft.charClass) {
+    const total = asiPointsTotal(draft);
+    const spent = asiPointsSpent(draft);
+    if (spent !== total) {
+      errors.push(`Assign exactly ${total} ability score improvement points.`);
+    }
+    const finals = finalAbilityScores(draft);
+    for (const ability of ABILITIES) {
+      const points = draft.asiBonuses[ability] ?? 0;
+      if (points < 0 || !Number.isInteger(points)) {
+        errors.push("Ability score improvements must be whole, positive points.");
+        break;
+      }
+      if (points > 0 && finals[ability] > ABILITY_SCORE_CAP) {
+        errors.push(
+          `Improvements cannot raise a score above ${ABILITY_SCORE_CAP}.`,
+        );
+        break;
+      }
+    }
+  } else if (asiPointsSpent(draft) > 0) {
+    errors.push("Choose a class before assigning improvement points.");
+  }
+
+  if (draft.charClass) {
+    const choices = draft.charClass.equipment.choices;
+    const valid =
+      draft.equipmentChoices.length === choices.length &&
+      draft.equipmentChoices.every(
+        (pick, i) =>
+          Number.isInteger(pick) && pick >= 0 && pick < choices[i].options.length,
+      );
+    if (!valid) errors.push("Choose your starting equipment.");
   }
 
   const granted = new Set(grantedSkills(draft));
@@ -202,7 +297,11 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
   const background = draft.background as BackgroundData;
 
   const abilityScores = finalAbilityScores(draft);
-  const maxHp = Math.max(1, charClass.hitDie + abilityModifier(abilityScores.con));
+  const maxHp = startingHp(
+    charClass.hitDie,
+    abilityModifier(abilityScores.con),
+    draft.level,
+  );
 
   const savingThrows: Partial<Record<Ability, ProficiencyLevel>> = {};
   for (const ability of charClass.savingThrows) {
@@ -232,12 +331,30 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     ...traitsToFeatures(backgroundName, background.traits),
   ];
 
+  // Class fixed gear + the chosen option from each choice + background gear.
+  const inventory: Item[] = [];
+  const addGear = (items: EquipmentItem[]) => {
+    for (const item of items) {
+      inventory.push({
+        id: `${slugify(item.name)}-${inventory.length}`,
+        name: item.name,
+        quantity: item.quantity ?? 1,
+        equipped: false,
+      });
+    }
+  };
+  addGear(charClass.equipment.fixed);
+  charClass.equipment.choices.forEach((choice, i) => {
+    addGear(choice.options[draft.equipmentChoices[i]]);
+  });
+  addGear(background.equipment);
+
   return CharacterSchema.parse({
     id,
     name: draft.name.trim(),
     race: race.name,
     background: backgroundName,
-    classes: [{ name: charClass.name, level: 1 }],
+    classes: [{ name: charClass.name, level: draft.level }],
     abilityScores,
     savingThrows,
     skills,
@@ -247,6 +364,7 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     speed: race.speed,
     spellcastingAbility: charClass.spellcastingAbility,
     features,
+    inventory,
   });
 }
 

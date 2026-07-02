@@ -31,7 +31,7 @@ and the bundle is ready to load into a vault.
 > `node_modules`, and under WSL files on `/mnt/c/...` don't deliver inotify
 > events, so esbuild's watch (`up dev`) won't fire.
 
-### With local Node (18+)
+### With local Node (20+)
 
 ```bash
 npm install

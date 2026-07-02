@@ -2,12 +2,15 @@ import { describe, expect, it } from "vitest";
 import { BACKGROUNDS, CLASSES, RACES } from "../data/srd";
 import {
   POINT_BUY_BUDGET,
+  asiCount,
+  asiPointsTotal,
   assembleCharacter,
   bonusSkillCount,
   emptyDraft,
   finalAbilityScores,
   pointBuyCost,
   pointBuyTotal,
+  startingHp,
   validateDraft,
   type CharacterDraft,
 } from "./characterCreation";
@@ -28,6 +31,7 @@ function validDraft(): CharacterDraft {
     background: byId(BACKGROUNDS, "acolyte"),
     baseScores: { str: 15, dex: 13, con: 14, int: 8, wis: 12, cha: 10 },
     classSkills: ["athletics", "perception"],
+    equipmentChoices: [0, 0, 0, 0],
   };
 }
 
@@ -140,6 +144,115 @@ describe("validateDraft", () => {
   });
 });
 
+describe("startingHp", () => {
+  it("gives full hit die + CON at level 1", () => {
+    expect(startingHp(10, 3, 1)).toBe(13);
+    expect(startingHp(6, -5, 1)).toBe(1); // floored at 1
+  });
+
+  it("adds average rolls (die/2 + 1) + CON per level after the first", () => {
+    // d8, CON +2: 10 at level 1, then 4 × (5 + 2)
+    expect(startingHp(8, 2, 5)).toBe(38);
+  });
+
+  it("floors each level's gain at 1", () => {
+    // d6, CON -5: every level contributes the minimum 1
+    expect(startingHp(6, -5, 3)).toBe(3);
+  });
+});
+
+describe("levels and ability score improvements", () => {
+  it("counts ASIs by class table (fighter gets extras)", () => {
+    const fighter = byId(CLASSES, "fighter");
+    const wizard = byId(CLASSES, "wizard");
+    expect(asiCount(fighter, 1)).toBe(0);
+    expect(asiCount(fighter, 4)).toBe(1);
+    expect(asiCount(fighter, 6)).toBe(2);
+    expect(asiCount(fighter, 20)).toBe(7);
+    expect(asiCount(wizard, 20)).toBe(5);
+  });
+
+  it("requires exactly two points per ASI", () => {
+    const draft: CharacterDraft = { ...validDraft(), level: 4 };
+    expect(asiPointsTotal(draft)).toBe(2);
+    expect(validateDraft(draft)).toContain(
+      "Assign exactly 2 ability score improvement points.",
+    );
+
+    draft.asiBonuses = { str: 2 };
+    expect(validateDraft(draft)).toEqual([]);
+  });
+
+  it("rejects improvements past the score cap of 20", () => {
+    const draft: CharacterDraft = {
+      ...validDraft(),
+      level: 4,
+      baseScores: { str: 19, dex: 13, con: 14, int: 8, wis: 12, cha: 10 },
+      asiBonuses: { str: 2 },
+    };
+    expect(validateDraft(draft)).toContain(
+      "Improvements cannot raise a score above 20.",
+    );
+  });
+
+  it("rejects levels outside 1-20", () => {
+    expect(validateDraft({ ...validDraft(), level: 0 })).toContain(
+      "Level must be between 1 and 20.",
+    );
+    expect(validateDraft({ ...validDraft(), level: 21 }).length).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it("assembles a higher-level character with scaled HP and class level", () => {
+    const draft: CharacterDraft = {
+      ...validDraft(),
+      level: 4,
+      asiBonuses: { con: 2 }, // con 14 + 2 racial + 2 ASI = 18 (mod +4)
+    };
+    const character = assembleCharacter(draft, "test-id");
+    expect(character.classes).toEqual([{ name: "Fighter", level: 4 }]);
+    // L1: 10 + 4 = 14; L2-4: 3 × (6 + 4) = 30
+    expect(character.maxHp).toBe(44);
+  });
+});
+
+describe("starting equipment", () => {
+  it("collects class fixed gear, chosen bundles, and background gear", () => {
+    const character = assembleCharacter(validDraft(), "test-id");
+    const names = character.inventory.map((i) => i.name);
+    expect(names).toContain("Chain mail"); // fighter choice 1, option 0
+    expect(names).toContain("Longsword"); // choice 2, option 0 (with shield)
+    expect(names).toContain("Shield");
+    expect(names).toContain("Vestments"); // acolyte background
+    const incense = character.inventory.find((i) => i.name === "Incense stick");
+    expect(incense?.quantity).toBe(5);
+  });
+
+  it("honors non-default equipment picks", () => {
+    const draft: CharacterDraft = {
+      ...validDraft(),
+      equipmentChoices: [1, 0, 0, 0], // leather armor + longbow + 20 arrows
+    };
+    const character = assembleCharacter(draft, "test-id");
+    const names = character.inventory.map((i) => i.name);
+    expect(names).toContain("Longbow");
+    expect(names).not.toContain("Chain mail");
+    expect(
+      character.inventory.find((i) => i.name === "Arrows")?.quantity,
+    ).toBe(20);
+  });
+
+  it("rejects drafts with missing or out-of-range picks", () => {
+    expect(
+      validateDraft({ ...validDraft(), equipmentChoices: [0, 0] }),
+    ).toContain("Choose your starting equipment.");
+    expect(
+      validateDraft({ ...validDraft(), equipmentChoices: [9, 0, 0, 0] }),
+    ).toContain("Choose your starting equipment.");
+  });
+});
+
 describe("assembleCharacter", () => {
   it("builds a schema-valid level-1 character", () => {
     const character = assembleCharacter(validDraft(), "test-id");
@@ -185,6 +298,7 @@ describe("assembleCharacter", () => {
       ...validDraft(),
       charClass: byId(CLASSES, "wizard"),
       classSkills: ["arcana", "history"],
+      equipmentChoices: [0, 0, 0],
     };
     const character = assembleCharacter(draft, "test-id");
     expect(character.spellcastingAbility).toBe("int");
@@ -207,6 +321,7 @@ describe("assembleCharacter", () => {
       charClass: byId(CLASSES, "wizard"),
       classSkills: ["arcana", "history"],
       baseScores: { str: 10, dex: 10, con: 1, int: 15, wis: 10, cha: 10 },
+      equipmentChoices: [0, 0, 0],
     };
     // wizard d6 + con mod (1 => -5) would be 1; clamp keeps it >= 1
     expect(assembleCharacter(draft, "test-id").maxHp).toBe(1);

@@ -313,6 +313,27 @@
   width: 64px;
 }
 
+.dvtt-field--narrow input {
+  width: 96px;
+}
+
+/* Ability score improvement steppers */
+.dvtt-asi-row {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-2);
+}
+
+.dvtt-asi-row__name {
+  flex: 1;
+}
+
+.dvtt-asi-row__points {
+  min-width: 3ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Choice groups (skills, racial bonus picks) */
 .dvtt-choice-group {
   margin-top: var(--size-4-4);
