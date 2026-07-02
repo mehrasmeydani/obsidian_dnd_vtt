@@ -77,6 +77,10 @@ Derived values (modifiers, proficiency bonus, spell save DC, passive perception)
 - [x] Guided **character creation** flow (race → class → background → abilities → skills). *(Static SRD data for now; result held in memory until the serializer lands.)*
   - [x] Step-header navigation: jump directly to any completed step.
 
+> **Tickets:** the actionable backlog now lives in [`docs/backlog/`](backlog/README.md)
+> as per-ticket files (user story + acceptance criteria). This map stays as
+> the overview; the board decides what gets built next.
+
 #### Character creation — completeness map
 
 **Done:** race/class/background selection · standard array, point buy, manual

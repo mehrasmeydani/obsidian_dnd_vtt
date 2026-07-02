@@ -1,8 +1,9 @@
 # Claude context — Obsidian D&D VTT
 
 D&D 5e virtual tabletop as an Obsidian plugin (React + Zod + esbuild).
-Architecture and phased plan: `docs/ROADMAP.md` (read it — it has the
-character-creator completeness map and per-phase checklists).
+Architecture and phased plan: `docs/ROADMAP.md`. The actionable work queue
+is `docs/backlog/README.md` — a board of T-XX ticket files (user story +
+acceptance criteria); pick from the top, update statuses as you go.
 
 ## Status (as of 2026-07-03, commit b8336a7)
 
