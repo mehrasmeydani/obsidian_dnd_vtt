@@ -4,8 +4,9 @@ A virtual tabletop for D&D 5e, built as an **Obsidian plugin**: editable
 character sheets, notes, battle maps, and multiplayer sync for a self-hosted
 group. See [docs/ROADMAP.md](docs/ROADMAP.md) for architecture and the phased plan.
 
-> **Status:** Phase 0 (foundations) — plugin scaffold, shared data model, and
-> rules engine are in place and tested.
+> **Status:** Phase 1 in progress — foundations plus the guided character
+> creation wizard are in place. Created characters live in memory until the
+> character-note serializer lands.
 
 ## Developing
 
@@ -38,6 +39,25 @@ npm test
 npm run dev      # watch build
 npm run build    # production bundle
 ```
+
+### Testing
+
+Tests are colocated with the code (`src/**/*.test.ts(x)`) and run with vitest
+(`docker compose run --rm test` or `npm test`). Four layers guard against
+regressions:
+
+- **Rules math** (`rules/*.test.ts`) — modifiers, proficiency, DCs, and the
+  creation-draft logic (point buy, racial bonuses, skill validation).
+- **Data contract** (`model/schema.test.ts`) — the Zod schemas that validate
+  vault notes and sync payloads; `SCHEMA_VERSION` changes are pinned.
+- **Content integrity** (`data/srd.test.ts`) — the static SRD data stays
+  internally consistent (unique ids, satisfiable skill choices, sane dice).
+- **Matrix + UI** (`characterCreation.matrix.test.ts`, `ui/*.test.tsx`) —
+  every race×class×background combination assembles a consistent character,
+  and the wizard is driven end to end in jsdom via Testing Library.
+
+CI (`.github/workflows/ci.yml`) runs the suite plus typecheck and a production
+build on every push and PR.
 
 ### What Docker does *not* run
 

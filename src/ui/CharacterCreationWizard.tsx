@@ -194,6 +194,11 @@ function isStepValid(
     case 2:
       return draft.background !== null;
     case 3: {
+      // The racial bonus picker lives on this step, so it gates here.
+      const racialPicked =
+        !draft.race?.bonusChoice ||
+        draft.racialBonusAbilities.length === draft.race.bonusChoice.count;
+      if (!racialPicked) return false;
       if (method === "standard") {
         return ABILITIES.every((a) => assignments[a] !== null);
       }
@@ -210,9 +215,7 @@ function isStepValid(
       const classCount = draft.charClass?.skillChoice.count ?? 0;
       return (
         draft.classSkills.length === classCount &&
-        draft.bonusSkills.length === bonusSkillCount(draft) &&
-        (!draft.race?.bonusChoice ||
-          draft.racialBonusAbilities.length === draft.race.bonusChoice.count)
+        draft.bonusSkills.length === bonusSkillCount(draft)
       );
     }
     default:
