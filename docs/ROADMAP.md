@@ -63,15 +63,15 @@ Derived values (modifiers, proficiency bonus, spell save DC, passive perception)
 ## 4. Milestones & subtasks
 
 ### Phase 0 — Foundations
-- [ ] Scaffold plugin: `manifest.json`, `main.ts`, esbuild config, hot-reload dev loop.
-- [ ] Add React + mount helper for `ItemView`-hosted React roots.
-- [ ] Define Zod schemas / TS types for the shared data model (§3).
-- [ ] Base CSS design tokens (works in Obsidian light & dark themes).
-- [ ] Ability-math library (modifiers, prof bonus, DCs) + unit tests.
+- [x] Scaffold plugin: `manifest.json`, `main.ts`, esbuild config, hot-reload dev loop.
+- [x] Add React + mount helper for `ItemView`-hosted React roots.
+- [x] Define Zod schemas / TS types for the shared data model (§3).
+- [x] Base CSS design tokens (works in Obsidian light & dark themes).
+- [x] Ability-math library (modifiers, prof bonus, DCs) + unit tests.
 
 ### Phase 1 — Character sheets + notes  *(MVP — build first, fully local)*
 - [ ] Character note format: frontmatter + JSON block; read/write serializer.
-- [ ] Guided **character creation** flow (race → class → background → abilities → skills).
+- [x] Guided **character creation** flow (race → class → background → abilities → skills). *(Static SRD data for now; result held in memory until the serializer lands.)*
 - [ ] Editable 5e **sheet view** (React): abilities, skills, saves, HP/AC, inventory, spells, features — with live auto-calc.
 - [ ] **CSS sheet renderer**: styled read mode + edit mode toggle.
 - [ ] Player **notes**: session journal + linked notes, using vault Markdown; visibility field.
