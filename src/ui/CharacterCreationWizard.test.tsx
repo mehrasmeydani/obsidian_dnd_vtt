@@ -108,6 +108,37 @@ describe("CharacterCreationWizard", () => {
     });
   });
 
+  it("allows jumping between steps via the header once they are reachable", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+    const stepButton = (name: string) =>
+      screen.getByRole("button", { name }) as HTMLButtonElement;
+
+    // Nothing filled in: later steps are locked.
+    expect(stepButton("Class").disabled).toBe(true);
+    expect(stepButton("Review").disabled).toBe(true);
+
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Borin" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+
+    // Step 1 is complete: Class unlocks, but steps beyond it stay locked.
+    expect(stepButton("Class").disabled).toBe(false);
+    expect(stepButton("Background").disabled).toBe(true);
+
+    fireEvent.click(stepButton("Class"));
+    fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
+    expect(stepButton("Background").disabled).toBe(false);
+
+    // Jump straight back to the first step — state is preserved.
+    fireEvent.click(stepButton("Name & Race"));
+    expect(
+      (screen.getByPlaceholderText(/Borin/) as HTMLInputElement).value,
+    ).toBe("Borin");
+  });
+
   it("supports races with bonus ability and skill choices (half-elf bard)", () => {
     const onComplete = vi.fn<(c: Character) => void>();
     render(

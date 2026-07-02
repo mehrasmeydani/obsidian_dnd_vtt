@@ -86,6 +86,15 @@ export function CharacterCreationWizard({
   );
   const stepValid = blockers.length === 0;
 
+  // Farthest step reachable via the header: the first incomplete step blocks
+  // everything after it (same gating as the Next button).
+  const maxStep = useMemo(() => {
+    for (let i = 0; i < STEPS.length - 1; i++) {
+      if (stepBlockers(i, draft, method, assignments).length > 0) return i;
+    }
+    return STEPS.length - 1;
+  }, [draft, method, assignments]);
+
   const switchMethod = (next: AbilityMethod) => {
     setMethod(next);
     setAssignments({ str: null, dex: null, con: null, int: null, wis: null, cha: null });
@@ -123,7 +132,13 @@ export function CharacterCreationWizard({
                     : undefined
               }
             >
-              {label}
+              <button
+                className="dvtt-wizard__step"
+                disabled={i > maxStep}
+                onClick={() => setStep(i)}
+              >
+                {label}
+              </button>
             </li>
           ))}
         </ol>
