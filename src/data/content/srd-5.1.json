@@ -121,6 +121,55 @@
           "name": "Damage Resistance",
           "description": "Resistance to the damage type of your draconic ancestry."
         }
+      ],
+      "optionChoices": [
+        {
+          "id": "dragonborn-ancestry",
+          "name": "Draconic Ancestry",
+          "description": "Your dragon type sets your breath weapon and damage resistance.",
+          "options": [
+            {
+              "id": "black",
+              "name": "Black (acid)"
+            },
+            {
+              "id": "blue",
+              "name": "Blue (lightning)"
+            },
+            {
+              "id": "brass",
+              "name": "Brass (fire)"
+            },
+            {
+              "id": "bronze",
+              "name": "Bronze (lightning)"
+            },
+            {
+              "id": "copper",
+              "name": "Copper (acid)"
+            },
+            {
+              "id": "gold",
+              "name": "Gold (fire)"
+            },
+            {
+              "id": "green",
+              "name": "Green (poison)"
+            },
+            {
+              "id": "red",
+              "name": "Red (fire)"
+            },
+            {
+              "id": "silver",
+              "name": "Silver (cold)"
+            },
+            {
+              "id": "white",
+              "name": "White (cold)"
+            }
+          ]
+        }
       ]
     },
     {
@@ -308,6 +357,19 @@
           "name": "Unarmored Defense",
           "description": "Without armor, AC = 10 + DEX mod + CON mod."
         }
+      ],
+      "subclassLevel": 3,
+      "subclasses": [
+        {
+          "id": "path-of-the-berserker",
+          "name": "Path of the Berserker",
+          "traits": [
+            {
+              "name": "Frenzy",
+              "description": "While raging, make a melee weapon attack as a bonus action each turn; exhaustion when the rage ends."
+            }
+          ]
+        }
       ]
     },
     {
@@ -397,6 +459,23 @@
         {
           "name": "Bardic Inspiration",
           "description": "Bonus action: give a creature a d6 to add to one roll (CHA mod uses per long rest)."
+        }
+      ],
+      "subclassLevel": 3,
+      "subclasses": [
+        {
+          "id": "college-of-lore",
+          "name": "College of Lore",
+          "traits": [
+            {
+              "name": "Bonus Proficiencies",
+              "description": "Proficiency with three skills of your choice."
+            },
+            {
+              "name": "Cutting Words",
+              "description": "Use Bardic Inspiration to subtract from an enemy's attack, check, or damage."
+            }
+          ]
         }
       ]
     },
@@ -512,6 +591,23 @@
           "name": "Divine Domain",
           "description": "Choose a domain that grants bonus spells and features."
         }
+      ],
+      "subclassLevel": 1,
+      "subclasses": [
+        {
+          "id": "life-domain",
+          "name": "Life Domain",
+          "traits": [
+            {
+              "name": "Bonus Proficiency",
+              "description": "Proficiency with heavy armor."
+            },
+            {
+              "name": "Disciple of Life",
+              "description": "Healing spells restore extra HP (2 + spell level)."
+            }
+          ]
+        }
       ]
     },
     {
@@ -594,6 +690,23 @@
         {
           "name": "Spellcasting",
           "description": "Cast druid spells using Wisdom; prepare from the full druid list."
+        }
+      ],
+      "subclassLevel": 2,
+      "subclasses": [
+        {
+          "id": "circle-of-the-land",
+          "name": "Circle of the Land",
+          "traits": [
+            {
+              "name": "Bonus Cantrip",
+              "description": "Learn one extra druid cantrip."
+            },
+            {
+              "name": "Natural Recovery",
+              "description": "Recover spell slots during a short rest once per day."
+            }
+          ]
         }
       ]
     },
@@ -712,6 +825,19 @@
           "name": "Second Wind",
           "description": "Bonus action: regain 1d10 + fighter level HP once per rest."
         }
+      ],
+      "subclassLevel": 3,
+      "subclasses": [
+        {
+          "id": "champion",
+          "name": "Champion",
+          "traits": [
+            {
+              "name": "Improved Critical",
+              "description": "Weapon attacks score a critical hit on a roll of 19 or 20."
+            }
+          ]
+        }
       ]
     },
     {
@@ -786,6 +912,19 @@
         {
           "name": "Martial Arts",
           "description": "Use DEX for unarmed strikes/monk weapons; bonus-action unarmed strike."
+        }
+      ],
+      "subclassLevel": 3,
+      "subclasses": [
+        {
+          "id": "way-of-the-open-hand",
+          "name": "Way of the Open Hand",
+          "traits": [
+            {
+              "name": "Open Hand Technique",
+              "description": "Flurry of Blows can knock prone, push 15 ft, or block reactions."
+            }
+          ]
         }
       ]
     },
@@ -883,6 +1022,23 @@
           "name": "Lay on Hands",
           "description": "Heal a pool of 5 × paladin level HP per long rest."
         }
+      ],
+      "subclassLevel": 3,
+      "subclasses": [
+        {
+          "id": "oath-of-devotion",
+          "name": "Oath of Devotion",
+          "traits": [
+            {
+              "name": "Sacred Weapon",
+              "description": "Channel Divinity: add CHA modifier to attack rolls with one weapon for 1 minute."
+            },
+            {
+              "name": "Turn the Unholy",
+              "description": "Channel Divinity: turn fiends and undead."
+            }
+          ]
+        }
       ]
     },
     {
@@ -979,6 +1135,19 @@
         {
           "name": "Natural Explorer",
           "description": "Expert navigator and tracker in a chosen terrain."
+        }
+      ],
+      "subclassLevel": 3,
+      "subclasses": [
+        {
+          "id": "hunter",
+          "name": "Hunter",
+          "traits": [
+            {
+              "name": "Hunter's Prey",
+              "description": "Choose Colossus Slayer, Giant Killer, or Horde Breaker."
+            }
+          ]
         }
       ]
     },
@@ -1094,6 +1263,23 @@
           "name": "Thieves' Cant",
           "description": "Secret rogue dialect of jargon and code."
         }
+      ],
+      "subclassLevel": 3,
+      "subclasses": [
+        {
+          "id": "thief",
+          "name": "Thief",
+          "traits": [
+            {
+              "name": "Fast Hands",
+              "description": "Cunning Action can also disarm traps, open locks, or use objects."
+            },
+            {
+              "name": "Second-Story Work",
+              "description": "Climb at full speed; longer running jumps."
+            }
+          ]
+        }
       ]
     },
     {
@@ -1187,6 +1373,23 @@
         {
           "name": "Sorcerous Origin",
           "description": "Choose the source of your innate magic (draconic bloodline, wild magic, ...)."
+        }
+      ],
+      "subclassLevel": 1,
+      "subclasses": [
+        {
+          "id": "draconic-bloodline",
+          "name": "Draconic Bloodline",
+          "traits": [
+            {
+              "name": "Dragon Ancestor",
+              "description": "Choose a dragon type; double proficiency on related CHA checks."
+            },
+            {
+              "name": "Draconic Resilience",
+              "description": "+1 HP per sorcerer level; unarmored AC 13 + DEX."
+            }
+          ]
         }
       ]
     },
@@ -1286,6 +1489,19 @@
           "name": "Pact Magic",
           "description": "Cast warlock spells using Charisma; slots recharge on a short rest."
         }
+      ],
+      "subclassLevel": 1,
+      "subclasses": [
+        {
+          "id": "the-fiend",
+          "name": "The Fiend",
+          "traits": [
+            {
+              "name": "Dark One's Blessing",
+              "description": "Gain temporary HP (CHA mod + warlock level) when you drop a hostile to 0."
+            }
+          ]
+        }
       ]
     },
     {
@@ -1375,6 +1591,23 @@
           "name": "Arcane Recovery",
           "description": "Recover spell slots (half wizard level) on a short rest, once per day."
         }
+      ],
+      "subclassLevel": 2,
+      "subclasses": [
+        {
+          "id": "school-of-evocation",
+          "name": "School of Evocation",
+          "traits": [
+            {
+              "name": "Evocation Savant",
+              "description": "Copy evocation spells into your spellbook at half cost and time."
+            },
+            {
+              "name": "Sculpt Spells",
+              "description": "Protect allies from your own evocation spells."
+            }
+          ]
+        }
       ]
     }
   ],
@@ -1427,6 +1660,13 @@
       "description": "Name your own background and choose any two skill proficiencies.",
       "traits": [],
       "equipment": []
+    }
+  ],
+  "feats": [
+    {
+      "id": "grappler",
+      "name": "Grappler",
+      "description": "Advantage on attack rolls against creatures you are grappling; you can try to pin a grappled creature (both restrained)."
     }
   ]
 }

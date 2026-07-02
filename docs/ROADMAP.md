@@ -77,34 +77,51 @@ Derived values (modifiers, proficiency bonus, spell save DC, passive perception)
 - [x] Guided **character creation** flow (race → class → background → abilities → skills). *(Static SRD data for now; result held in memory until the serializer lands.)*
   - [x] Step-header navigation: jump directly to any completed step.
 
-#### Character creation — completeness backlog
-Still to add, roughly in build order (items marked *(Phase 2)* want Open5e
-content first):
+#### Character creation — completeness map
 
-- [x] **Starting equipment**: class + background packages with pick-one
-      choices, written into `inventory`. *(Where the SRD says "any martial
-      weapon" we offer representative options until the Phase 2 weapon lists.)*
-- [x] **Starting level selection (1–20)**: average per-level HP, proficiency
-      bonus, and ASI point assignment (+2 per improvement, 20 cap).
-      *(Rolled HP still pending.)*
-- [x] **Content as data**: races/classes/backgrounds live in JSON bundles
-      (`src/data/content/`) validated by `contentSchema.ts` — not in code.
-- [ ] **Content importers**: convert external sources (5etools JSON export,
-      Open5e API) into content-bundle JSON. User supplies the data; only
-      SRD content ships with the plugin (licensing).
-- [ ] **Armor-aware AC**: compute AC from equipped armor/shield (and monk/
-      barbarian unarmored defense) instead of flat 10 + DEX.
-- [ ] **Rolled HP option** and **starting gold instead of equipment**.
-- [ ] **Spell selection for casters** *(Phase 2)*: cantrips + spells
-      known/prepared at the chosen level, from the content browser.
-- [ ] **Level-1 subclass choices** *(Phase 2 for content)*: cleric domain,
-      sorcerer origin, warlock patron.
-- [ ] **Languages & tool proficiencies** from race/background.
-- [ ] **Flavor fields**: alignment, personality/ideals/bonds/flaws,
-      appearance, backstory.
-- [ ] **Variant human / feats** *(needs feat data)*.
-- [ ] **Multiclassing** *(post-MVP; ties into a level-up editor, not the
-      creation wizard)*.
+**Done:** race/class/background selection · standard array, point buy, manual
+scores · racial bonus picks · starting level 1–20 with average HP + ASI
+points (20 cap) · skill choices · starting equipment packages with pick-one
+choices · step-header navigation · content as validated JSON bundles.
+
+**Missing, mapped by area** (data groundwork for 1–3 already sits in
+`srd-5.1.json`; the schema ignores those fields until each feature lands):
+
+1. **Subclasses**
+   - Data: per-class `subclassLevel` + `subclasses[]` with traits ✅ *(in
+     bundle: Life Domain, Champion, Thief, … one SRD subclass per class)*.
+   - Schema: validate the new fields; `Character.classes[].subclass`.
+   - Wizard: subclass cards on the Class step once `level ≥ subclassLevel`
+     (cleric/sorcerer/warlock start subclassed at level 1); traits become
+     features.
+2. **Feats**
+   - Rule: each ASI slot = +2 ability points **or** one feat.
+   - Data: top-level `feats[]` ✅ *(SRD ships only Grappler; more arrive via
+     imported bundles)*.
+   - Wizard: feat picker on the Abilities step consuming ASI slots; picked
+     feats become features. Unlocks **variant human** later.
+3. **Race & background options** (generic mechanism)
+   - Data: `optionChoices[]` — named choice, list of options ✅ *(in bundle:
+     dragonborn Draconic Ancestry, 10 types)*.
+   - Wizard: dropdown per choice on the Race/Background steps; the selection
+     becomes a feature. High-elf cantrip and dwarf tool choices need the
+     Phase 2 spell/tool lists.
+4. **Abilities & spells** *(Phase 2 — needs content browser)*
+   - Cantrips + spells known/prepared for casters at the chosen level.
+   - Class resources (rage uses, ki, sorcery points) on the sheet.
+5. **Character sheet CSS skin**
+   - User-supplied stylesheet incoming; keep `dvtt-*` class names stable so
+     the skin can replace `styles.css` sheet rules without markup changes.
+6. **Remaining creator items**
+   - [ ] Content importers: 5etools JSON export / Open5e API → bundle JSON
+         (user-supplied data; only SRD ships with the plugin).
+   - [ ] Armor-aware AC (equipped armor/shield, unarmored defense) instead
+         of flat 10 + DEX.
+   - [ ] Rolled HP option; starting gold instead of equipment.
+   - [ ] Languages & tool proficiencies from race/background.
+   - [ ] Flavor fields: alignment, personality/ideals/bonds/flaws,
+         appearance, backstory.
+   - [ ] Multiclassing *(post-MVP; belongs to a level-up editor)*.
 - [ ] Editable 5e **sheet view** (React): abilities, skills, saves, HP/AC, inventory, spells, features — with live auto-calc.
 - [ ] **CSS sheet renderer**: styled read mode + edit mode toggle.
 - [ ] Player **notes**: session journal + linked notes, using vault Markdown; visibility field.
