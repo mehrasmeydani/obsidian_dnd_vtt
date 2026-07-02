@@ -162,6 +162,14 @@
   gap: var(--size-4-2);
 }
 
+.dvtt-wizard__hint {
+  align-self: center;
+  margin-left: auto;
+  margin-right: var(--size-4-2);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
 /* Labeled text input */
 .dvtt-field {
   display: flex;
