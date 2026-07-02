@@ -70,7 +70,10 @@ Derived values (modifiers, proficiency bonus, spell save DC, passive perception)
 - [x] Ability-math library (modifiers, prof bonus, DCs) + unit tests.
 
 ### Phase 1 — Character sheets + notes  *(MVP — build first, fully local)*
-- [ ] Character note format: frontmatter + JSON block; read/write serializer.
+- [x] Character note format: frontmatter + JSON block; read/write serializer.
+      *(Wizard saves to the configurable characters folder; "Load character
+      from active note" command reads any marked note; user prose and foreign
+      frontmatter are preserved on update.)*
 - [x] Guided **character creation** flow (race → class → background → abilities → skills). *(Static SRD data for now; result held in memory until the serializer lands.)*
   - [x] Step-header navigation: jump directly to any completed step.
 
@@ -105,7 +108,9 @@ content first):
 - [ ] Editable 5e **sheet view** (React): abilities, skills, saves, HP/AC, inventory, spells, features — with live auto-calc.
 - [ ] **CSS sheet renderer**: styled read mode + edit mode toggle.
 - [ ] Player **notes**: session journal + linked notes, using vault Markdown; visibility field.
-- [ ] Validation + graceful handling of malformed/edited notes.
+- [x] Validation + graceful handling of malformed/edited notes. *(Parse
+      failures surface as readable notices; live note↔sheet binding lands
+      with the editable sheet.)*
 
 ### Phase 2 — 5e data (hybrid cache)
 - [ ] Open5e client + typed fetch layer.

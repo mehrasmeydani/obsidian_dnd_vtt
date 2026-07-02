@@ -1,6 +1,8 @@
 import esbuild from "esbuild";
 import process from "node:process";
-import builtins from "builtin-modules";
+// Node's own builtin list — avoids the builtin-modules package, whose v4
+// needs Node 20+ JSON import attributes and broke builds on Node 18.
+import { builtinModules } from "node:module";
 
 const production = process.argv[2] === "production";
 
@@ -26,7 +28,8 @@ const context = await esbuild.context({
     "@lezer/common",
     "@lezer/highlight",
     "@lezer/lr",
-    ...builtins,
+    ...builtinModules,
+    ...builtinModules.map((m) => `node:${m}`),
   ],
   format: "cjs",
   target: "es2020",

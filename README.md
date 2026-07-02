@@ -4,9 +4,9 @@ A virtual tabletop for D&D 5e, built as an **Obsidian plugin**: editable
 character sheets, notes, battle maps, and multiplayer sync for a self-hosted
 group. See [docs/ROADMAP.md](docs/ROADMAP.md) for architecture and the phased plan.
 
-> **Status:** Phase 1 in progress — foundations plus the guided character
-> creation wizard are in place. Created characters live in memory until the
-> character-note serializer lands.
+> **Status:** Phase 1 in progress — the guided creation wizard (races,
+> classes, backgrounds, levels, equipment) saves characters as vault notes
+> and loads them back. Next: the editable sheet view.
 
 ## Developing
 
@@ -31,7 +31,7 @@ and the bundle is ready to load into a vault.
 > `node_modules`, and under WSL files on `/mnt/c/...` don't deliver inotify
 > events, so esbuild's watch (`up dev`) won't fire.
 
-### With local Node (20+)
+### With local Node (18+)
 
 ```bash
 npm install

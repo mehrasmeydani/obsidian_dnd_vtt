@@ -10,7 +10,12 @@
     "typecheck": "tsc --noEmit --skipLibCheck",
     "test": "vitest run"
   },
-  "keywords": ["obsidian", "dnd", "vtt", "ttrpg"],
+  "keywords": [
+    "obsidian",
+    "dnd",
+    "vtt",
+    "ttrpg"
+  ],
   "author": "Mehras Meydani",
   "license": "MIT",
   "dependencies": {
@@ -24,7 +29,6 @@
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "builtin-modules": "^4.0.0",
     "esbuild": "^0.23.0",
     "jsdom": "^25.0.0",
     "obsidian": "^1.5.7",

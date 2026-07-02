@@ -1,4 +1,11 @@
-import { Plugin, type WorkspaceLeaf } from "obsidian";
+import {
+  Notice,
+  Plugin,
+  PluginSettingTab,
+  Setting,
+  type App,
+  type WorkspaceLeaf,
+} from "obsidian";
 import {
   CharacterSheetView,
   VIEW_TYPE_CHARACTER_SHEET,
@@ -7,18 +14,35 @@ import {
   CharacterCreationView,
   VIEW_TYPE_CHARACTER_CREATION,
 } from "./ui/CharacterCreationView";
+import {
+  loadCharacterNote,
+  saveCharacterNote,
+} from "./persistence/characterStore";
 import type { Character } from "./model/schema";
+
+interface DndVttSettings {
+  /** Vault folder where new character notes are created. */
+  charactersFolder: string;
+}
+
+const DEFAULT_SETTINGS: DndVttSettings = {
+  charactersFolder: "Characters",
+};
 
 /**
  * Plugin entry point. Registers the character-sheet view and the creation
- * wizard. A character finished in the wizard is held in memory and shown in
- * the sheet view; Phase 1's note serializer will persist it to the vault.
- * Later phases add the 5e content browser, sync, and map views.
+ * wizard. Finished characters are saved as vault notes (frontmatter + JSON
+ * block, see `persistence/characterNote.ts`) and can be loaded back from any
+ * such note. Later phases add the 5e content browser, sync, and map views.
  */
 export default class DndVttPlugin extends Plugin {
+  settings: DndVttSettings = { ...DEFAULT_SETTINGS };
   private activeCharacter: Character | null = null;
 
   async onload(): Promise<void> {
+    await this.loadSettings();
+    this.addSettingTab(new DndVttSettingTab(this.app, this));
+
     this.registerView(
       VIEW_TYPE_CHARACTER_SHEET,
       (leaf) => new CharacterSheetView(leaf, () => this.activeCharacter),
@@ -52,11 +76,26 @@ export default class DndVttPlugin extends Plugin {
         void this.activateCharacterCreation();
       },
     });
+    this.addCommand({
+      id: "load-character-from-note",
+      name: "Load character from active note",
+      callback: () => {
+        void this.loadCharacterFromActiveNote();
+      },
+    });
   }
 
   async onunload(): Promise<void> {
     // Obsidian detaches leaves of unloaded plugins automatically; nothing extra
     // to clean up yet.
+  }
+
+  async loadSettings(): Promise<void> {
+    this.settings = { ...DEFAULT_SETTINGS, ...((await this.loadData()) ?? {}) };
+  }
+
+  async saveSettings(): Promise<void> {
+    await this.saveData(this.settings);
   }
 
   /** Reveal an existing sheet leaf or create one in the right sidebar. */
@@ -97,9 +136,33 @@ export default class DndVttPlugin extends Plugin {
     workspace.revealLeaf(leaf);
   }
 
-  /** Wizard finished: keep the character, close the wizard, show the sheet. */
-  private async finishCharacterCreation(character: Character): Promise<void> {
+  /** Show `character` in every open sheet view (and remember it). */
+  private showCharacter(character: Character): void {
     this.activeCharacter = character;
+    for (const leaf of this.app.workspace.getLeavesOfType(
+      VIEW_TYPE_CHARACTER_SHEET,
+    )) {
+      if (leaf.view instanceof CharacterSheetView) {
+        leaf.view.setCharacter(character);
+      }
+    }
+  }
+
+  /** Wizard finished: persist the character, close the wizard, show the sheet. */
+  private async finishCharacterCreation(character: Character): Promise<void> {
+    try {
+      const file = await saveCharacterNote(
+        this.app,
+        character,
+        this.settings.charactersFolder,
+      );
+      new Notice(`Character saved to ${file.path}`);
+    } catch (error) {
+      console.error("D&D VTT: failed to save character note", error);
+      new Notice(
+        "Failed to save the character note — the character is still open in the sheet. See the developer console for details.",
+      );
+    }
 
     for (const leaf of this.app.workspace.getLeavesOfType(
       VIEW_TYPE_CHARACTER_CREATION,
@@ -108,12 +171,51 @@ export default class DndVttPlugin extends Plugin {
     }
 
     await this.activateCharacterSheet();
-    for (const leaf of this.app.workspace.getLeavesOfType(
-      VIEW_TYPE_CHARACTER_SHEET,
-    )) {
-      if (leaf.view instanceof CharacterSheetView) {
-        leaf.view.setCharacter(character);
-      }
+    this.showCharacter(character);
+  }
+
+  /** Parse the active note as a character and show it in the sheet. */
+  private async loadCharacterFromActiveNote(): Promise<void> {
+    const file = this.app.workspace.getActiveFile();
+    if (!file) {
+      new Notice("Open a character note first.");
+      return;
     }
+    const result = await loadCharacterNote(this.app, file);
+    if (!result.ok) {
+      new Notice(result.error);
+      return;
+    }
+    await this.activateCharacterSheet();
+    this.showCharacter(result.character);
+  }
+}
+
+class DndVttSettingTab extends PluginSettingTab {
+  constructor(
+    app: App,
+    private plugin: DndVttPlugin,
+  ) {
+    super(app, plugin);
+  }
+
+  display(): void {
+    this.containerEl.empty();
+
+    new Setting(this.containerEl)
+      .setName("Characters folder")
+      .setDesc(
+        'Vault folder where new character notes are created, e.g. "Hell dnd/Pc". Created if missing.',
+      )
+      .addText((text) =>
+        text
+          .setPlaceholder(DEFAULT_SETTINGS.charactersFolder)
+          .setValue(this.plugin.settings.charactersFolder)
+          .onChange(async (value) => {
+            this.plugin.settings.charactersFolder =
+              value.trim() || DEFAULT_SETTINGS.charactersFolder;
+            await this.plugin.saveSettings();
+          }),
+      );
   }
 }
