@@ -1,0 +1,13 @@
+# build output
+main.js
+main.js.map
+
+# deps
+node_modules/
+
+# obsidian test vault (if any)
+test-vault/
+
+# misc
+.DS_Store
+*.log
