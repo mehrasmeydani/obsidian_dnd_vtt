@@ -1,0 +1,9 @@
+{
+  "id": "obsidian-dnd-vtt",
+  "name": "D&D VTT",
+  "version": "0.0.1",
+  "minAppVersion": "1.4.0",
+  "description": "A virtual tabletop for D&D 5e: editable character sheets, notes, battle maps, and multiplayer sync.",
+  "author": "Mehras Meydani",
+  "isDesktopOnly": true
+}

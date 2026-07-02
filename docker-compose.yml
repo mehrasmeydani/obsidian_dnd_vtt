@@ -1,0 +1,36 @@
+# Cross-platform dev/build for the plugin. Requires only Docker — no local Node.
+#
+#   docker compose run --rm install  # populate node_modules (also gives the IDE types)
+#   docker compose run --rm test     # run the vitest suite
+#   docker compose run --rm build    # write a production main.js into the repo
+#   docker compose up dev            # esbuild watch loop (rebuilds main.js on save)
+#
+# The repo (including node_modules) is bind-mounted, so dependencies and build
+# output land on the host: the IDE gets IntelliSense and main.js is ready to
+# copy into a vault's .obsidian/plugins/ folder. Keep this repo on a native
+# Linux/Windows path (not a OneDrive-synced folder) to avoid sync churn.
+
+services:
+  install:
+    build: .
+    command: npm install
+    volumes:
+      - .:/app
+
+  test:
+    build: .
+    command: sh -c "npm install && npm test"
+    volumes:
+      - .:/app
+
+  build:
+    build: .
+    command: sh -c "npm install && npm run build"
+    volumes:
+      - .:/app
+
+  dev:
+    build: .
+    command: sh -c "npm install && npm run dev"
+    volumes:
+      - .:/app
