@@ -46,14 +46,18 @@ describe("CharacterCreationWizard", () => {
       <CharacterCreationWizard onComplete={onComplete} onCancel={() => {}} />,
     );
 
-    // Step 1: name & race. Next stays disabled until both are set.
+    // Step 1: name & race. Next stays disabled — with an explanation — until
+    // both are set.
     expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText("Enter a character name.")).toBeTruthy();
     fireEvent.change(screen.getByPlaceholderText(/Borin/), {
       target: { value: "Borin" },
     });
     expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText("Select a race.")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
     expect(nextButton().disabled).toBe(false);
+    expect(screen.queryByText("Select a race.")).toBeNull();
     fireEvent.click(nextButton());
 
     // Step 2: class.

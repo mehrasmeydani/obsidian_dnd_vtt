@@ -80,10 +80,11 @@ export function CharacterCreationWizard({
   const update = (patch: Partial<CharacterDraft>) =>
     setDraft((d) => ({ ...d, ...patch }));
 
-  const stepValid = useMemo(
-    () => isStepValid(step, draft, method, assignments),
+  const blockers = useMemo(
+    () => stepBlockers(step, draft, method, assignments),
     [step, draft, method, assignments],
   );
+  const stepValid = blockers.length === 0;
 
   const switchMethod = (next: AbilityMethod) => {
     setMethod(next);
@@ -150,6 +151,9 @@ export function CharacterCreationWizard({
 
       <footer className="dvtt-wizard__footer">
         <button onClick={onCancel}>Cancel</button>
+        {!stepValid && (
+          <span className="dvtt-wizard__hint">{blockers[0]}</span>
+        )}
         <div className="dvtt-wizard__nav">
           {step > 0 && (
             <button onClick={() => setStep(step - 1)}>Back</button>
@@ -180,47 +184,73 @@ export function CharacterCreationWizard({
   );
 }
 
-function isStepValid(
+/**
+ * What still blocks the current step, as user-facing messages. Empty means
+ * Next is allowed; the first message is shown beside the disabled button so
+ * the user always knows what the wizard is waiting for.
+ */
+function stepBlockers(
   step: number,
   draft: CharacterDraft,
   method: AbilityMethod,
   assignments: Record<Ability, number | null>,
-): boolean {
+): string[] {
+  const blockers: string[] = [];
   switch (step) {
     case 0:
-      return draft.name.trim().length > 0 && draft.race !== null;
+      if (!draft.name.trim()) blockers.push("Enter a character name.");
+      if (!draft.race) blockers.push("Select a race.");
+      break;
     case 1:
-      return draft.charClass !== null;
+      if (!draft.charClass) blockers.push("Select a class.");
+      break;
     case 2:
-      return draft.background !== null;
+      if (!draft.background) blockers.push("Select a background.");
+      break;
     case 3: {
       // The racial bonus picker lives on this step, so it gates here.
-      const racialPicked =
-        !draft.race?.bonusChoice ||
-        draft.racialBonusAbilities.length === draft.race.bonusChoice.count;
-      if (!racialPicked) return false;
+      if (draft.race?.bonusChoice) {
+        const { count, amount } = draft.race.bonusChoice;
+        const left = count - draft.racialBonusAbilities.length;
+        if (left > 0) {
+          blockers.push(`Pick ${left} more abilit${left === 1 ? "y" : "ies"} for the racial +${amount}.`);
+        }
+      }
       if (method === "standard") {
-        return ABILITIES.every((a) => assignments[a] !== null);
-      }
-      if (method === "pointBuy") {
+        const left = ABILITIES.filter((a) => assignments[a] === null).length;
+        if (left > 0) {
+          blockers.push(`Assign all six standard-array values (${left} left).`);
+        }
+      } else if (method === "pointBuy") {
         const total = pointBuyTotal(draft.baseScores);
-        return total !== null && total <= POINT_BUY_BUDGET;
+        if (total === null || total > POINT_BUY_BUDGET) {
+          blockers.push(`Stay within the ${POINT_BUY_BUDGET}-point budget.`);
+        }
+      } else {
+        const allValid = ABILITIES.every((a) => {
+          const s = draft.baseScores[a];
+          return Number.isInteger(s) && s >= 1 && s <= 30;
+        });
+        if (!allValid) {
+          blockers.push("Scores must be whole numbers from 1 to 30.");
+        }
       }
-      return ABILITIES.every((a) => {
-        const s = draft.baseScores[a];
-        return Number.isInteger(s) && s >= 1 && s <= 30;
-      });
+      break;
     }
     case 4: {
-      const classCount = draft.charClass?.skillChoice.count ?? 0;
-      return (
-        draft.classSkills.length === classCount &&
-        draft.bonusSkills.length === bonusSkillCount(draft)
-      );
+      const classLeft =
+        (draft.charClass?.skillChoice.count ?? 0) - draft.classSkills.length;
+      if (classLeft > 0) {
+        blockers.push(`Choose ${classLeft} more class skill${classLeft === 1 ? "" : "s"}.`);
+      }
+      const bonusLeft = bonusSkillCount(draft) - draft.bonusSkills.length;
+      if (bonusLeft > 0) {
+        blockers.push(`Choose ${bonusLeft} more additional skill${bonusLeft === 1 ? "" : "s"}.`);
+      }
+      break;
     }
-    default:
-      return true;
   }
+  return blockers;
 }
 
 function NameRaceStep({
