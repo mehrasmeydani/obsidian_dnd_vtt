@@ -23,10 +23,15 @@ Phase 0 done; Phase 1 mostly done:
   frontmatter are preserved on update (`src/persistence/characterNote.ts`).
   Commands: "Create character", "Open character sheet", "Load character from
   active note". Setting: characters folder.
-- Sheet view is still the read-only preview, restyled to the user's sheet
-  design (T-02 done, user-verified). **Next big items: editable sheet
-  view; subclasses/feats/race-options (data groundwork already in the bundle,
-  schema ignores it until implemented); Phase 2 content store.**
+- Sheet view is editable (T-01): `src/ui/CharacterSheet.tsx` replaces the old
+  preview. Play controls (damage/heal with temp-first order, resource pips,
+  short/long rest, spell prepared) are always live; an Edit toggle unlocks
+  name/scores/AC/speed/max HP, save + skill proficiency toggles, inventory,
+  spells, and notes. Derived values are always computed. The view binds a
+  vault note (wizard finish, "Load character from active note", or the
+  active note on open), debounces saves 800 ms through the prose-preserving
+  serializer, and refreshes on external edits (self-writes skipped via a
+  counter). **Next big items: feats/race-options; Phase 2 content store.**
 - Leveled class features (T-19) + proficiencies-as-data (T-20) are in: class
   JSON now uses `features: [{level, name, description, effects?}]` (scaling
   tiers share a name; the highest tier ≤ level wins), plus `proficiencies`

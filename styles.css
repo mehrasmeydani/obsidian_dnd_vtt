@@ -710,3 +710,205 @@
 .dvtt-tile--proficiencies {
   margin-top: var(--size-4-3);
 }
+
+/* ─── Editable sheet (T-01) ─── */
+
+.dvtt-sheet__headline {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.dvtt-sheet__headline h2 {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.dvtt-sheet__name-input {
+  flex-grow: 1;
+  font-size: 1.4em;
+  font-weight: 700;
+}
+
+.dvtt-sheet__edit-toggle {
+  flex-shrink: 0;
+}
+
+.dvtt-sheet__unbound {
+  margin-top: var(--size-2-2);
+  padding: var(--size-2-2) var(--size-4-2);
+  border-radius: var(--radius-s);
+  background: var(--background-modifier-error-hover);
+  color: var(--text-error);
+  font-size: var(--font-ui-smaller);
+}
+
+.dvtt-hp-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-2-2);
+}
+
+.dvtt-hp-controls input[type="number"] {
+  width: 5ch;
+  text-align: center;
+}
+
+.dvtt-hp-controls__temp {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-1);
+  margin-left: var(--size-4-2);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.dvtt-hp__max .dvtt-number-field {
+  width: 5ch;
+  font-size: 0.5em;
+}
+
+/* Rest tile: resource pip rows + rest buttons */
+
+.dvtt-resource {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--size-4-2);
+}
+
+.dvtt-resource__name {
+  font-size: var(--font-ui-small);
+}
+
+.dvtt-resource__unlimited {
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--text-accent);
+}
+
+.dvtt-pips {
+  display: flex;
+  gap: var(--size-2-1);
+}
+
+.dvtt-pip {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--text-accent);
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.dvtt-pip.is-filled {
+  background: var(--text-accent);
+}
+
+.dvtt-rest-buttons {
+  display: flex;
+  justify-content: center;
+  gap: var(--size-2-2);
+  margin-top: auto;
+}
+
+/* Editable stat/skill widgets */
+
+.dvtt-sheet-stat__score .dvtt-number-field,
+.dvtt-mini .dvtt-number-field {
+  width: 6ch;
+  text-align: center;
+}
+
+.dvtt-skill--toggle {
+  width: 100%;
+  background: none;
+  box-shadow: none;
+  height: auto;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.dvtt-save__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-1);
+  cursor: pointer;
+}
+
+/* Inventory + spell editors */
+
+.dvtt-inv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2-2);
+}
+
+.dvtt-inv__row {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-2);
+}
+
+.dvtt-inv__row input[type="text"] {
+  flex-grow: 1;
+}
+
+.dvtt-inv__row .dvtt-number-field {
+  width: 6ch;
+}
+
+.dvtt-inv__equipped {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-1);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.dvtt-inv__add,
+.dvtt-spell-list__add {
+  align-self: flex-start;
+}
+
+.dvtt-chip.is-equipped {
+  border: 1px solid var(--text-accent);
+}
+
+.dvtt-spell-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2-2);
+}
+
+.dvtt-spell {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-2);
+}
+
+.dvtt-spell input[type="text"] {
+  flex-grow: 1;
+}
+
+.dvtt-spell .dvtt-number-field {
+  width: 5ch;
+}
+
+.dvtt-spell__level {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.dvtt-tile--notes textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.dvtt-sheet__notes {
+  margin: 0;
+  white-space: pre-wrap;
+}

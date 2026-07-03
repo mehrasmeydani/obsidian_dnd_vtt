@@ -11,7 +11,7 @@ flip its status here and tick the roadmap item it maps to.
 
 | # | Ticket | Priority | Size | Phase | Depends on | Status |
 |---|--------|----------|------|-------|------------|--------|
-| [T-01](T-01-editable-character-sheet.md) | Editable character sheet view | P1 | L | 1 | — | todo |
+| [T-01](T-01-editable-character-sheet.md) | Editable character sheet view | P1 | L | 1 | — | done |
 | [T-02](T-02-sheet-css-skin.md) | Character sheet CSS skin | P1 | S | 1 | user CSS file | done |
 | [T-03](T-03-subclasses.md) | Subclass selection in wizard | P1 | M | 1 | — | done |
 | [T-18](T-18-class-feature-options.md) | Class feature options in wizard | P1 | M | 1 | T-03 | done |

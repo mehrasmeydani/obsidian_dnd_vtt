@@ -9,6 +9,7 @@ import {
 import {
   CharacterSheetView,
   VIEW_TYPE_CHARACTER_SHEET,
+  type BoundCharacter,
 } from "./ui/CharacterSheetView";
 import {
   CharacterCreationView,
@@ -18,6 +19,7 @@ import {
   loadCharacterNote,
   saveCharacterNote,
 } from "./persistence/characterStore";
+import type { TFile } from "obsidian";
 import type { Character } from "./model/schema";
 
 interface DndVttSettings {
@@ -37,7 +39,7 @@ const DEFAULT_SETTINGS: DndVttSettings = {
  */
 export default class DndVttPlugin extends Plugin {
   settings: DndVttSettings = { ...DEFAULT_SETTINGS };
-  private activeCharacter: Character | null = null;
+  private activeCharacter: BoundCharacter | null = null;
 
   async onload(): Promise<void> {
     await this.loadSettings();
@@ -136,22 +138,23 @@ export default class DndVttPlugin extends Plugin {
     workspace.revealLeaf(leaf);
   }
 
-  /** Show `character` in every open sheet view (and remember it). */
-  private showCharacter(character: Character): void {
-    this.activeCharacter = character;
+  /** Show `character` (bound to `file`) in every open sheet view. */
+  private showCharacter(character: Character, file: TFile | null): void {
+    this.activeCharacter = { character, file };
     for (const leaf of this.app.workspace.getLeavesOfType(
       VIEW_TYPE_CHARACTER_SHEET,
     )) {
       if (leaf.view instanceof CharacterSheetView) {
-        leaf.view.setCharacter(character);
+        leaf.view.setCharacter(character, file);
       }
     }
   }
 
   /** Wizard finished: persist the character, close the wizard, show the sheet. */
   private async finishCharacterCreation(character: Character): Promise<void> {
+    let file: TFile | null = null;
     try {
-      const file = await saveCharacterNote(
+      file = await saveCharacterNote(
         this.app,
         character,
         this.settings.charactersFolder,
@@ -171,7 +174,7 @@ export default class DndVttPlugin extends Plugin {
     }
 
     await this.activateCharacterSheet();
-    this.showCharacter(character);
+    this.showCharacter(character, file);
   }
 
   /** Parse the active note as a character and show it in the sheet. */
@@ -187,7 +190,7 @@ export default class DndVttPlugin extends Plugin {
       return;
     }
     await this.activateCharacterSheet();
-    this.showCharacter(result.character);
+    this.showCharacter(result.character, file);
   }
 }
 
