@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BACKGROUNDS, CLASSES, RACES } from "../data/srd";
+import { BACKGROUNDS, CLASSES, FEATS, RACES } from "../data/srd";
 import {
   POINT_BUY_BUDGET,
   asiCount,
@@ -401,6 +401,72 @@ describe("2024 (5.5e) class variants", () => {
     const mastery = character.features.find((f) => f.name === "Weapon Mastery");
     expect(mastery?.source).toBe("Barbarian");
     expect(character.features.map((f) => f.name)).toContain("Rage");
+  });
+});
+
+describe("feats as an ASI alternative (T-04)", () => {
+  const grappler = FEATS.find((f) => f.id === "grappler")!;
+
+  it("ships Grappler in the SRD bundle", () => {
+    expect(grappler).toBeDefined();
+  });
+
+  it("removes a flipped level's 2 points from the pool, even before a pick", () => {
+    const draft = leveledDraft(6); // fighter: ASIs at 4 and 6
+    expect(asiPointsTotal(draft)).toBe(4);
+    draft.asiFeats = { 4: null };
+    expect(asiPointsTotal(draft)).toBe(2);
+    draft.asiFeats = { 4: null, 6: grappler };
+    expect(asiPointsTotal(draft)).toBe(0);
+  });
+
+  it("requires a feat pick for a level flipped to feat", () => {
+    const draft: CharacterDraft = { ...leveledDraft(4), asiFeats: { 4: null } };
+    expect(validateDraft(draft)).toContain(
+      "Choose a feat for the level-4 improvement.",
+    );
+    draft.asiFeats = { 4: grappler };
+    expect(validateDraft(draft)).toEqual([]);
+  });
+
+  it("rejects feats on levels without an earned improvement", () => {
+    const draft = { ...leveledDraft(4), asiFeats: { 6: grappler } };
+    expect(validateDraft(draft)).toContain(
+      "No ability score improvement is earned at level 6.",
+    );
+  });
+
+  it("rejects taking the same feat twice", () => {
+    const draft = {
+      ...leveledDraft(6),
+      asiFeats: { 4: grappler, 6: grappler },
+    };
+    expect(validateDraft(draft)).toContain("Each feat can only be taken once.");
+  });
+
+  it("rejects feats without a class", () => {
+    const draft = { ...emptyDraft(), asiFeats: { 4: grappler } };
+    expect(validateDraft(draft)).toContain(
+      "Choose a class before spending improvements on feats.",
+    );
+  });
+
+  it("mixes points and a feat, and puts the feat on the character", () => {
+    const draft: CharacterDraft = {
+      ...leveledDraft(6),
+      asiFeats: { 6: grappler },
+      asiBonuses: { str: 2 }, // the level-4 improvement stays on points
+    };
+    expect(validateDraft(draft)).toEqual([]);
+    const character = assembleCharacter(draft, "test-id");
+    expect(character.abilityScores.str).toBe(17); // 15 base + 2 ASI
+    const feat = character.features.find((f) => f.name === "Grappler");
+    expect(feat).toMatchObject({
+      id: "feat-grappler",
+      source: "Feat",
+      level: 6,
+    });
+    expect(feat?.description).toMatch(/grappl/i);
   });
 });
 

@@ -10,9 +10,11 @@ import {
 import {
   BACKGROUNDS,
   CLASSES,
+  FEATS,
   RACES,
   type BackgroundData,
   type ClassData,
+  type FeatData,
   type FeatureChoice,
   type RaceData,
   type SubclassData,
@@ -30,7 +32,9 @@ import {
   assembleCharacter,
   bonusSkillCount,
   draftProficientSkills,
+  earnedAsiLevels,
   emptyDraft,
+  featProblems,
   featureChoiceProblems,
   featureSkillPicks,
   finalAbilityScores,
@@ -77,12 +81,14 @@ export interface WizardContent {
   races: RaceData[];
   classes: ClassData[];
   backgrounds: BackgroundData[];
+  feats: FeatData[];
 }
 
 const SRD_CONTENT: WizardContent = {
   races: RACES,
   classes: CLASSES,
   backgrounds: BACKGROUNDS,
+  feats: FEATS,
 };
 
 /**
@@ -199,6 +205,7 @@ export function CharacterCreationWizard({
             switchMethod={switchMethod}
             assignments={assignments}
             assignStandard={assignStandard}
+            feats={content.feats}
           />
         )}
         {step === 5 && <SkillsStep draft={draft} update={update} />}
@@ -293,7 +300,12 @@ function stepBlockers(
         blockers.push(
           `Assign ${asiLeft} more improvement point${asiLeft === 1 ? "" : "s"}.`,
         );
+      } else if (asiLeft < 0) {
+        blockers.push(
+          `Remove ${-asiLeft} improvement point${asiLeft === -1 ? "" : "s"}.`,
+        );
       }
+      blockers.push(...featProblems(draft));
       if (method === "standard") {
         const left = ABILITIES.filter((a) => assignments[a] === null).length;
         if (left > 0) {
@@ -450,6 +462,7 @@ function ClassStep({
       charClass,
       classSkills: [],
       asiBonuses: {},
+      asiFeats: {},
       subclass: null,
       featurePicks: {},
       equipmentChoices: charClass.equipment.choices.map(() => 0),
@@ -466,6 +479,7 @@ function ClassStep({
     update({
       level,
       asiBonuses: {},
+      asiFeats: {},
       subclass,
       featurePicks: prunePicks(
         draft.featurePicks,
@@ -945,6 +959,7 @@ function AbilitiesStep({
   switchMethod,
   assignments,
   assignStandard,
+  feats,
 }: {
   draft: CharacterDraft;
   update: (p: Partial<CharacterDraft>) => void;
@@ -952,6 +967,7 @@ function AbilitiesStep({
   switchMethod: (m: AbilityMethod) => void;
   assignments: Record<Ability, number | null>;
   assignStandard: (ability: Ability, value: number | null) => void;
+  feats: FeatData[];
 }) {
   const final = finalAbilityScores(draft);
   const spent = pointBuyTotal(draft.baseScores);
@@ -1068,25 +1084,35 @@ function AbilitiesStep({
         <RacialBonusPicker draft={draft} update={update} />
       )}
 
-      {asiPointsTotal(draft) > 0 && <AsiPicker draft={draft} update={update} />}
+      {draft.charClass &&
+        earnedAsiLevels(draft.charClass, draft.level).length > 0 && (
+          <AsiPicker draft={draft} update={update} feats={feats} />
+        )}
     </div>
   );
 }
 
 /**
  * Ability Score Improvements for characters starting above the class's first
- * ASI level: two +1 points per improvement, no score above 20.
+ * ASI level. Each earned improvement is its own "+2 points or a feat" choice
+ * (T-04); the point pool below covers the improvements left on points, with
+ * no score above 20.
  */
 function AsiPicker({
   draft,
   update,
+  feats,
 }: {
   draft: CharacterDraft;
   update: (p: Partial<CharacterDraft>) => void;
+  feats: FeatData[];
 }) {
   const total = asiPointsTotal(draft);
   const spent = asiPointsSpent(draft);
   const finals = finalAbilityScores(draft);
+  const levels = draft.charClass
+    ? earnedAsiLevels(draft.charClass, draft.level)
+    : [];
 
   const adjust = (ability: Ability, delta: number) => {
     const current = draft.asiBonuses[ability] ?? 0;
@@ -1095,34 +1121,114 @@ function AsiPicker({
     });
   };
 
+  const setMode = (level: number, useFeat: boolean) => {
+    const asiFeats = { ...draft.asiFeats };
+    if (useFeat) asiFeats[level] = asiFeats[level] ?? null;
+    else delete asiFeats[level];
+    // The pool shrinks when a level flips to a feat; drop assigned points
+    // that no longer fit rather than leaving an over-spent pool.
+    const newTotal = 2 * Math.max(0, levels.length - Object.keys(asiFeats).length);
+    update({
+      asiFeats,
+      ...(asiPointsSpent(draft) > newTotal ? { asiBonuses: {} } : {}),
+    });
+  };
+
+  const pickFeat = (level: number, featId: string) => {
+    const feat = feats.find((f) => f.id === featId) ?? null;
+    update({ asiFeats: { ...draft.asiFeats, [level]: feat } });
+  };
+
+  const takenFeatIds = new Set(
+    Object.values(draft.asiFeats)
+      .filter((f): f is FeatData => f !== null)
+      .map((f) => f.id),
+  );
+
   return (
     <div className="dvtt-choice-group">
       <h4>
         Ability score improvements — level {draft.level}{" "}
         {draft.charClass?.name} ({spent}/{total} points)
       </h4>
-      <div className="dvtt-checkboxes">
-        {ABILITIES.map((ability) => {
-          const points = draft.asiBonuses[ability] ?? 0;
-          return (
-            <span className="dvtt-asi-row" key={ability}>
-              <span className="dvtt-asi-row__name">
-                {ABILITY_LABELS[ability]}
+
+      {feats.length > 0 && (
+        <div className="dvtt-asi-levels">
+          {levels.map((level) => {
+            const isFeat = level in draft.asiFeats;
+            const picked = draft.asiFeats[level];
+            return (
+              <div className="dvtt-asi-level" key={level}>
+                <span className="dvtt-asi-level__name">Level {level}</span>
+                <label>
+                  <input
+                    type="radio"
+                    name={`dvtt-asi-mode-${level}`}
+                    checked={!isFeat}
+                    onChange={() => setMode(level, false)}
+                  />
+                  +2 points
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name={`dvtt-asi-mode-${level}`}
+                    checked={isFeat}
+                    onChange={() => setMode(level, true)}
+                  />
+                  Feat
+                </label>
+                {isFeat && (
+                  <select
+                    aria-label={`Feat for level ${level}`}
+                    value={picked?.id ?? ""}
+                    onChange={(e) => pickFeat(level, e.target.value)}
+                  >
+                    <option value="">Choose a feat…</option>
+                    {feats.map((feat) => (
+                      <option
+                        key={feat.id}
+                        value={feat.id}
+                        title={feat.description}
+                        disabled={
+                          feat.id !== picked?.id && takenFeatIds.has(feat.id)
+                        }
+                      >
+                        {feat.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {total > 0 && (
+        <div className="dvtt-checkboxes">
+          {ABILITIES.map((ability) => {
+            const points = draft.asiBonuses[ability] ?? 0;
+            return (
+              <span className="dvtt-asi-row" key={ability}>
+                <span className="dvtt-asi-row__name">
+                  {ABILITY_LABELS[ability]}
+                </span>
+                <button disabled={points <= 0} onClick={() => adjust(ability, -1)}>
+                  −
+                </button>
+                <span className="dvtt-asi-row__points">+{points}</span>
+                <button
+                  disabled={spent >= total || finals[ability] >= ABILITY_SCORE_CAP}
+                  onClick={() => adjust(ability, 1)}
+                >
+                  +
+                </button>
               </span>
-              <button disabled={points <= 0} onClick={() => adjust(ability, -1)}>
-                −
-              </button>
-              <span className="dvtt-asi-row__points">+{points}</span>
-              <button
-                disabled={spent >= total || finals[ability] >= ABILITY_SCORE_CAP}
-                onClick={() => adjust(ability, 1)}
-              >
-                +
-              </button>
-            </span>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

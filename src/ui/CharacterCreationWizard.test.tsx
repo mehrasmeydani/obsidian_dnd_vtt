@@ -173,6 +173,24 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(plusButtons[0]); // STR +1
     fireEvent.click(plusButtons[2]); // CON +1
     expect(nextButton().disabled).toBe(false);
+
+    // Flip the level-4 improvement to a feat (T-04): the assigned points no
+    // longer fit the shrunken pool and are dropped; a pick is now owed.
+    const levelRow = asiGroup.getByText("Level 4").parentElement!;
+    fireEvent.click(within(levelRow).getByLabelText("Feat"));
+    expect(nextButton().disabled).toBe(true);
+    expect(
+      screen.getByText("Choose a feat for the level-4 improvement."),
+    ).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Feat for level 4"), {
+      target: { value: "grappler" },
+    });
+    expect(nextButton().disabled).toBe(false);
+
+    // Flipping back to points re-opens the 2-point pool.
+    fireEvent.click(within(levelRow).getByLabelText("+2 points"));
+    expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText(/Assign 2 more improvement points/)).toBeTruthy();
   });
 
   it("allows jumping between steps via the header once they are reachable", () => {

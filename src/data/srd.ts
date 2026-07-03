@@ -14,6 +14,7 @@ const SRD = parseContentBundle(srdRaw);
 export const RACES = SRD.races;
 export const CLASSES = SRD.classes;
 export const BACKGROUNDS = SRD.backgrounds;
+export const FEATS = SRD.feats;
 
 export type {
   BackgroundData,
@@ -23,6 +24,7 @@ export type {
   ContentBundle,
   EquipmentChoice,
   EquipmentItem,
+  FeatData,
   FeatureChoice,
   FeatureEffect,
   Proficiencies,

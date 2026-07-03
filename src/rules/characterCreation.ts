@@ -14,6 +14,7 @@ import type {
   ClassData,
   ClassFeature,
   EquipmentItem,
+  FeatData,
   FeatureChoice,
   RaceData,
   SubclassData,
@@ -83,6 +84,13 @@ export interface CharacterDraft {
   racialBonusAbilities: Ability[];
   /** +1s from Ability Score Improvements (2 points per ASI level reached). */
   asiBonuses: Partial<Record<Ability, number>>;
+  /**
+   * ASI levels spent on a feat instead of points, keyed by the ASI level
+   * (4/8/… per class). `null` marks a level flipped to "feat" with no feat
+   * picked yet — a validation error until resolved. Each feat spent removes
+   * that level's 2 points from the pool.
+   */
+  asiFeats: Record<number, FeatData | null>;
   /** Skills picked from the class list. */
   classSkills: Skill[];
   /** Skills picked from "choose any" pools (race and/or background). */
@@ -109,6 +117,7 @@ export function emptyDraft(): CharacterDraft {
     baseScores: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
     racialBonusAbilities: [],
     asiBonuses: {},
+    asiFeats: {},
     classSkills: [],
     bonusSkills: [],
     equipmentChoices: [],
@@ -198,12 +207,24 @@ export function draftProficientSkills(draft: CharacterDraft): Skill[] {
 
 /** Number of Ability Score Improvements the class has gained by `level`. */
 export function asiCount(charClass: ClassData, level: number): number {
-  return charClass.asiLevels.filter((l) => l <= level).length;
+  return earnedAsiLevels(charClass, level).length;
 }
 
-/** Total +1 points the draft's ASIs grant (two per improvement). */
+/** The ASI levels the class has reached by `level` (barbarian 8: [4, 8]). */
+export function earnedAsiLevels(charClass: ClassData, level: number): number[] {
+  return charClass.asiLevels.filter((l) => l <= level);
+}
+
+/**
+ * Total +1 points the draft's ASIs grant: two per improvement, minus the
+ * improvements spent on a feat instead (T-04) — a level flipped to "feat"
+ * costs its points even before the feat is picked.
+ */
 export function asiPointsTotal(draft: CharacterDraft): number {
-  return draft.charClass ? 2 * asiCount(draft.charClass, draft.level) : 0;
+  if (!draft.charClass) return 0;
+  const improvements = asiCount(draft.charClass, draft.level);
+  const featSpends = Object.keys(draft.asiFeats).length;
+  return 2 * Math.max(0, improvements - featSpends);
 }
 
 /** +1 points already assigned to abilities. */
@@ -325,7 +346,11 @@ export function validateDraft(draft: CharacterDraft): string[] {
     }
   } else if (asiPointsSpent(draft) > 0) {
     errors.push("Choose a class before assigning improvement points.");
+  } else if (Object.keys(draft.asiFeats).length > 0) {
+    errors.push("Choose a class before spending improvements on feats.");
   }
+
+  errors.push(...featProblems(draft));
 
   if (draft.charClass) {
     const choices = draft.charClass.equipment.choices;
@@ -391,6 +416,39 @@ export function validateDraft(draft: CharacterDraft): string[] {
   }
   if (chosen.some((s) => granted.has(s))) {
     errors.push("A chosen skill is already granted by race or background.");
+  }
+
+  return errors;
+}
+
+/**
+ * Everything wrong with the draft's per-improvement feat picks (T-04), as
+ * user-facing messages. Shared by `validateDraft` and the Abilities step's
+ * gating so the Next-button hints match the review-step errors.
+ */
+export function featProblems(draft: CharacterDraft): string[] {
+  if (!draft.charClass) return [];
+  const errors: string[] = [];
+  const earned = new Set(earnedAsiLevels(draft.charClass, draft.level));
+
+  for (const [key, feat] of Object.entries(draft.asiFeats)) {
+    const level = Number(key);
+    if (!earned.has(level)) {
+      errors.push(
+        `No ability score improvement is earned at level ${level}.`,
+      );
+      continue;
+    }
+    if (feat === null) {
+      errors.push(`Choose a feat for the level-${level} improvement.`);
+    }
+  }
+
+  const ids = Object.values(draft.asiFeats)
+    .filter((f): f is FeatData => f !== null)
+    .map((f) => f.id);
+  if (new Set(ids).size !== ids.length) {
+    errors.push("Each feat can only be taken once.");
   }
 
   return errors;
@@ -555,6 +613,18 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     })),
     ...traitsToFeatures(backgroundName, background.traits),
   ];
+  // Feats spent in place of ASI points, tagged with the level they were
+  // taken at (validation guarantees none are null here).
+  for (const [levelKey, feat] of Object.entries(draft.asiFeats)) {
+    if (!feat) continue;
+    features.push({
+      id: `feat-${feat.id}`,
+      name: feat.name,
+      source: "Feat",
+      description: feat.description,
+      level: Number(levelKey),
+    });
+  }
   // "Options" picks become features of their own ("Fighting Style: Dueling"),
   // sourced to the class or subclass that offered the choice.
   for (const choice of activeFeatureChoices(draft)) {

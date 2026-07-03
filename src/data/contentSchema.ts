@@ -202,6 +202,14 @@ export const ClassDataSchema = z.object({
 });
 export type ClassData = z.infer<typeof ClassDataSchema>;
 
+/** A feat, takeable in place of an Ability Score Improvement. */
+export const FeatDataSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+});
+export type FeatData = z.infer<typeof FeatDataSchema>;
+
 export const BackgroundDataSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -225,6 +233,7 @@ export const ContentBundleSchema = z.object({
   races: z.array(RaceDataSchema),
   classes: z.array(ClassDataSchema),
   backgrounds: z.array(BackgroundDataSchema),
+  feats: z.array(FeatDataSchema).default([]),
 });
 export type ContentBundle = z.infer<typeof ContentBundleSchema>;
 

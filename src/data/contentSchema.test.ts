@@ -51,6 +51,7 @@ function minimalBundle(): ContentBundle {
         equipment: [],
       },
     ],
+    feats: [],
   };
 }
 

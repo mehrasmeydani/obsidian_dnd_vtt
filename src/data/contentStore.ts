@@ -1,8 +1,9 @@
-import { RACES, CLASSES, BACKGROUNDS } from "./srd";
+import { RACES, CLASSES, BACKGROUNDS, FEATS } from "./srd";
 import type {
   BackgroundData,
   ClassData,
   ContentBundle,
+  FeatData,
   RaceData,
 } from "./contentSchema";
 
@@ -35,6 +36,7 @@ export class ContentStore {
         races: RACES,
         classes: CLASSES,
         backgrounds: BACKGROUNDS,
+        feats: FEATS,
       },
       enabled: true,
       builtin: true,
@@ -73,6 +75,10 @@ export class ContentStore {
 
   get backgrounds(): BackgroundData[] {
     return this.merged((b) => b.backgrounds);
+  }
+
+  get feats(): FeatData[] {
+    return this.merged((b) => b.feats);
   }
 
   /** Merge one entity list across enabled bundles: later bundles win by id. */

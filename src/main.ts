@@ -69,6 +69,7 @@ export default class DndVttPlugin extends Plugin {
             races: this.content.races,
             classes: this.content.classes,
             backgrounds: this.content.backgrounds,
+            feats: this.content.feats,
           }),
         ),
     );
