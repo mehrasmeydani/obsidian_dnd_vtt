@@ -16,6 +16,7 @@ function homebrewRace(id: string, name: string): RaceData {
     speed: 30,
     fixedBonuses: { con: 2 },
     traits: [{ name: "Homebrew Trait" }],
+    optionChoices: [],
   };
 }
 

@@ -19,6 +19,7 @@ function minimalBundle(): ContentBundle {
         speed: 30,
         fixedBonuses: { str: 1 },
         traits: [{ name: "Trait" }],
+        optionChoices: [],
       },
     ],
     classes: [
@@ -49,6 +50,7 @@ function minimalBundle(): ContentBundle {
         description: "Test",
         traits: [],
         equipment: [],
+        optionChoices: [],
       },
     ],
     feats: [],
