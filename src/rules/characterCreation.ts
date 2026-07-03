@@ -91,6 +91,10 @@ export interface CharacterDraft {
    * that level's 2 points from the pool.
    */
   asiFeats: Record<number, FeatData | null>;
+  /** Race "pick one" answers, choiceId → optionId (Draconic Ancestry…). */
+  raceOptions: Record<string, string>;
+  /** Background "pick one" answers, choiceId → optionId. */
+  backgroundOptions: Record<string, string>;
   /** Skills picked from the class list. */
   classSkills: Skill[];
   /** Skills picked from "choose any" pools (race and/or background). */
@@ -118,6 +122,8 @@ export function emptyDraft(): CharacterDraft {
     racialBonusAbilities: [],
     asiBonuses: {},
     asiFeats: {},
+    raceOptions: {},
+    backgroundOptions: {},
     classSkills: [],
     bonusSkills: [],
     equipmentChoices: [],
@@ -381,6 +387,7 @@ export function validateDraft(draft: CharacterDraft): string[] {
   }
 
   errors.push(...featureChoiceProblems(draft));
+  errors.push(...optionChoiceProblems(draft));
 
   const granted = new Set(grantedSkills(draft));
 
@@ -418,6 +425,45 @@ export function validateDraft(draft: CharacterDraft): string[] {
     errors.push("A chosen skill is already granted by race or background.");
   }
 
+  return errors;
+}
+
+/**
+ * Everything wrong with the "pick one" answers owed to the chosen race or
+ * background (T-05), as user-facing messages. `which` narrows to the choices
+ * a single wizard step owns; omitted, both are checked (review/validate).
+ */
+export function optionChoiceProblems(
+  draft: CharacterDraft,
+  which?: "race" | "background",
+): string[] {
+  const errors: string[] = [];
+  const sides = [
+    which !== "background" &&
+      ([draft.race, draft.raceOptions, "race"] as const),
+    which !== "race" &&
+      ([draft.background, draft.backgroundOptions, "background"] as const),
+  ];
+  for (const side of sides) {
+    if (!side) continue;
+    const [entity, picks, label] = side;
+    const choices = entity?.optionChoices ?? [];
+    const known = new Set(choices.map((c) => c.id));
+    for (const id of Object.keys(picks)) {
+      if (!known.has(id)) {
+        errors.push(`An option pick does not belong to the chosen ${label}.`);
+        break;
+      }
+    }
+    for (const choice of choices) {
+      const pick = picks[choice.id];
+      if (!pick) {
+        errors.push(`Choose a ${choice.name}.`);
+      } else if (!choice.options.some((o) => o.id === pick)) {
+        errors.push(`The ${choice.name} pick is not one of its options.`);
+      }
+    }
+  }
   return errors;
 }
 
@@ -613,6 +659,28 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     })),
     ...traitsToFeatures(backgroundName, background.traits),
   ];
+  // Race/background "pick one" answers become features of their own
+  // ("Draconic Ancestry: Red (fire)"), sourced to who offered the choice.
+  const optionSides = [
+    { source: race.name, choices: race.optionChoices, picks: draft.raceOptions },
+    {
+      source: backgroundName,
+      choices: background.optionChoices,
+      picks: draft.backgroundOptions,
+    },
+  ];
+  for (const { source, choices, picks } of optionSides) {
+    for (const choice of choices) {
+      const option = choice.options.find((o) => o.id === picks[choice.id]);
+      if (!option) continue; // validation guarantees this doesn't happen
+      features.push({
+        id: `${slugify(source)}-${slugify(choice.name)}-${slugify(option.name)}`,
+        name: `${choice.name}: ${option.name}`,
+        source,
+        description: option.description ?? choice.description,
+      });
+    }
+  }
   // Feats spent in place of ASI points, tagged with the level they were
   // taken at (validation guarantees none are null here).
   for (const [levelKey, feat] of Object.entries(draft.asiFeats)) {

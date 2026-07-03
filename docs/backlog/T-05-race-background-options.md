@@ -8,14 +8,14 @@ As a **player** creating a dragonborn, I want to choose my draconic ancestry
 traits are recorded on my character instead of being lost.
 
 ## Acceptance criteria
-- [ ] Content schema validates the generic `optionChoices[]` on races and
+- [x] Content schema validates the generic `optionChoices[]` on races and
       backgrounds (dragonborn Draconic Ancestry already in the bundle).
-- [ ] Race and Background steps render a dropdown per option choice; Next is
+- [x] Race and Background steps render a dropdown per option choice; Next is
       gated (with hint) until every choice is made; switching race/background
       resets its selections.
-- [ ] The selection becomes a `Character.features` entry
+- [x] The selection becomes a `Character.features` entry
       (e.g. "Draconic Ancestry: Red (fire)") sourced to the race/background.
-- [ ] Review step shows the chosen options; tests cover validation + assembly.
+- [x] Review step shows the chosen options; tests cover validation + assembly.
 
 ## Technical notes
 - `characterCreation.ts`: draft gains `raceOptions` / `backgroundOptions`

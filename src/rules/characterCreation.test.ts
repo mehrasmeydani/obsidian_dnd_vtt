@@ -404,6 +404,63 @@ describe("2024 (5.5e) class variants", () => {
   });
 });
 
+describe("race & background option choices (T-05)", () => {
+  /** A dragonborn draft that owes the Draconic Ancestry pick. */
+  function dragonbornDraft(): CharacterDraft {
+    return {
+      ...validDraft(),
+      race: byId(RACES, "dragonborn"),
+    };
+  }
+
+  it("requires an answer for every option choice", () => {
+    expect(validateDraft(dragonbornDraft())).toContain(
+      "Choose a Draconic Ancestry.",
+    );
+    const answered: CharacterDraft = {
+      ...dragonbornDraft(),
+      raceOptions: { "dragonborn-ancestry": "red" },
+    };
+    expect(validateDraft(answered)).toEqual([]);
+  });
+
+  it("rejects picks that are not among the options or belong elsewhere", () => {
+    const bogus: CharacterDraft = {
+      ...dragonbornDraft(),
+      raceOptions: { "dragonborn-ancestry": "prismatic" },
+    };
+    expect(validateDraft(bogus)).toContain(
+      "The Draconic Ancestry pick is not one of its options.",
+    );
+
+    const stale: CharacterDraft = {
+      ...validDraft(), // hill dwarf has no option choices
+      raceOptions: { "dragonborn-ancestry": "red" },
+    };
+    expect(validateDraft(stale)).toContain(
+      "An option pick does not belong to the chosen race.",
+    );
+  });
+
+  it("puts the chosen option on the character as a race-sourced feature", () => {
+    const character = assembleCharacter(
+      {
+        ...dragonbornDraft(),
+        raceOptions: { "dragonborn-ancestry": "red" },
+      },
+      "test-id",
+    );
+    const ancestry = character.features.find((f) =>
+      f.name.startsWith("Draconic Ancestry:"),
+    );
+    expect(ancestry).toMatchObject({
+      name: "Draconic Ancestry: Red (fire)",
+      source: "Dragonborn",
+    });
+    expect(ancestry?.description).toMatch(/breath weapon/i);
+  });
+});
+
 describe("feats as an ASI alternative (T-04)", () => {
   const grappler = FEATS.find((f) => f.id === "grappler")!;
 

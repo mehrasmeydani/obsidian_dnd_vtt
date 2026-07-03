@@ -341,6 +341,30 @@ describe("CharacterCreationWizard", () => {
     expect(trimmed.getByText(/Rage: 3 per long rest/)).toBeTruthy();
   });
 
+  it("gates the race step on option choices (dragonborn ancestry, T-05)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Sora" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Dragonborn/ }));
+
+    // Name and race set, but the ancestry pick still blocks the step.
+    expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText("Choose a Draconic Ancestry.")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Draconic Ancestry"), {
+      target: { value: "red" },
+    });
+    expect(nextButton().disabled).toBe(false);
+
+    // Switching race clears the pick (hill dwarf owes nothing).
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    expect(screen.queryByLabelText("Draconic Ancestry")).toBeNull();
+    expect(nextButton().disabled).toBe(false);
+  });
+
   it("supports races with bonus ability and skill choices (half-elf bard)", () => {
     const onComplete = vi.fn<(c: Character) => void>();
     render(

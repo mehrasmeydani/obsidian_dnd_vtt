@@ -27,6 +27,7 @@ export type {
   FeatData,
   FeatureChoice,
   FeatureEffect,
+  OptionChoice,
   Proficiencies,
   RaceData,
   SkillChoice,

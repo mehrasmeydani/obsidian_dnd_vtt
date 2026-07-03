@@ -16,6 +16,7 @@ import {
   type ClassData,
   type FeatData,
   type FeatureChoice,
+  type OptionChoice,
   type RaceData,
   type SubclassData,
 } from "../data/srd";
@@ -40,6 +41,7 @@ import {
   finalAbilityScores,
   grantedClassFeatures,
   grantedSkills,
+  optionChoiceProblems,
   pointBuyTotal,
   subclassRequired,
   validateDraft,
@@ -264,6 +266,7 @@ function stepBlockers(
     case 0:
       if (!draft.name.trim()) blockers.push("Enter a character name.");
       if (!draft.race) blockers.push("Select a race.");
+      blockers.push(...optionChoiceProblems(draft, "race"));
       break;
     case 1:
       if (!draft.charClass) blockers.push("Select a class.");
@@ -285,6 +288,7 @@ function stepBlockers(
       break;
     case 3:
       if (!draft.background) blockers.push("Select a background.");
+      blockers.push(...optionChoiceProblems(draft, "background"));
       break;
     case 4: {
       // The racial bonus and ASI pickers live on this step, so they gate here.
@@ -372,7 +376,12 @@ function NameRaceStep({
 }) {
   const selectRace = (race: RaceData) =>
     // Reset picks that depend on the race.
-    update({ race, racialBonusAbilities: [], bonusSkills: [] });
+    update({
+      race,
+      racialBonusAbilities: [],
+      bonusSkills: [],
+      raceOptions: {},
+    });
 
   return (
     <div>
@@ -404,7 +413,66 @@ function NameRaceStep({
           </button>
         ))}
       </div>
+
+      {draft.race && (
+        <OptionChoicePickers
+          title={draft.race.name}
+          choices={draft.race.optionChoices}
+          picks={draft.raceOptions}
+          setPicks={(raceOptions) => update({ raceOptions })}
+        />
+      )}
     </div>
+  );
+}
+
+/** One dropdown per race/background "pick one" choice (T-05). */
+function OptionChoicePickers({
+  title,
+  choices,
+  picks,
+  setPicks,
+}: {
+  title: string;
+  choices: OptionChoice[];
+  picks: Record<string, string>;
+  setPicks: (next: Record<string, string>) => void;
+}) {
+  if (choices.length === 0) return null;
+  return (
+    <>
+      {choices.map((choice) => (
+        <div className="dvtt-choice-group" key={choice.id}>
+          <h4>
+            {title}: {choice.name}
+          </h4>
+          {choice.description && (
+            <p className="dvtt-note">{choice.description}</p>
+          )}
+          <select
+            aria-label={choice.name}
+            value={picks[choice.id] ?? ""}
+            onChange={(e) => {
+              const next = { ...picks };
+              if (e.target.value) next[choice.id] = e.target.value;
+              else delete next[choice.id];
+              setPicks(next);
+            }}
+          >
+            <option value="">Choose…</option>
+            {choice.options.map((option) => (
+              <option
+                key={option.id}
+                value={option.id}
+                title={option.description}
+              >
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ))}
+    </>
   );
 }
 
@@ -914,7 +982,12 @@ function BackgroundStep({
   backgrounds: BackgroundData[];
 }) {
   const selectBackground = (background: BackgroundData) =>
-    update({ background, bonusSkills: [], backgroundName: "" });
+    update({
+      background,
+      bonusSkills: [],
+      backgroundName: "",
+      backgroundOptions: {},
+    });
 
   return (
     <div>
@@ -947,6 +1020,15 @@ function BackgroundStep({
             onChange={(e) => update({ backgroundName: e.target.value })}
           />
         </label>
+      )}
+
+      {draft.background && (
+        <OptionChoicePickers
+          title={draft.background.name}
+          choices={draft.background.optionChoices}
+          picks={draft.backgroundOptions}
+          setPicks={(backgroundOptions) => update({ backgroundOptions })}
+        />
       )}
     </div>
   );

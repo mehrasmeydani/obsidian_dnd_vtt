@@ -96,6 +96,10 @@ function completeDraft(
     }
   }
 
+  // First option for every race/background "pick one" (T-05).
+  const firstOptions = (choices: { id: string; options: { id: string }[] }[]) =>
+    Object.fromEntries(choices.map((c) => [c.id, c.options[0].id]));
+
   return {
     ...emptyDraft(),
     name: `${race.name} ${charClass.name}`,
@@ -104,6 +108,8 @@ function completeDraft(
     background,
     baseScores: { ...BASE_SCORES },
     racialBonusAbilities,
+    raceOptions: firstOptions(race.optionChoices),
+    backgroundOptions: firstOptions(background.optionChoices),
     classSkills,
     bonusSkills,
     equipmentChoices: charClass.equipment.choices.map(() => 0),
@@ -180,7 +186,9 @@ describe.each(BACKGROUNDS.map((bg) => [bg.id, bg] as const))(
         race.traits.length +
           grantedClassFeatures(charClass, draft.subclass, 1).length +
           background.traits.length +
-          optionPickCount,
+          optionPickCount +
+          race.optionChoices.length +
+          background.optionChoices.length,
       );
 
       // Class proficiencies land on the character (T-20).

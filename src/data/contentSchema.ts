@@ -107,6 +107,28 @@ export const StartingEquipmentSchema = z.object({
 });
 export type StartingEquipment = z.infer<typeof StartingEquipmentSchema>;
 
+/**
+ * A generic "pick one" attached to a race or background (dragonborn Draconic
+ * Ancestry, future high-elf cantrip…). The pick becomes a feature; content
+ * bundles can attach these anywhere without code changes.
+ */
+export const OptionChoiceSchema = z.object({
+  /** Unique within its race/background. */
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  options: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        name: z.string().min(1),
+        description: z.string().optional(),
+      }),
+    )
+    .min(2),
+});
+export type OptionChoice = z.infer<typeof OptionChoiceSchema>;
+
 export const RaceDataSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -125,6 +147,8 @@ export const RaceDataSchema = z.object({
   /** Skill proficiencies chosen freely (e.g. half-elf Skill Versatility). */
   skillChoice: SkillChoiceSchema.optional(),
   traits: z.array(TraitSchema),
+  /** "Pick one" choices the wizard owes (Draconic Ancestry…). */
+  optionChoices: z.array(OptionChoiceSchema).default([]),
 });
 export type RaceData = z.infer<typeof RaceDataSchema>;
 
@@ -220,6 +244,8 @@ export const BackgroundDataSchema = z.object({
   description: z.string(),
   traits: z.array(TraitSchema),
   equipment: z.array(EquipmentItemSchema),
+  /** "Pick one" choices the wizard owes. */
+  optionChoices: z.array(OptionChoiceSchema).default([]),
 });
 export type BackgroundData = z.infer<typeof BackgroundDataSchema>;
 
