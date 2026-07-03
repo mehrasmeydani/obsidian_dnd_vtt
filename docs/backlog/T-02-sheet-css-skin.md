@@ -12,7 +12,7 @@ so that sheets match the look of my campaign vault.
 - [x] No markup/class-name changes required — `dvtt-*` names stay stable.
 - [x] Sheet remains legible in both Obsidian light and dark themes (use the
       skin's palette, fall back to Obsidian CSS variables where it is silent).
-- [ ] Wizard + sheet visually verified in the live vault.
+- [x] Wizard + sheet visually verified in the live vault (user, 2026-07-03).
 
 ## Technical notes
 - The user's CSS arrived 2026-07-03 as `dnd-character-sheet-v2.css` — an
@@ -32,5 +32,5 @@ so that sheets match the look of my campaign vault.
 - Still in the design spec but deferred to their features' tickets: rest
   tile + resource pips, weapon cards, spell cards with slot pips (T-01,
   T-15); per-class spell accents should be generalized, not hard-coded.
-- Build deployed to the vault plugin folder 2026-07-03 — awaiting the user's
-  visual check in light + dark.
+- Build deployed to the vault plugin folder 2026-07-03; user confirmed the
+  look the same day. **Done.**

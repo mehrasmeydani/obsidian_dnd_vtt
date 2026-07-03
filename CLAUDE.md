@@ -17,8 +17,8 @@ Phase 0 done; Phase 1 mostly done:
   frontmatter are preserved on update (`src/persistence/characterNote.ts`).
   Commands: "Create character", "Open character sheet", "Load character from
   active note". Setting: characters folder.
-- Sheet view is still the read-only preview, now restyled to the user's sheet
-  design (T-02, awaiting their visual check). **Next big items: editable sheet
+- Sheet view is still the read-only preview, restyled to the user's sheet
+  design (T-02 done, user-verified). **Next big items: editable sheet
   view; subclasses/feats/race-options (data groundwork already in the bundle,
   schema ignores it until implemented); Phase 2 content store.**
 - The user's CSS arrived (2026-07-03) as `docs/reference/dnd-character-sheet-v2.css`
