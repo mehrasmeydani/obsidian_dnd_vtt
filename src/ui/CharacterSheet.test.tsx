@@ -31,7 +31,7 @@ function sampleCharacter(): Character {
     maxHp: 24,
     currentHp: 17,
     tempHp: 5,
-    armorClass: 14,
+    armorClassOverride: 14,
     inventory: [
       { id: "dagger", name: "Dagger", quantity: 2, equipped: true },
       { id: "rope", name: "Rope", quantity: 1, equipped: false },
@@ -287,7 +287,7 @@ describe("edit mode", () => {
   it("edits AC, speed, max HP, and the character name", () => {
     const { last } = renderSheet();
     enterEditMode();
-    fireEvent.change(screen.getByLabelText("Armor class"), {
+    fireEvent.change(screen.getByLabelText("Armor class override"), {
       target: { value: "17" },
     });
     fireEvent.change(screen.getByLabelText("Speed"), {
@@ -299,10 +299,37 @@ describe("edit mode", () => {
     fireEvent.change(screen.getByLabelText("Character name"), {
       target: { value: "Merric the Bold" },
     });
-    expect(last().armorClass).toBe(17);
+    expect(last().armorClassOverride).toBe(17);
     expect(last().speed).toBe(35);
     expect(last().maxHp).toBe(30);
     expect(last().name).toBe("Merric the Bold");
+  });
+
+  it("derives AC from equipped armor and resets the override to auto", () => {
+    const character = CharacterSchema.parse({
+      ...sampleCharacter(),
+      armorClassOverride: undefined,
+      inventory: [
+        {
+          id: "leather",
+          name: "Leather armor",
+          quantity: 1,
+          equipped: true,
+          armorId: "leather-armor",
+        },
+      ],
+    });
+    const { last } = renderSheet(character);
+    // Leather 11 + DEX 3.
+    expect(screen.getByText("AC").nextElementSibling?.textContent).toBe("14");
+
+    enterEditMode();
+    fireEvent.change(screen.getByLabelText("Armor class override"), {
+      target: { value: "20" },
+    });
+    expect(last().armorClassOverride).toBe(20);
+    fireEvent.click(screen.getByLabelText("Reset AC to automatic"));
+    expect(last().armorClassOverride).toBeUndefined();
   });
 
   it("adds, edits, and removes inventory rows", () => {
@@ -359,7 +386,7 @@ describe("edit mode", () => {
   it("emits only schema-valid characters", () => {
     const { changes } = renderSheet();
     enterEditMode();
-    fireEvent.change(screen.getByLabelText("Armor class"), {
+    fireEvent.change(screen.getByLabelText("Armor class override"), {
       target: { value: "17" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Add item" }));
@@ -374,7 +401,7 @@ describe("note round-trip", () => {
   it("survives serialize/parse after sheet edits without losing user prose", () => {
     const { last } = renderSheet();
     enterEditMode();
-    fireEvent.change(screen.getByLabelText("Armor class"), {
+    fireEvent.change(screen.getByLabelText("Armor class override"), {
       target: { value: "17" },
     });
 

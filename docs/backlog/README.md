@@ -18,7 +18,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-11](T-11-content-store.md) | Local content store | P1 | M | 2 | — | done |
 | [T-04](T-04-feats.md) | Feats as ASI alternative | P2 | M | 1 | — | done |
 | [T-05](T-05-race-background-options.md) | Race & background option choices | P2 | M | 1 | — | done |
-| [T-06](T-06-armor-aware-ac.md) | Armor-aware AC | P2 | M | 1 | T-01 | todo |
+| [T-06](T-06-armor-aware-ac.md) | Armor-aware AC | P2 | M | 1 | T-01 | done |
 | [T-10](T-10-player-notes.md) | Player notes with visibility | P2 | M | 1 | — | todo |
 | [T-12](T-12-open5e-client.md) | Open5e client + refresh command | P2 | M | 2 | T-11 | todo |
 | [T-13](T-13-5etools-importer.md) | 5etools importer | P2 | M | 2 | T-11 | todo |

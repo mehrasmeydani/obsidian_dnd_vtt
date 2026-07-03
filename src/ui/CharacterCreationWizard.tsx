@@ -54,6 +54,7 @@ import {
   proficiencyBonus,
   totalLevel,
 } from "../rules/abilityMath";
+import { armorClass } from "../rules/armorClass";
 import type { EquipmentItem } from "../data/srd";
 
 const ABILITY_LABELS: Record<Ability, string> = {
@@ -1561,7 +1562,7 @@ function ReviewStep({ draft }: { draft: CharacterDraft }) {
       <p className="dvtt-review__subtitle">{character.background}</p>
       <div className="dvtt-topline">
         <ReviewStat label="HP" value={character.maxHp} />
-        <ReviewStat label="AC" value={character.armorClass} />
+        <ReviewStat label="AC" value={armorClass(character)} />
         <ReviewStat label="Speed" value={`${character.speed} ft`} />
         <ReviewStat
           label="Prof. bonus"

@@ -9,7 +9,9 @@
       "Read(//mnt/c/Users/mehra/OneDrive/Desktop/dnd_git/.obsidian/plugins/obsidian-dnd-vtt/**)",
       "Bash(curl -sI https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/main/data/class/class-barbarian.json)",
       "Bash(curl -s https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/main/data/class/index.json)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(set -o pipefail)",
+      "Bash(sed -i 's#| \\\\[T-06\\\\]\\(T-06-armor-aware-ac.md\\) | Armor-aware AC | P2 | M | 1 | T-01 | todo |#| [T-06]\\(T-06-armor-aware-ac.md\\) | Armor-aware AC | P2 | M | 1 | T-01 | done |#' docs/backlog/README.md)"
     ],
     "additionalDirectories": [
       "/mnt/c/Users/mehra/OneDrive/Desktop/dnd_git/.obsidian/plugins/obsidian-dnd-vtt"

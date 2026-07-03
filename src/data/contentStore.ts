@@ -1,4 +1,4 @@
-import { RACES, CLASSES, BACKGROUNDS, FEATS } from "./srd";
+import { ARMOR, RACES, CLASSES, BACKGROUNDS, FEATS } from "./srd";
 import type {
   BackgroundData,
   ClassData,
@@ -37,6 +37,7 @@ export class ContentStore {
         classes: CLASSES,
         backgrounds: BACKGROUNDS,
         feats: FEATS,
+        armor: ARMOR,
       },
       enabled: true,
       builtin: true,

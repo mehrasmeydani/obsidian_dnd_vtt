@@ -9,16 +9,17 @@ import {
   type ProficiencyLevel,
   type Skill,
 } from "../model/schema";
-import type {
-  BackgroundData,
-  ClassData,
-  ClassFeature,
-  EquipmentItem,
-  FeatData,
-  FeatureChoice,
-  RaceData,
-  SubclassData,
-  Trait,
+import {
+  ARMOR,
+  type BackgroundData,
+  type ClassData,
+  type ClassFeature,
+  type EquipmentItem,
+  type FeatData,
+  type FeatureChoice,
+  type RaceData,
+  type SubclassData,
+  type Trait,
 } from "../data/srd";
 import { abilityModifier } from "./abilityMath";
 
@@ -586,7 +587,7 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     for (const effect of feature.effects) {
       if (effect.kind === "speed-bonus") {
         speed += effect.amount;
-      } else {
+      } else if (effect.kind === "ability-increase") {
         for (const ability of effect.abilities) {
           abilityScores[ability] = Math.max(
             abilityScores[ability],
@@ -594,6 +595,7 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
           );
         }
       }
+      // "unarmored-defense" is handled below with the inventory.
     }
   }
 
@@ -712,14 +714,18 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
   }
 
   // Class fixed gear + the chosen option from each choice + background gear.
+  // Armor-like items are linked to their armor data by name (drives AC).
+  const armorByName = new Map(ARMOR.map((a) => [a.name.toLowerCase(), a]));
   const inventory: Item[] = [];
   const addGear = (items: EquipmentItem[]) => {
     for (const item of items) {
+      const armor = armorByName.get(item.name.toLowerCase());
       inventory.push({
         id: `${slugify(item.name)}-${inventory.length}`,
         name: item.name,
         quantity: item.quantity ?? 1,
         equipped: false,
+        ...(armor ? { armorId: armor.id } : {}),
       });
     }
   };
@@ -728,6 +734,23 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     addGear(choice.options[draft.equipmentChoices[i]]);
   });
   addGear(background.equipment);
+
+  // Starting armor is worn when unambiguous: the only body armor (and the
+  // only shield) start equipped.
+  const armorType = (item: Item) =>
+    item.armorId ? armorByName.get(item.name.toLowerCase())?.type : undefined;
+  const bodyArmor = inventory.filter((i) => {
+    const type = armorType(i);
+    return type !== undefined && type !== "shield";
+  });
+  const shields = inventory.filter((i) => armorType(i) === "shield");
+  if (bodyArmor.length === 1) bodyArmor[0].equipped = true;
+  if (shields.length === 1) shields[0].equipped = true;
+
+  // Unarmored Defense, when a granted feature carries the effect.
+  const unarmoredDefense = granted
+    .flatMap(({ feature }) => feature.effects)
+    .find((e) => e.kind === "unarmored-defense");
 
   return CharacterSchema.parse({
     id,
@@ -746,7 +769,14 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     skills,
     maxHp,
     currentHp: maxHp,
-    armorClass: 10 + abilityModifier(abilityScores.dex),
+    ...(unarmoredDefense
+      ? {
+          unarmoredDefense: {
+            ability: unarmoredDefense.ability,
+            shield: unarmoredDefense.shield,
+          },
+        }
+      : {}),
     speed,
     spellcastingAbility: charClass.spellcastingAbility,
     features,

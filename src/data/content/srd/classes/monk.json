@@ -80,7 +80,14 @@
     {
       "level": 1,
       "name": "Unarmored Defense",
-      "description": "Without armor, AC = 10 + DEX mod + WIS mod."
+      "description": "Without armor, AC = 10 + DEX mod + WIS mod.",
+      "effects": [
+        {
+          "kind": "unarmored-defense",
+          "ability": "wis",
+          "shield": false
+        }
+      ]
     },
     {
       "level": 1,

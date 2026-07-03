@@ -18,6 +18,7 @@ import {
   skillBonus,
   totalLevel,
 } from "../rules/abilityMath";
+import { armorClass } from "../rules/armorClass";
 
 const ABILITY_LABELS: Record<Ability, string> = {
   str: "Strength",
@@ -135,13 +136,26 @@ export function CharacterSheet({
         <div className="dvtt-mini-grid">
           <Mini label="AC">
             {editing ? (
-              <NumberField
-                ariaLabel="Armor class"
-                value={character.armorClass}
-                onCommit={(armorClass) => apply({ armorClass })}
-              />
+              <span className="dvtt-ac-override">
+                <NumberField
+                  ariaLabel="Armor class override"
+                  value={armorClass(character)}
+                  onCommit={(armorClassOverride) =>
+                    apply({ armorClassOverride })
+                  }
+                />
+                {character.armorClassOverride !== undefined && (
+                  <button
+                    aria-label="Reset AC to automatic"
+                    title="Back to armor-derived AC"
+                    onClick={() => apply({ armorClassOverride: undefined })}
+                  >
+                    auto
+                  </button>
+                )}
+              </span>
             ) : (
-              character.armorClass
+              armorClass(character)
             )}
           </Mini>
           <Mini label="Initiative">

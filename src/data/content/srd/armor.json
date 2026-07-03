@@ -1,0 +1,16 @@
+[
+  { "id": "padded", "name": "Padded", "type": "light", "baseAc": 11 },
+  { "id": "leather-armor", "name": "Leather armor", "type": "light", "baseAc": 11 },
+  { "id": "studded-leather", "name": "Studded leather", "type": "light", "baseAc": 12 },
+  { "id": "hide", "name": "Hide", "type": "medium", "baseAc": 12, "dexCap": 2 },
+  { "id": "chain-shirt", "name": "Chain shirt", "type": "medium", "baseAc": 13, "dexCap": 2 },
+  { "id": "scale-mail", "name": "Scale mail", "type": "medium", "baseAc": 14, "dexCap": 2 },
+  { "id": "breastplate", "name": "Breastplate", "type": "medium", "baseAc": 14, "dexCap": 2 },
+  { "id": "half-plate", "name": "Half plate", "type": "medium", "baseAc": 15, "dexCap": 2 },
+  { "id": "ring-mail", "name": "Ring mail", "type": "heavy", "baseAc": 14 },
+  { "id": "chain-mail", "name": "Chain mail", "type": "heavy", "baseAc": 16 },
+  { "id": "splint", "name": "Splint", "type": "heavy", "baseAc": 17 },
+  { "id": "plate", "name": "Plate", "type": "heavy", "baseAc": 18 },
+  { "id": "shield", "name": "Shield", "type": "shield", "baseAc": 2 },
+  { "id": "wooden-shield", "name": "Wooden shield", "type": "shield", "baseAc": 2 }
+]

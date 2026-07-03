@@ -35,6 +35,7 @@ import tiefling from "./races/tiefling.json";
 
 import backgrounds from "./backgrounds.json";
 import feats from "./feats.json";
+import armor from "./armor.json";
 
 /** The raw, unvalidated SRD bundle — `srd.ts` parses it at startup. */
 export const srdRaw = {
@@ -67,4 +68,5 @@ export const srdRaw = {
   ],
   backgrounds,
   feats,
+  armor,
 };

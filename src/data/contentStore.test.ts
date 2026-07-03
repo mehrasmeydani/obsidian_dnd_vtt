@@ -21,7 +21,7 @@ function homebrewRace(id: string, name: string): RaceData {
 }
 
 function bundle(name: string, races: RaceData[]): ContentBundle {
-  return { name, races, classes: [], backgrounds: [], feats: [] };
+  return { name, races, classes: [], backgrounds: [], feats: [], armor: [] };
 }
 
 describe("ContentStore", () => {

@@ -166,7 +166,7 @@ export class CharacterSheetView extends ItemView {
   }
 }
 
-/** Seeded demo with a few proficiencies so the math is visible. */
+/** Seeded demo with proficiencies and worn armor so the math is visible. */
 function demoCharacter(): Character {
   return {
     ...emptyCharacter("demo", "Demo Hero"),
@@ -176,6 +176,21 @@ function demoCharacter(): Character {
     skills: { athletics: "proficient", perception: "proficient" },
     maxHp: 44,
     currentHp: 44,
-    armorClass: 18,
+    inventory: [
+      {
+        id: "chain-mail",
+        name: "Chain mail",
+        quantity: 1,
+        equipped: true,
+        armorId: "chain-mail",
+      },
+      {
+        id: "shield",
+        name: "Shield",
+        quantity: 1,
+        equipped: true,
+        armorId: "shield",
+      },
+    ],
   };
 }

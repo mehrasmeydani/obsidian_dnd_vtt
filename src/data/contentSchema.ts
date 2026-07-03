@@ -35,6 +35,14 @@ export const FeatureEffectSchema = z.discriminatedUnion("kind", [
     /** New maximum for the raised scores (increase never exceeds it). */
     max: z.number().int().positive(),
   }),
+  /** Unarmored Defense: AC = 10 + DEX + `ability` while wearing no armor. */
+  z.object({
+    kind: z.literal("unarmored-defense"),
+    ability: AbilitySchema,
+    /** Whether a shield may be used without losing the formula (barbarian
+     * yes, monk no). */
+    shield: z.boolean(),
+  }),
 ]);
 export type FeatureEffect = z.infer<typeof FeatureEffectSchema>;
 
@@ -226,6 +234,22 @@ export const ClassDataSchema = z.object({
 });
 export type ClassData = z.infer<typeof ClassDataSchema>;
 
+/**
+ * A piece of armor (or shield) AC can be derived from. Starting-equipment
+ * items are linked to these by name at assembly.
+ */
+export const ArmorDataSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  type: z.enum(["light", "medium", "heavy", "shield"]),
+  /** Base AC for body armor; the flat AC bonus for shields. Heavy armor
+   * ignores DEX entirely; medium caps it via `dexCap`; light adds it all. */
+  baseAc: z.number().int().positive(),
+  /** Max DEX modifier added (medium armor: 2). Omitted = uncapped. */
+  dexCap: z.number().int().min(0).optional(),
+});
+export type ArmorData = z.infer<typeof ArmorDataSchema>;
+
 /** A feat, takeable in place of an Ability Score Improvement. */
 export const FeatDataSchema = z.object({
   id: z.string().min(1),
@@ -260,6 +284,7 @@ export const ContentBundleSchema = z.object({
   classes: z.array(ClassDataSchema),
   backgrounds: z.array(BackgroundDataSchema),
   feats: z.array(FeatDataSchema).default([]),
+  armor: z.array(ArmorDataSchema).default([]),
 });
 export type ContentBundle = z.infer<typeof ContentBundleSchema>;
 

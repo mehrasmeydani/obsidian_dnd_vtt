@@ -5,7 +5,7 @@ Architecture and phased plan: `docs/ROADMAP.md`. The actionable work queue
 is `docs/backlog/README.md` — a board of T-XX ticket files (user story +
 acceptance criteria); pick from the top, update statuses as you go.
 
-## Status (as of 2026-07-03, commit b8336a7)
+## Status (as of 2026-07-04)
 
 Phase 0 done; Phase 1 mostly done:
 - Creation wizard: name/race → class (+ starting level 1–20) → class options
@@ -31,8 +31,23 @@ Phase 0 done; Phase 1 mostly done:
   vault note (wizard finish, "Load character from active note", or the
   active note on open), debounces saves 800 ms through the prose-preserving
   serializer, and refreshes on external edits (self-writes skipped via a
-  counter). **Next big items: feats/race-options (T-04/T-05); T-12/T-13
-  content importers on top of the store.**
+  counter). **Next big items: T-12/T-13 content importers; T-10 player
+  notes; the small P3 creator tickets (T-07/T-08/T-09).**
+- Feats (T-04): each earned ASI level is its own "+2 points or a feat" choice
+  on the Abilities step (draft `asiFeats`, level → FeatData|null); chosen
+  feats become features with source "Feat". Bundles validate top-level
+  `feats[]` (SRD ships Grappler).
+- Race/background option choices (T-05): generic `optionChoices[]` on races
+  and backgrounds (dragonborn Draconic Ancestry live), dropdown per choice on
+  the Race/Background steps, picks become features.
+- Armor-aware AC (T-06): AC is derived, never stored —
+  `rules/armorClass.ts` picks equipped body armor (+DEX per type cap) +
+  shield, else class Unarmored Defense (`unarmoredDefense` on Character, set
+  from an `unarmored-defense` feature effect; monk loses it with a shield),
+  else 10+DEX; `armorClassOverride` wins outright (old notes' stored
+  `armorClass` is ignored on parse). Bundles validate `armor[]`; assembly
+  links gear to armor by name (`Item.armorId`) and auto-equips a sole body
+  armor/shield.
 - Content store (T-11): `src/data/contentStore.ts` merges the bundled SRD
   with user bundles (`<plugin dir>/data/content/*.json`, validated at load;
   invalid files skipped with a notice) by entity id, later bundles override.
@@ -75,7 +90,7 @@ Phase 0 done; Phase 1 mostly done:
 
 ## Workflow
 
-- Tests: `npm test` works on the WSL host (Node 18); 394 tests across rules,
+- Tests: `npm test` works on the WSL host (Node 18); 442 tests across rules,
   schema pinning, SRD data integrity, a 234-case race×class×background
   assembly matrix (auto-grows with the bundle; auto-picks level-1 subclasses
   and feature choices), note-format round-trips, and jsdom wizard/sheet

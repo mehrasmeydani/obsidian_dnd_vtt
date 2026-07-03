@@ -9,6 +9,7 @@ import {
   type RaceData,
 } from "../data/srd";
 import { abilityModifier } from "./abilityMath";
+import { armorClass } from "./armorClass";
 import {
   assembleCharacter,
   emptyDraft,
@@ -137,8 +138,18 @@ describe.each(BACKGROUNDS.map((bg) => [bg.id, bg] as const))(
         Math.max(1, charClass.hitDie + abilityModifier(scores.con)),
       );
       expect(character.currentHp).toBe(character.maxHp);
-      expect(character.armorClass).toBe(10 + abilityModifier(scores.dex));
       expect(character.speed).toBe(race.speed);
+
+      // Armor auto-equip (T-06): a sole body armor / shield starts worn, and
+      // AC is derived, never stored.
+      expect(character.armorClassOverride).toBeUndefined();
+      const bodyArmor = character.inventory.filter(
+        (i) => i.armorId && !i.armorId.includes("shield"),
+      );
+      if (bodyArmor.length === 1) {
+        expect(bodyArmor[0].equipped).toBe(true);
+      }
+      expect(Number.isInteger(armorClass(character))).toBe(true);
       expect(character.classes).toEqual([
         {
           name: charClass.name,

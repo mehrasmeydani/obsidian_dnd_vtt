@@ -27,7 +27,8 @@ describe("CharacterSchema", () => {
   it("accepts emptyCharacter and applies defaults", () => {
     const c = emptyCharacter("id-1", "Nameless");
     expect(c.classes).toEqual([]);
-    expect(c.armorClass).toBe(10);
+    // AC is derived (rules/armorClass); only the override is stored.
+    expect(c.armorClassOverride).toBeUndefined();
     expect(c.speed).toBe(30);
     expect(c.inventory).toEqual([]);
     expect(c.spells).toEqual([]);

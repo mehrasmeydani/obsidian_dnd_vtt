@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BACKGROUNDS, CLASSES, FEATS, RACES } from "../data/srd";
+import { armorClass } from "./armorClass";
 import {
   POINT_BUY_BUDGET,
   asiCount,
@@ -276,8 +277,15 @@ describe("assembleCharacter", () => {
     // Hill dwarf: con 14 + 2 = 16 (mod +3); fighter d10 => 13 HP
     expect(character.maxHp).toBe(13);
     expect(character.currentHp).toBe(13);
-    // dex 13 => mod +1 => AC 11 unarmored
-    expect(character.armorClass).toBe(11);
+    // Chain mail (sole body armor) and shield start equipped: AC 16 + 2.
+    expect(
+      character.inventory.find((i) => i.name === "Chain mail")?.equipped,
+    ).toBe(true);
+    expect(
+      character.inventory.find((i) => i.name === "Shield")?.equipped,
+    ).toBe(true);
+    expect(armorClass(character)).toBe(18);
+    expect(character.armorClassOverride).toBeUndefined();
     expect(character.speed).toBe(25);
     expect(character.savingThrows).toEqual({
       str: "proficient",
@@ -671,6 +679,28 @@ describe("leveled class features (T-19) and proficiencies (T-20)", () => {
       weapons: ["Simple weapons", "Martial weapons"],
       tools: [],
     });
+  });
+
+  it("records unarmored defense on barbarians (CON, shield ok) and monks (WIS, no shield)", () => {
+    const barbarian = assembleCharacter(barbarianDraft(1), "test-id");
+    expect(barbarian.unarmoredDefense).toEqual({
+      ability: "con",
+      shield: true,
+    });
+    // Human barbarian, dex 13+1=14, con 14+1=15: AC 10 + 2 + 2.
+    expect(armorClass(barbarian)).toBe(14);
+
+    const monkDraft: CharacterDraft = {
+      ...validDraft(),
+      charClass: byId(CLASSES, "monk"),
+      classSkills: ["acrobatics", "stealth"],
+      equipmentChoices: byId(CLASSES, "monk").equipment.choices.map(() => 0),
+    };
+    const monk = assembleCharacter(monkDraft, "test-id");
+    expect(monk.unarmoredDefense).toEqual({ ability: "wis", shield: false });
+
+    const fighter = assembleCharacter(validDraft(), "test-id");
+    expect(fighter.unarmoredDefense).toBeUndefined();
   });
 
   it("gives level-1 characters only level-1 features and the level-1 rage pool", () => {

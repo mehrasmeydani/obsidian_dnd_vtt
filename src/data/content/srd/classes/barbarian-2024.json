@@ -214,7 +214,14 @@
     {
       "level": 1,
       "name": "Unarmored Defense",
-      "description": "Without armor, AC = 10 + DEX mod + CON mod (a shield still applies)."
+      "description": "Without armor, AC = 10 + DEX mod + CON mod (a shield still applies).",
+      "effects": [
+        {
+          "kind": "unarmored-defense",
+          "ability": "con",
+          "shield": true
+        }
+      ]
     },
     {
       "level": 1,

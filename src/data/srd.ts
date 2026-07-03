@@ -15,8 +15,10 @@ export const RACES = SRD.races;
 export const CLASSES = SRD.classes;
 export const BACKGROUNDS = SRD.backgrounds;
 export const FEATS = SRD.feats;
+export const ARMOR = SRD.armor;
 
 export type {
+  ArmorData,
   BackgroundData,
   ClassData,
   ClassFeature,

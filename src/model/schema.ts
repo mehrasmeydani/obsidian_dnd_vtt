@@ -72,6 +72,8 @@ export const ItemSchema = z.object({
   quantity: z.number().int().min(0).default(1),
   weight: z.number().min(0).optional(),
   equipped: z.boolean().default(false),
+  /** Content-bundle armor id when this item is armor/a shield (drives AC). */
+  armorId: z.string().optional(),
   notes: z.string().optional(),
 });
 export type Item = z.infer<typeof ItemSchema>;
@@ -143,7 +145,16 @@ export const CharacterSchema = z.object({
   maxHp: z.number().int().min(0).default(0),
   currentHp: z.number().int().default(0),
   tempHp: z.number().int().min(0).default(0),
-  armorClass: z.number().int().default(10),
+  /**
+   * AC is derived (armor/unarmored defense/10+DEX — see `rules/armorClass`);
+   * this optional override wins outright when set (homebrew formulas).
+   * Pre-T-06 notes stored a computed `armorClass`, which is now ignored.
+   */
+  armorClassOverride: z.number().int().optional(),
+  /** Unarmored Defense formula the class grants, if any (10 + DEX + ability). */
+  unarmoredDefense: z
+    .object({ ability: AbilitySchema, shield: z.boolean() })
+    .optional(),
   speed: z.number().int().default(30),
   inventory: z.array(ItemSchema).default([]),
   spells: z.array(SpellSchema).default([]),

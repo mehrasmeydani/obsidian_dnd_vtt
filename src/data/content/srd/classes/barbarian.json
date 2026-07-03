@@ -76,7 +76,14 @@
     {
       "level": 1,
       "name": "Unarmored Defense",
-      "description": "While you are not wearing any armor, your Armor Class equals 10 + your Dexterity modifier + your Constitution modifier. You can use a shield and still gain this benefit."
+      "description": "While you are not wearing any armor, your Armor Class equals 10 + your Dexterity modifier + your Constitution modifier. You can use a shield and still gain this benefit.",
+      "effects": [
+        {
+          "kind": "unarmored-defense",
+          "ability": "con",
+          "shield": true
+        }
+      ]
     },
     {
       "level": 2,
