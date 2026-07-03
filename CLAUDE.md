@@ -78,6 +78,14 @@ Phase 0 done; Phase 1 mostly done:
 
 ## Working agreements
 
+- **Class options page design rule** (user, 2026-07-03): the Class options
+  step is the class detail view — everything the class *grants* (leveled
+  features, armor/weapon proficiencies) appears there read-only, and every
+  class *choice* is made there. The only choices on other steps: ability
+  scores/ASIs (Abilities) and skill proficiency + expertise picks (Skills).
+  Proficiency/expertise picks must dedup across levels — a skill can never
+  be taken or upgraded twice (enforced in featureChoiceProblems + UI).
+
 - The user steers scope; when they ask "could we X", answer with a design
   first — they sometimes want a plan/backlog entry, not an implementation.
 - Summarize what shipped at the end of every work round; unsummarized work

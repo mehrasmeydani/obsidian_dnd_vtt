@@ -10,8 +10,14 @@ the 5e rules rather than being forced into raw stats.
 ## Acceptance criteria
 - [ ] Content schema validates top-level `feats[]` (Grappler already in the
       bundle; imported bundles can add more).
-- [ ] Abilities step: each earned ASI can be spent as +2 points (current
-      behavior) or one feat; picking a feat reduces the point pool by 2.
+- [ ] Each earned ASI level (barbarian: 4/8/12/16/19) is its own explicit
+      "Ability Score Improvement **or** Feat" choice, per the user's
+      level-20 field guide (2026-07-03) — not one merged point pool with
+      a feat count.
+- [ ] Abilities step: the per-level ASI/feat toggle and feat picker sit
+      beside the ASI stepper (ability-score choices are the carved-out
+      exception to "all class choices live in Class options"); picking a
+      feat at a level removes that level's 2 points from the pool.
 - [ ] A feat cannot be taken twice; blockers/hints reflect remaining
       improvements; changing class/level resets picks.
 - [ ] Chosen feats become `Character.features` with source "Feat".
