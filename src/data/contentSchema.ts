@@ -218,6 +218,10 @@ export type BackgroundData = z.infer<typeof BackgroundDataSchema>;
 export const ContentBundleSchema = z.object({
   /** Human-readable source name, e.g. "SRD 5.1". */
   name: z.string().min(1),
+  /** Where the bundle came from (a URL, "5etools import", …). */
+  source: z.string().optional(),
+  /** ISO timestamp of when the bundle was fetched/imported. */
+  fetchedAt: z.string().optional(),
   races: z.array(RaceDataSchema),
   classes: z.array(ClassDataSchema),
   backgrounds: z.array(BackgroundDataSchema),

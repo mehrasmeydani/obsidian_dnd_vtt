@@ -2,15 +2,17 @@ import { ItemView, type WorkspaceLeaf } from "obsidian";
 import { type Root } from "react-dom/client";
 import { mountReact } from "./mount";
 import { type Character } from "../model/schema";
-import { CharacterCreationWizard } from "./CharacterCreationWizard";
+import {
+  CharacterCreationWizard,
+  type WizardContent,
+} from "./CharacterCreationWizard";
 
 export const VIEW_TYPE_CHARACTER_CREATION = "dnd-vtt-character-creation";
 
 /**
  * Workspace view hosting the character creation wizard. The plugin supplies
- * `onComplete`; cancelling just closes the view. Phase 1's serializer will
- * persist the finished character to a vault note — for now the plugin keeps it
- * in memory and shows it in the sheet view.
+ * `onComplete` and the merged game content (SRD + user bundles); cancelling
+ * just closes the view.
  */
 export class CharacterCreationView extends ItemView {
   private root: Root | null = null;
@@ -18,6 +20,7 @@ export class CharacterCreationView extends ItemView {
   constructor(
     leaf: WorkspaceLeaf,
     private onComplete: (character: Character) => void,
+    private getContent: () => WizardContent,
   ) {
     super(leaf);
   }
@@ -40,6 +43,7 @@ export class CharacterCreationView extends ItemView {
       <CharacterCreationWizard
         onComplete={this.onComplete}
         onCancel={() => this.leaf.detach()}
+        content={this.getContent()}
       />,
     );
   }

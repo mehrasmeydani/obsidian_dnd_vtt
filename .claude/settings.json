@@ -6,7 +6,13 @@
       "Bash(git push *)",
       "Bash(git rm *)",
       "Bash(cp main.js styles.css \"/mnt/c/Users/mehra/OneDrive/Desktop/dnd_git/.obsidian/plugins/obsidian-dnd-vtt/\")",
-      "Read(//mnt/c/Users/mehra/OneDrive/Desktop/dnd_git/.obsidian/plugins/obsidian-dnd-vtt/**)"
+      "Read(//mnt/c/Users/mehra/OneDrive/Desktop/dnd_git/.obsidian/plugins/obsidian-dnd-vtt/**)",
+      "Bash(curl -sI https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/main/data/class/class-barbarian.json)",
+      "Bash(curl -s https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/main/data/class/index.json)",
+      "Bash(npm run *)"
+    ],
+    "additionalDirectories": [
+      "/mnt/c/Users/mehra/OneDrive/Desktop/dnd_git/.obsidian/plugins/obsidian-dnd-vtt"
     ]
   }
 }

@@ -31,7 +31,14 @@ Phase 0 done; Phase 1 mostly done:
   vault note (wizard finish, "Load character from active note", or the
   active note on open), debounces saves 800 ms through the prose-preserving
   serializer, and refreshes on external edits (self-writes skipped via a
-  counter). **Next big items: feats/race-options; Phase 2 content store.**
+  counter). **Next big items: feats/race-options (T-04/T-05); T-12/T-13
+  content importers on top of the store.**
+- Content store (T-11): `src/data/contentStore.ts` merges the bundled SRD
+  with user bundles (`<plugin dir>/data/content/*.json`, validated at load;
+  invalid files skipped with a notice) by entity id, later bundles override.
+  The wizard reads merged content via its `content` prop (defaults to SRD);
+  settings list bundles (name/source/fetchedAt) with per-bundle toggles
+  persisted in `disabledBundles`.
 - Leveled class features (T-19) + proficiencies-as-data (T-20) are in: class
   JSON now uses `features: [{level, name, description, effects?}]` (scaling
   tiers share a name; the highest tier ≤ level wins), plus `proficiencies`

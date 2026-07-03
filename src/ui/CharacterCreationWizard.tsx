@@ -72,17 +72,33 @@ const STEPS = [
 
 type AbilityMethod = "standard" | "pointBuy" | "manual";
 
+/** The entity lists the wizard offers; defaults to the bundled SRD. */
+export interface WizardContent {
+  races: RaceData[];
+  classes: ClassData[];
+  backgrounds: BackgroundData[];
+}
+
+const SRD_CONTENT: WizardContent = {
+  races: RACES,
+  classes: CLASSES,
+  backgrounds: BACKGROUNDS,
+};
+
 /**
  * Guided character creation: race → class → background → abilities → skills →
  * review. All rules logic lives in `rules/characterCreation`; this component
- * only collects the draft and renders validation state.
+ * only collects the draft and renders validation state. `content` comes from
+ * the plugin's ContentStore (SRD + user bundles); it defaults to the SRD.
  */
 export function CharacterCreationWizard({
   onComplete,
   onCancel,
+  content = SRD_CONTENT,
 }: {
   onComplete: (character: Character) => void;
   onCancel: () => void;
+  content?: WizardContent;
 }) {
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<CharacterDraft>(emptyDraft);
@@ -162,11 +178,19 @@ export function CharacterCreationWizard({
 
       <div className="dvtt-wizard__body">
         {step === 0 && (
-          <NameRaceStep draft={draft} update={update} />
+          <NameRaceStep draft={draft} update={update} races={content.races} />
         )}
-        {step === 1 && <ClassStep draft={draft} update={update} />}
+        {step === 1 && (
+          <ClassStep draft={draft} update={update} classes={content.classes} />
+        )}
         {step === 2 && <ClassOptionsStep draft={draft} update={update} />}
-        {step === 3 && <BackgroundStep draft={draft} update={update} />}
+        {step === 3 && (
+          <BackgroundStep
+            draft={draft}
+            update={update}
+            backgrounds={content.backgrounds}
+          />
+        )}
         {step === 4 && (
           <AbilitiesStep
             draft={draft}
@@ -328,9 +352,11 @@ function bundleLabel(items: EquipmentItem[]): string {
 function NameRaceStep({
   draft,
   update,
+  races,
 }: {
   draft: CharacterDraft;
   update: (p: Partial<CharacterDraft>) => void;
+  races: RaceData[];
 }) {
   const selectRace = (race: RaceData) =>
     // Reset picks that depend on the race.
@@ -350,7 +376,7 @@ function NameRaceStep({
 
       <h3>Race</h3>
       <div className="dvtt-cards">
-        {RACES.map((race) => (
+        {races.map((race) => (
           <button
             key={race.id}
             className={`dvtt-card${draft.race?.id === race.id ? " is-selected" : ""}`}
@@ -411,9 +437,11 @@ function prunePicks(
 function ClassStep({
   draft,
   update,
+  classes,
 }: {
   draft: CharacterDraft;
   update: (p: Partial<CharacterDraft>) => void;
+  classes: ClassData[];
 }) {
   const selectClass = (charClass: ClassData) =>
     // Reset picks that depend on the class: skills, ASI points, subclass,
@@ -460,7 +488,7 @@ function ClassStep({
         />
       </label>
       <div className="dvtt-cards">
-        {CLASSES.map((c) => (
+        {classes.map((c) => (
           <button
             key={c.id}
             className={`dvtt-card${draft.charClass?.id === c.id ? " is-selected" : ""}`}
@@ -865,9 +893,11 @@ function ExpertisePickGrid({
 function BackgroundStep({
   draft,
   update,
+  backgrounds,
 }: {
   draft: CharacterDraft;
   update: (p: Partial<CharacterDraft>) => void;
+  backgrounds: BackgroundData[];
 }) {
   const selectBackground = (background: BackgroundData) =>
     update({ background, bonusSkills: [], backgroundName: "" });
@@ -876,7 +906,7 @@ function BackgroundStep({
     <div>
       <h3>Background</h3>
       <div className="dvtt-cards">
-        {BACKGROUNDS.map((bg) => (
+        {backgrounds.map((bg) => (
           <button
             key={bg.id}
             className={`dvtt-card${draft.background?.id === bg.id ? " is-selected" : ""}`}

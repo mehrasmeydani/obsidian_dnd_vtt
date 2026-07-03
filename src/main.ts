@@ -19,16 +19,22 @@ import {
   loadCharacterNote,
   saveCharacterNote,
 } from "./persistence/characterStore";
+import { ContentStore } from "./data/contentStore";
+import { parseContentBundle } from "./data/contentSchema";
 import type { TFile } from "obsidian";
 import type { Character } from "./model/schema";
+import { ZodError } from "zod";
 
 interface DndVttSettings {
   /** Vault folder where new character notes are created. */
   charactersFolder: string;
+  /** File names of content bundles the user switched off. */
+  disabledBundles: string[];
 }
 
 const DEFAULT_SETTINGS: DndVttSettings = {
   charactersFolder: "Characters",
+  disabledBundles: [],
 };
 
 /**
@@ -39,10 +45,12 @@ const DEFAULT_SETTINGS: DndVttSettings = {
  */
 export default class DndVttPlugin extends Plugin {
   settings: DndVttSettings = { ...DEFAULT_SETTINGS };
+  content = new ContentStore();
   private activeCharacter: BoundCharacter | null = null;
 
   async onload(): Promise<void> {
     await this.loadSettings();
+    await this.loadContentBundles();
     this.addSettingTab(new DndVttSettingTab(this.app, this));
 
     this.registerView(
@@ -52,9 +60,17 @@ export default class DndVttPlugin extends Plugin {
     this.registerView(
       VIEW_TYPE_CHARACTER_CREATION,
       (leaf) =>
-        new CharacterCreationView(leaf, (character) => {
-          void this.finishCharacterCreation(character);
-        }),
+        new CharacterCreationView(
+          leaf,
+          (character) => {
+            void this.finishCharacterCreation(character);
+          },
+          () => ({
+            races: this.content.races,
+            classes: this.content.classes,
+            backgrounds: this.content.backgrounds,
+          }),
+        ),
     );
 
     this.addRibbonIcon("scroll-text", "Open D&D character sheet", () => {
@@ -98,6 +114,35 @@ export default class DndVttPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+  }
+
+  /**
+   * Load every `*.json` bundle from `<plugin dir>/data/content/` into the
+   * content store (T-11). Invalid bundles are skipped with a notice naming
+   * the file and the first problem; nothing here touches the network.
+   */
+  private async loadContentBundles(): Promise<void> {
+    const adapter = this.app.vault.adapter;
+    const dir = `${this.manifest.dir}/data/content`;
+    if (!(await adapter.exists(dir))) return;
+
+    const listing = await adapter.list(dir);
+    for (const path of listing.files.filter((f) => f.endsWith(".json")).sort()) {
+      const fileName = path.split("/").pop() ?? path;
+      try {
+        const bundle = parseContentBundle(JSON.parse(await adapter.read(path)));
+        this.content.addBundle(
+          fileName,
+          bundle,
+          !this.settings.disabledBundles.includes(fileName),
+        );
+      } catch (error) {
+        console.error(`D&D VTT: invalid content bundle ${path}`, error);
+        new Notice(
+          `D&D VTT: skipping content bundle "${fileName}" — ${bundleProblem(error)}`,
+        );
+      }
+    }
   }
 
   /** Reveal an existing sheet leaf or create one in the right sidebar. */
@@ -194,6 +239,17 @@ export default class DndVttPlugin extends Plugin {
   }
 }
 
+/** A short, user-facing description of why a bundle failed to load. */
+function bundleProblem(error: unknown): string {
+  if (error instanceof ZodError) {
+    const issue = error.issues[0];
+    const where = issue.path.join(".") || "bundle";
+    return `invalid content at "${where}": ${issue.message}`;
+  }
+  if (error instanceof SyntaxError) return "not valid JSON.";
+  return error instanceof Error ? error.message : String(error);
+}
+
 class DndVttSettingTab extends PluginSettingTab {
   constructor(
     app: App,
@@ -220,5 +276,45 @@ class DndVttSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           }),
       );
+
+    new Setting(this.containerEl)
+      .setName("Content bundles")
+      .setDesc(
+        "Game content sources, merged in order (later bundles override by id). " +
+          "Drop *.json bundle files into the plugin's data/content/ folder and " +
+          "reload the plugin to add more.",
+      )
+      .setHeading();
+
+    for (const entry of this.plugin.content.list()) {
+      const meta = [
+        entry.bundle.source,
+        entry.bundle.fetchedAt ? `fetched ${entry.bundle.fetchedAt}` : null,
+        `${entry.bundle.races.length} races · ${entry.bundle.classes.length} classes · ${entry.bundle.backgrounds.length} backgrounds`,
+      ]
+        .filter(Boolean)
+        .join(" — ");
+
+      const setting = new Setting(this.containerEl)
+        .setName(
+          entry.builtin ? entry.bundle.name : `${entry.bundle.name} (${entry.id})`,
+        )
+        .setDesc(meta);
+      if (entry.builtin) {
+        setting.setDesc(`${meta} — always on.`);
+      } else {
+        setting.addToggle((toggle) =>
+          toggle.setValue(entry.enabled).onChange(async (enabled) => {
+            this.plugin.content.setEnabled(entry.id, enabled);
+            this.plugin.settings.disabledBundles = enabled
+              ? this.plugin.settings.disabledBundles.filter(
+                  (id) => id !== entry.id,
+                )
+              : [...new Set([...this.plugin.settings.disabledBundles, entry.id])];
+            await this.plugin.saveSettings();
+          }),
+        );
+      }
+    }
   }
 }

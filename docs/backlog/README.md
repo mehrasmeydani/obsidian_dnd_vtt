@@ -15,7 +15,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-02](T-02-sheet-css-skin.md) | Character sheet CSS skin | P1 | S | 1 | user CSS file | done |
 | [T-03](T-03-subclasses.md) | Subclass selection in wizard | P1 | M | 1 | — | done |
 | [T-18](T-18-class-feature-options.md) | Class feature options in wizard | P1 | M | 1 | T-03 | done |
-| [T-11](T-11-content-store.md) | Local content store | P1 | M | 2 | — | todo |
+| [T-11](T-11-content-store.md) | Local content store | P1 | M | 2 | — | done |
 | [T-04](T-04-feats.md) | Feats as ASI alternative | P2 | M | 1 | — | todo |
 | [T-05](T-05-race-background-options.md) | Race & background option choices | P2 | M | 1 | — | todo |
 | [T-06](T-06-armor-aware-ac.md) | Armor-aware AC | P2 | M | 1 | T-01 | todo |
