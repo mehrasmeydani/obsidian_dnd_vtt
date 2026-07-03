@@ -21,8 +21,10 @@ export type {
   ContentBundle,
   EquipmentChoice,
   EquipmentItem,
+  FeatureChoice,
   RaceData,
   SkillChoice,
   StartingEquipment,
+  SubclassData,
   Trait,
 } from "./contentSchema";

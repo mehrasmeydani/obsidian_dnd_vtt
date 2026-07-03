@@ -117,6 +117,40 @@ describe("classes", () => {
       }
     },
   );
+
+  it.each(CLASSES.map((c) => [c.id, c] as const))(
+    "%s has a subclass and satisfiable feature choices",
+    (_id, charClass) => {
+      // Every class ships at least one subclass with a valid unlock level.
+      expect(charClass.subclasses.length).toBeGreaterThan(0);
+      expect(charClass.subclassLevel).toBeGreaterThanOrEqual(1);
+      expect(charClass.subclassLevel).toBeLessThanOrEqual(3);
+
+      // Choice ids are unique across the class and all of its subclasses.
+      const allChoices = [
+        ...charClass.featureChoices,
+        ...charClass.subclasses.flatMap((s) => s.featureChoices),
+      ];
+      const ids = allChoices.map((c) => c.id);
+      expect(new Set(ids).size).toBe(ids.length);
+
+      for (const choice of allChoices) {
+        if (choice.kind === "options") {
+          // Satisfiable, with uniquely named options.
+          expect(choice.count).toBeLessThanOrEqual(choice.options.length);
+          const names = choice.options.map((o) => o.name);
+          expect(new Set(names).size).toBe(names.length);
+        } else if (choice.kind === "skills" && choice.from !== "any") {
+          expect(choice.count).toBeLessThanOrEqual(choice.from.length);
+        } else if (choice.kind === "expertise") {
+          // Must be satisfiable from the class's own skill picks alone.
+          expect(choice.count).toBeLessThanOrEqual(
+            charClass.skillChoice.count,
+          );
+        }
+      }
+    },
+  );
 });
 
 describe("backgrounds", () => {

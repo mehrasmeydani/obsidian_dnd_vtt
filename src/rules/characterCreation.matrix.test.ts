@@ -60,6 +60,41 @@ function completeDraft(
       )
     : [];
 
+  // Subclass owed at level 1 (cleric domain, sorcerous origin, patron).
+  const subclass =
+    charClass.subclasses.length > 0 && (charClass.subclassLevel ?? 99) <= 1
+      ? charClass.subclasses[0]
+      : null;
+
+  // First legal pick for every feature choice active at level 1.
+  const featurePicks: Record<string, string[]> = {};
+  const claimed = new Set<Skill>([...taken, ...bonusSkills]);
+  const expertiseClaimed = new Set<Skill>();
+  const level1Choices = [
+    ...charClass.featureChoices,
+    ...(subclass?.featureChoices ?? []),
+  ].filter((c) => c.level <= 1);
+  for (const choice of level1Choices) {
+    if (choice.kind === "options") {
+      featurePicks[choice.id] = choice.options
+        .slice(0, choice.count)
+        .map((o) => o.name);
+    } else if (choice.kind === "skills") {
+      const pool = choice.from === "any" ? ALL_SKILLS : choice.from;
+      const picks = pool
+        .filter((s) => !claimed.has(s))
+        .slice(0, choice.count);
+      picks.forEach((s) => claimed.add(s));
+      featurePicks[choice.id] = picks;
+    } else {
+      const picks = [...claimed]
+        .filter((s) => !expertiseClaimed.has(s))
+        .slice(0, choice.count);
+      picks.forEach((s) => expertiseClaimed.add(s));
+      featurePicks[choice.id] = picks;
+    }
+  }
+
   return {
     ...emptyDraft(),
     name: `${race.name} ${charClass.name}`,
@@ -71,6 +106,8 @@ function completeDraft(
     classSkills,
     bonusSkills,
     equipmentChoices: charClass.equipment.choices.map(() => 0),
+    subclass,
+    featurePicks,
   };
 }
 
@@ -95,7 +132,13 @@ describe.each(BACKGROUNDS.map((bg) => [bg.id, bg] as const))(
       expect(character.currentHp).toBe(character.maxHp);
       expect(character.armorClass).toBe(10 + abilityModifier(scores.dex));
       expect(character.speed).toBe(race.speed);
-      expect(character.classes).toEqual([{ name: charClass.name, level: 1 }]);
+      expect(character.classes).toEqual([
+        {
+          name: charClass.name,
+          level: 1,
+          ...(draft.subclass ? { subclass: draft.subclass.name } : {}),
+        },
+      ]);
       expect(character.spellcastingAbility).toBe(charClass.spellcastingAbility);
 
       // Exactly the class saves are proficient.
@@ -103,18 +146,41 @@ describe.each(BACKGROUNDS.map((bg) => [bg.id, bg] as const))(
         [...charClass.savingThrows].sort(),
       );
 
-      // Every granted and chosen skill is proficient, with no extras.
+      // Every granted and chosen skill is proficient, with no extras;
+      // expertise picks stay in the map with the upgraded level.
+      const skillChoiceIds = new Set(
+        [
+          ...charClass.featureChoices,
+          ...(draft.subclass?.featureChoices ?? []),
+        ]
+          .filter((c) => c.kind === "skills")
+          .map((c) => c.id),
+      );
       const expectedSkills = new Set<Skill>([
         ...(race.grantedSkills ?? []),
         ...background.grantedSkills,
         ...draft.classSkills,
         ...draft.bonusSkills,
+        ...(Object.entries(draft.featurePicks)
+          .filter(([id]) => skillChoiceIds.has(id))
+          .flatMap(([, picks]) => picks) as Skill[]),
       ]);
       expect(new Set(Object.keys(character.skills))).toEqual(expectedSkills);
 
-      // All traits arrive as features, tagged with their source.
+      // All traits arrive as features (subclass traits and option picks
+      // included), tagged with their source.
+      const optionPickCount = [
+        ...charClass.featureChoices,
+        ...(draft.subclass?.featureChoices ?? []),
+      ]
+        .filter((c) => c.kind === "options" && c.level <= 1)
+        .reduce((sum, c) => sum + c.count, 0);
       expect(character.features).toHaveLength(
-        race.traits.length + charClass.traits.length + background.traits.length,
+        race.traits.length +
+          charClass.traits.length +
+          (draft.subclass?.traits.length ?? 0) +
+          background.traits.length +
+          optionPickCount,
       );
       const featureIds = character.features.map((f) => f.id);
       expect(new Set(featureIds).size).toBe(featureIds.length);

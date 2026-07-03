@@ -107,5 +107,29 @@
         }
       ]
     }
+  ],
+  "featureChoices": [
+    {
+      "id": "pact-boon",
+      "name": "Pact Boon",
+      "level": 3,
+      "count": 1,
+      "kind": "options",
+      "description": "Your patron bestows a gift upon you for your loyal service.",
+      "options": [
+        {
+          "name": "Pact of the Chain",
+          "description": "Learn find familiar; your familiar can take special forms (imp, pseudodragon, quasit, or sprite)."
+        },
+        {
+          "name": "Pact of the Blade",
+          "description": "Create a pact weapon as an action; you are proficient with it and can change its form."
+        },
+        {
+          "name": "Pact of the Tome",
+          "description": "Your patron gives you a Book of Shadows with three cantrips from any class's spell list."
+        }
+      ]
+    }
   ]
 }

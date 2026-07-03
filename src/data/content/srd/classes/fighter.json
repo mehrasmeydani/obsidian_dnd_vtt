@@ -126,5 +126,41 @@
         }
       ]
     }
+  ],
+  "featureChoices": [
+    {
+      "id": "fighting-style",
+      "name": "Fighting Style",
+      "level": 1,
+      "count": 1,
+      "kind": "options",
+      "description": "Adopt a particular style of fighting as your specialty.",
+      "options": [
+        {
+          "name": "Archery",
+          "description": "+2 bonus to attack rolls with ranged weapons."
+        },
+        {
+          "name": "Defense",
+          "description": "+1 AC while wearing armor."
+        },
+        {
+          "name": "Dueling",
+          "description": "+2 damage when wielding a one-handed melee weapon and no other weapon."
+        },
+        {
+          "name": "Great Weapon Fighting",
+          "description": "Reroll 1s and 2s on damage dice of two-handed or versatile melee weapons."
+        },
+        {
+          "name": "Protection",
+          "description": "Reaction while holding a shield: impose disadvantage on an attack against a creature within 5 feet."
+        },
+        {
+          "name": "Two-Weapon Fighting",
+          "description": "Add your ability modifier to the damage of off-hand attacks."
+        }
+      ]
+    }
   ]
 }

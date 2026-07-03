@@ -105,6 +105,58 @@
           "name": "Draconic Resilience",
           "description": "+1 HP per sorcerer level; unarmored AC 13 + DEX."
         }
+      ],
+      "featureChoices": [
+        {
+          "id": "dragon-ancestor",
+          "name": "Dragon Ancestor",
+          "level": 1,
+          "count": 1,
+          "kind": "options",
+          "description": "Choose the type of dragon in your bloodline; it determines your draconic damage affinity.",
+          "options": [
+            {
+              "name": "Black dragon",
+              "description": "Affinity: acid damage."
+            },
+            {
+              "name": "Blue dragon",
+              "description": "Affinity: lightning damage."
+            },
+            {
+              "name": "Brass dragon",
+              "description": "Affinity: fire damage."
+            },
+            {
+              "name": "Bronze dragon",
+              "description": "Affinity: lightning damage."
+            },
+            {
+              "name": "Copper dragon",
+              "description": "Affinity: acid damage."
+            },
+            {
+              "name": "Gold dragon",
+              "description": "Affinity: fire damage."
+            },
+            {
+              "name": "Green dragon",
+              "description": "Affinity: poison damage."
+            },
+            {
+              "name": "Red dragon",
+              "description": "Affinity: fire damage."
+            },
+            {
+              "name": "Silver dragon",
+              "description": "Affinity: cold damage."
+            },
+            {
+              "name": "White dragon",
+              "description": "Affinity: cold damage."
+            }
+          ]
+        }
       ]
     }
   ]

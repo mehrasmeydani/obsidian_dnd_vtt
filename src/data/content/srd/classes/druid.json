@@ -94,6 +94,42 @@
           "name": "Natural Recovery",
           "description": "Recover spell slots during a short rest once per day."
         }
+      ],
+      "featureChoices": [
+        {
+          "id": "circle-land",
+          "name": "Circle of the Land",
+          "level": 2,
+          "count": 1,
+          "kind": "options",
+          "description": "Choose the land where you became a druid; it determines your circle spells.",
+          "options": [
+            {
+              "name": "Arctic"
+            },
+            {
+              "name": "Coast"
+            },
+            {
+              "name": "Desert"
+            },
+            {
+              "name": "Forest"
+            },
+            {
+              "name": "Grassland"
+            },
+            {
+              "name": "Mountain"
+            },
+            {
+              "name": "Swamp"
+            },
+            {
+              "name": "Underdark"
+            }
+          ]
+        }
       ]
     }
   ]

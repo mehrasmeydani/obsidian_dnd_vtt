@@ -64,11 +64,20 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
     fireEvent.click(nextButton());
 
-    // Step 3: background.
+    // Step 3: class options — subclass is still locked at level 1, but the
+    // fighter owes a Fighting Style.
+    expect(screen.getByText(/Unlocks at level 3/)).toBeTruthy();
+    expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText(/Choose 1 option for Fighting Style/)).toBeTruthy();
+    fireEvent.click(screen.getByLabelText("Defense"));
+    expect(nextButton().disabled).toBe(false);
+    fireEvent.click(nextButton());
+
+    // Step 4: background.
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
     fireEvent.click(nextButton());
 
-    // Step 4: abilities — assign the standard array (rows are STR..CHA).
+    // Step 5: abilities — assign the standard array (rows are STR..CHA).
     expect(nextButton().disabled).toBe(true);
     const selects = screen.getAllByRole("combobox");
     expect(selects).toHaveLength(6);
@@ -79,7 +88,7 @@ describe("CharacterCreationWizard", () => {
     expect(nextButton().disabled).toBe(false);
     fireEvent.click(nextButton());
 
-    // Step 5: skills — acolyte's granted skills show as chips, not choices.
+    // Step 6: skills — acolyte's granted skills show as chips, not choices.
     expect(choiceGroup(/Granted by race/).getByText("Insight")).toBeTruthy();
     expect(nextButton().disabled).toBe(true);
     const classGroup = choiceGroup(/Fighter skills/);
@@ -88,7 +97,7 @@ describe("CharacterCreationWizard", () => {
     expect(nextButton().disabled).toBe(false);
     fireEvent.click(nextButton());
 
-    // Step 6: equipment — defaults are pre-selected; swap one choice.
+    // Step 7: equipment — defaults are pre-selected; swap one choice.
     expect(screen.getByText("Vestments")).toBeTruthy(); // acolyte gear
     expect(
       (screen.getByLabelText("Chain mail") as HTMLInputElement).checked,
@@ -97,8 +106,9 @@ describe("CharacterCreationWizard", () => {
     expect(nextButton().disabled).toBe(false);
     fireEvent.click(nextButton());
 
-    // Step 7: review shows derived stats, then create.
+    // Step 8: review shows derived stats, then create.
     expect(screen.getByText(/Level 1 Hill Dwarf Fighter/)).toBeTruthy();
+    expect(screen.getByText(/Fighting Style: Defense/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Create character" }));
 
     expect(onComplete).toHaveBeenCalledTimes(1);
@@ -137,6 +147,15 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
     fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "4" } });
     fireEvent.click(nextButton());
+
+    // Class options: the level-3 subclass is now owed alongside the style.
+    expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText(/Choose a Fighter subclass/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /^Champion/ }));
+    fireEvent.click(screen.getByLabelText("Archery"));
+    expect(nextButton().disabled).toBe(false);
+    fireEvent.click(nextButton());
+
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
     fireEvent.click(nextButton());
 
@@ -178,6 +197,11 @@ describe("CharacterCreationWizard", () => {
 
     fireEvent.click(stepButton("Class"));
     fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
+    // Class options unlocks, but Background waits on the fighting style.
+    expect(stepButton("Class options").disabled).toBe(false);
+    expect(stepButton("Background").disabled).toBe(true);
+    fireEvent.click(stepButton("Class options"));
+    fireEvent.click(screen.getByLabelText("Defense"));
     expect(stepButton("Background").disabled).toBe(false);
 
     // Jump straight back to the first step — state is preserved.
@@ -185,6 +209,66 @@ describe("CharacterCreationWizard", () => {
     expect(
       (screen.getByPlaceholderText(/Borin/) as HTMLInputElement).value,
     ).toBe("Borin");
+  });
+
+  it("walks a level-3 rogue through subclass and expertise picks", () => {
+    const onComplete = vi.fn<(c: Character) => void>();
+    render(
+      <CharacterCreationWizard onComplete={onComplete} onCancel={() => {}} />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Merric" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.click(nextButton());
+
+    // Level 3 rogue, then the class-options step owes the Thief archetype.
+    fireEvent.click(screen.getByRole("button", { name: /^Rogue/ }));
+    fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "3" } });
+    fireEvent.click(nextButton());
+    expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText(/Choose a Rogue subclass/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /^Thief/ }));
+    expect(nextButton().disabled).toBe(false);
+    fireEvent.click(nextButton());
+
+    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.click(nextButton());
+
+    const selects = screen.getAllByRole("combobox");
+    [10, 15, 14, 8, 12, 13].forEach((value, i) => {
+      fireEvent.change(selects[i], { target: { value: String(value) } });
+    });
+    fireEvent.click(nextButton());
+
+    // Skills: four rogue picks, then expertise from proficient skills only —
+    // including the background-granted Insight.
+    const classGroup = choiceGroup(/Rogue skills/);
+    for (const skill of ["Stealth", "Acrobatics", "Deception", "Perception"]) {
+      fireEvent.click(classGroup.getByLabelText(skill));
+    }
+    expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText(/Choose 2 skills for Expertise/)).toBeTruthy();
+    const expertiseGroup = choiceGroup(/Expertise — level 1/);
+    fireEvent.click(expertiseGroup.getByLabelText("Stealth"));
+    fireEvent.click(expertiseGroup.getByLabelText("Insight"));
+    expect(nextButton().disabled).toBe(false);
+    fireEvent.click(nextButton());
+
+    // Equipment defaults, review, create.
+    fireEvent.click(nextButton());
+    expect(screen.getByText(/Level 3 Hill Dwarf Rogue \(Thief\)/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Create character" }));
+
+    const character = onComplete.mock.calls[0][0];
+    expect(character.classes).toEqual([
+      { name: "Rogue", level: 3, subclass: "Thief" },
+    ]);
+    expect(character.skills.stealth).toBe("expertise");
+    expect(character.skills.insight).toBe("expertise");
+    expect(character.skills.acrobatics).toBe("proficient");
+    expect(character.features.map((f) => f.name)).toContain("Second-Story Work");
   });
 
   it("supports races with bonus ability and skill choices (half-elf bard)", () => {
@@ -200,6 +284,13 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: /^Bard/ }));
+    fireEvent.click(nextButton());
+
+    // Class options: nothing is owed at level 1 (bard expertise comes at 3,
+    // the college at 3 too).
+    expect(screen.getByText(/Unlocks at level 3/)).toBeTruthy();
+    expect(screen.getByText(/Nothing else to choose/)).toBeTruthy();
+    expect(nextButton().disabled).toBe(false);
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));

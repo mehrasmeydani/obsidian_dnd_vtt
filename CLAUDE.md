@@ -8,10 +8,16 @@ acceptance criteria); pick from the top, update statuses as you go.
 ## Status (as of 2026-07-03, commit b8336a7)
 
 Phase 0 done; Phase 1 mostly done:
-- Creation wizard: name/race → class (+ starting level 1–20) → background →
-  abilities (standard array / point buy / manual, racial picks, ASI points) →
-  skills → equipment (pick-one choices) → review. Step headers are clickable;
-  a hint beside the disabled Next button always explains what's missing.
+- Creation wizard: name/race → class (+ starting level 1–20) → class options
+  (subclass cards once `level ≥ subclassLevel`, plus fighting styles, pact
+  boon, weapon mastery… — choice kinds options/skills/expertise via
+  `featureChoices` in the content schema; expertise renders on the Skills
+  step instead, since it picks from the skills chosen there) → background →
+  abilities (standard array / point buy / manual, racial picks, ASI points)
+  → skills (+ expertise) → equipment (pick-one choices) → review. Step
+  headers are clickable; a hint beside the disabled Next button always
+  explains what's missing. Warlock invocations are NOT modeled yet (needs
+  prerequisites, see T-18 notes).
 - Characters persist as vault notes: `dnd-vtt: character` frontmatter marker +
   Envelope JSON in a ```dnd-vtt-character fence. User prose and foreign
   frontmatter are preserved on update (`src/persistence/characterNote.ts`).
@@ -48,11 +54,11 @@ Phase 0 done; Phase 1 mostly done:
 
 ## Workflow
 
-- Tests: `npm test` works on the WSL host (Node 18); 357 tests across rules,
+- Tests: `npm test` works on the WSL host (Node 18); 379 tests across rules,
   schema pinning, SRD data integrity, a 234-case race×class×background
-  assembly matrix (auto-grows with the bundle), note-format round-trips, and
-  jsdom wizard/sheet walkthroughs (Testing Library). Add regression tests
-  with every feature.
+  assembly matrix (auto-grows with the bundle; auto-picks level-1 subclasses
+  and feature choices), note-format round-trips, and jsdom wizard/sheet
+  walkthroughs (Testing Library). Add regression tests with every feature.
 - Build: `npm run build` (host Node 18+ OK) or `docker compose run --rm build`
   (node:20-slim image; compose runs as host UID so bind-mounted files stay
   user-owned). CI (`.github/workflows/ci.yml`) runs npm ci + test + build.

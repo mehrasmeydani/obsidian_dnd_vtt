@@ -104,6 +104,143 @@
           "name": "Hunter's Prey",
           "description": "Choose Colossus Slayer, Giant Killer, or Horde Breaker."
         }
+      ],
+      "featureChoices": [
+        {
+          "id": "hunters-prey",
+          "name": "Hunter's Prey",
+          "level": 3,
+          "count": 1,
+          "kind": "options",
+          "options": [
+            {
+              "name": "Colossus Slayer",
+              "description": "Once per turn, +1d8 damage to a creature below its hit point maximum."
+            },
+            {
+              "name": "Giant Killer",
+              "description": "Reaction to attack a Large or larger creature within 5 feet that hits or misses you."
+            },
+            {
+              "name": "Horde Breaker",
+              "description": "Once per turn, make another attack against a different creature within 5 feet of the original target."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "featureChoices": [
+    {
+      "id": "favored-enemy",
+      "name": "Favored Enemy",
+      "level": 1,
+      "count": 1,
+      "kind": "options",
+      "description": "Advantage on Survival checks to track your favored enemies and on Intelligence checks to recall information about them.",
+      "options": [
+        {
+          "name": "Aberrations"
+        },
+        {
+          "name": "Beasts"
+        },
+        {
+          "name": "Celestials"
+        },
+        {
+          "name": "Constructs"
+        },
+        {
+          "name": "Dragons"
+        },
+        {
+          "name": "Elementals"
+        },
+        {
+          "name": "Fey"
+        },
+        {
+          "name": "Fiends"
+        },
+        {
+          "name": "Giants"
+        },
+        {
+          "name": "Monstrosities"
+        },
+        {
+          "name": "Oozes"
+        },
+        {
+          "name": "Plants"
+        },
+        {
+          "name": "Undead"
+        },
+        {
+          "name": "Humanoids (two races)"
+        }
+      ]
+    },
+    {
+      "id": "natural-explorer",
+      "name": "Natural Explorer",
+      "level": 1,
+      "count": 1,
+      "kind": "options",
+      "description": "You are particularly familiar with one type of natural environment: doubled proficiency on related INT/WIS checks, and travel benefits there.",
+      "options": [
+        {
+          "name": "Arctic"
+        },
+        {
+          "name": "Coast"
+        },
+        {
+          "name": "Desert"
+        },
+        {
+          "name": "Forest"
+        },
+        {
+          "name": "Grassland"
+        },
+        {
+          "name": "Mountain"
+        },
+        {
+          "name": "Swamp"
+        },
+        {
+          "name": "Underdark"
+        }
+      ]
+    },
+    {
+      "id": "fighting-style",
+      "name": "Fighting Style",
+      "level": 2,
+      "count": 1,
+      "kind": "options",
+      "description": "Adopt a particular style of fighting as your specialty.",
+      "options": [
+        {
+          "name": "Archery",
+          "description": "+2 bonus to attack rolls with ranged weapons."
+        },
+        {
+          "name": "Defense",
+          "description": "+1 AC while wearing armor."
+        },
+        {
+          "name": "Dueling",
+          "description": "+2 damage when wielding a one-handed melee weapon and no other weapon."
+        },
+        {
+          "name": "Two-Weapon Fighting",
+          "description": "Add your ability modifier to the damage of off-hand attacks."
+        }
       ]
     }
   ]

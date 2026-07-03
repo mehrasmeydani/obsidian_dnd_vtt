@@ -11,6 +11,7 @@ import {
   pointBuyCost,
   pointBuyTotal,
   startingHp,
+  subclassRequired,
   validateDraft,
   type CharacterDraft,
 } from "./characterCreation";
@@ -32,6 +33,16 @@ function validDraft(): CharacterDraft {
     baseScores: { str: 15, dex: 13, con: 14, int: 8, wis: 12, cha: 10 },
     classSkills: ["athletics", "perception"],
     equipmentChoices: [0, 0, 0, 0],
+    featurePicks: { "fighting-style": ["Archery"] },
+  };
+}
+
+/** validDraft raised past level 3, where the fighter owes a subclass. */
+function leveledDraft(level: number): CharacterDraft {
+  return {
+    ...validDraft(),
+    level,
+    subclass: byId(CLASSES, "fighter").subclasses[0],
   };
 }
 
@@ -173,7 +184,7 @@ describe("levels and ability score improvements", () => {
   });
 
   it("requires exactly two points per ASI", () => {
-    const draft: CharacterDraft = { ...validDraft(), level: 4 };
+    const draft: CharacterDraft = leveledDraft(4);
     expect(asiPointsTotal(draft)).toBe(2);
     expect(validateDraft(draft)).toContain(
       "Assign exactly 2 ability score improvement points.",
@@ -185,8 +196,7 @@ describe("levels and ability score improvements", () => {
 
   it("rejects improvements past the score cap of 20", () => {
     const draft: CharacterDraft = {
-      ...validDraft(),
-      level: 4,
+      ...leveledDraft(4),
       baseScores: { str: 19, dex: 13, con: 14, int: 8, wis: 12, cha: 10 },
       asiBonuses: { str: 2 },
     };
@@ -206,12 +216,13 @@ describe("levels and ability score improvements", () => {
 
   it("assembles a higher-level character with scaled HP and class level", () => {
     const draft: CharacterDraft = {
-      ...validDraft(),
-      level: 4,
+      ...leveledDraft(4),
       asiBonuses: { con: 2 }, // con 14 + 2 racial + 2 ASI = 18 (mod +4)
     };
     const character = assembleCharacter(draft, "test-id");
-    expect(character.classes).toEqual([{ name: "Fighter", level: 4 }]);
+    expect(character.classes).toEqual([
+      { name: "Fighter", level: 4, subclass: "Champion" },
+    ]);
     // L1: 10 + 4 = 14; L2-4: 3 × (6 + 4) = 30
     expect(character.maxHp).toBe(44);
   });
@@ -342,6 +353,7 @@ describe("2024 (5.5e) class variants", () => {
       charClass: byId(CLASSES, "barbarian-2024"),
       classSkills: ["athletics", "perception"],
       equipmentChoices: [0],
+      featurePicks: { "weapon-mastery": ["Greataxe", "Handaxe"] },
     };
   }
 
@@ -388,5 +400,154 @@ describe("2024 (5.5e) class variants", () => {
     const mastery = character.features.find((f) => f.name === "Weapon Mastery");
     expect(mastery?.source).toBe("Barbarian");
     expect(character.features.map((f) => f.name)).toContain("Rage");
+  });
+});
+
+describe("subclasses and feature choices", () => {
+  it("requires a subclass once the class's subclass level is reached", () => {
+    // Cleric picks a domain at level 1.
+    const cleric: CharacterDraft = {
+      ...validDraft(),
+      charClass: byId(CLASSES, "cleric"),
+      classSkills: ["history", "medicine"],
+      equipmentChoices: byId(CLASSES, "cleric").equipment.choices.map(() => 0),
+      featurePicks: {},
+    };
+    expect(validateDraft(cleric)).toContain("Choose a subclass.");
+    expect(subclassRequired(cleric)).toBe(true);
+
+    // Fighter doesn't owe one until level 3.
+    expect(subclassRequired(validDraft())).toBe(false);
+    expect(validateDraft(validDraft())).toEqual([]);
+  });
+
+  it("rejects a subclass set before its level or from another class", () => {
+    const early: CharacterDraft = {
+      ...validDraft(),
+      subclass: byId(CLASSES, "fighter").subclasses[0],
+    };
+    expect(validateDraft(early)).toContain(
+      "Fighter has no subclass at level 1.",
+    );
+
+    const wrong: CharacterDraft = {
+      ...leveledDraft(3),
+      subclass: byId(CLASSES, "rogue").subclasses[0],
+    };
+    expect(validateDraft(wrong)).toContain(
+      "The chosen subclass does not belong to the class.",
+    );
+  });
+
+  it("copies subclass traits and records the subclass on the class entry", () => {
+    const character = assembleCharacter(leveledDraft(3), "test-id");
+    expect(character.classes).toEqual([
+      { name: "Fighter", level: 3, subclass: "Champion" },
+    ]);
+    const improvedCritical = character.features.find(
+      (f) => f.name === "Improved Critical",
+    );
+    expect(improvedCritical?.source).toBe("Champion");
+  });
+
+  it("turns option picks into features (fighting style)", () => {
+    const character = assembleCharacter(validDraft(), "test-id");
+    const style = character.features.find(
+      (f) => f.name === "Fighting Style: Archery",
+    );
+    expect(style?.source).toBe("Fighter");
+    expect(style?.description).toMatch(/ranged/);
+  });
+
+  it("gates and validates option picks", () => {
+    const missing: CharacterDraft = { ...validDraft(), featurePicks: {} };
+    expect(validateDraft(missing)).toContain(
+      "Choose 1 option for Fighting Style.",
+    );
+
+    const bogus: CharacterDraft = {
+      ...validDraft(),
+      featurePicks: { "fighting-style": ["Flying"] },
+    };
+    expect(validateDraft(bogus)).toContain(
+      "A Fighting Style pick is not one of its options.",
+    );
+
+    // The pact boon is owed at level 3, not at level 1.
+    const warlock: CharacterDraft = {
+      ...validDraft(),
+      charClass: byId(CLASSES, "warlock"),
+      classSkills: ["arcana", "deception"],
+      equipmentChoices: byId(CLASSES, "warlock").equipment.choices.map(() => 0),
+      featurePicks: {},
+      subclass: byId(CLASSES, "warlock").subclasses[0],
+    };
+    expect(validateDraft(warlock)).toEqual([]);
+    const warlock3: CharacterDraft = { ...warlock, level: 3 };
+    expect(validateDraft(warlock3)).toContain(
+      "Choose 1 option for Pact Boon.",
+    );
+  });
+
+  it("upgrades expertise picks and rejects non-proficient ones", () => {
+    const rogue: CharacterDraft = {
+      ...validDraft(),
+      charClass: byId(CLASSES, "rogue"),
+      classSkills: ["stealth", "acrobatics", "deception", "perception"],
+      equipmentChoices: byId(CLASSES, "rogue").equipment.choices.map(() => 0),
+      featurePicks: { expertise: ["stealth", "perception"] },
+    };
+    expect(validateDraft(rogue)).toEqual([]);
+    const character = assembleCharacter(rogue, "test-id");
+    expect(character.skills.stealth).toBe("expertise");
+    expect(character.skills.perception).toBe("expertise");
+    expect(character.skills.acrobatics).toBe("proficient");
+
+    const bad: CharacterDraft = {
+      ...rogue,
+      featurePicks: { expertise: ["stealth", "athletics"] },
+    };
+    expect(validateDraft(bad)).toContain(
+      "Expertise picks must be proficient skills.",
+    );
+  });
+
+  it("rejects the same skill gaining expertise twice at level 6", () => {
+    const rogue6: CharacterDraft = {
+      ...validDraft(),
+      charClass: byId(CLASSES, "rogue"),
+      level: 6,
+      subclass: byId(CLASSES, "rogue").subclasses[0],
+      asiBonuses: { dex: 2 },
+      classSkills: ["stealth", "acrobatics", "deception", "perception"],
+      equipmentChoices: byId(CLASSES, "rogue").equipment.choices.map(() => 0),
+      featurePicks: {
+        expertise: ["stealth", "perception"],
+        "expertise-6": ["stealth", "acrobatics"],
+      },
+    };
+    expect(validateDraft(rogue6)).toContain(
+      "Each skill can only gain expertise once.",
+    );
+  });
+
+  it("adds skill proficiencies from skills-kind choices (Lore bard)", () => {
+    const bard: CharacterDraft = {
+      ...validDraft(),
+      charClass: byId(CLASSES, "bard"),
+      level: 3,
+      subclass: byId(CLASSES, "bard").subclasses[0],
+      classSkills: ["performance", "persuasion", "deception"],
+      equipmentChoices: byId(CLASSES, "bard").equipment.choices.map(() => 0),
+      featurePicks: {
+        expertise: ["performance", "persuasion"],
+        "lore-proficiencies": ["arcana", "history", "nature"],
+      },
+    };
+    expect(validateDraft(bard)).toEqual([]);
+    const character = assembleCharacter(bard, "test-id");
+    expect(character.skills.arcana).toBe("proficient");
+    expect(character.skills.history).toBe("proficient");
+    expect(character.classes[0].subclass).toBe("College of Lore");
   });
 });

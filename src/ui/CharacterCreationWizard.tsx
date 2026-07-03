@@ -13,7 +13,9 @@ import {
   RACES,
   type BackgroundData,
   type ClassData,
+  type FeatureChoice,
   type RaceData,
+  type SubclassData,
 } from "../data/srd";
 import {
   ABILITY_SCORE_CAP,
@@ -22,14 +24,19 @@ import {
   POINT_BUY_MAX,
   POINT_BUY_MIN,
   STANDARD_ARRAY,
+  activeFeatureChoices,
   asiPointsSpent,
   asiPointsTotal,
   assembleCharacter,
   bonusSkillCount,
+  draftProficientSkills,
   emptyDraft,
+  featureChoiceProblems,
+  featureSkillPicks,
   finalAbilityScores,
   grantedSkills,
   pointBuyTotal,
+  subclassRequired,
   validateDraft,
   type CharacterDraft,
 } from "../rules/characterCreation";
@@ -54,6 +61,7 @@ const ABILITY_LABELS: Record<Ability, string> = {
 const STEPS = [
   "Name & Race",
   "Class",
+  "Class options",
   "Background",
   "Abilities",
   "Skills",
@@ -156,8 +164,9 @@ export function CharacterCreationWizard({
           <NameRaceStep draft={draft} update={update} />
         )}
         {step === 1 && <ClassStep draft={draft} update={update} />}
-        {step === 2 && <BackgroundStep draft={draft} update={update} />}
-        {step === 3 && (
+        {step === 2 && <ClassOptionsStep draft={draft} update={update} />}
+        {step === 3 && <BackgroundStep draft={draft} update={update} />}
+        {step === 4 && (
           <AbilitiesStep
             draft={draft}
             update={update}
@@ -167,9 +176,9 @@ export function CharacterCreationWizard({
             assignStandard={assignStandard}
           />
         )}
-        {step === 4 && <SkillsStep draft={draft} update={update} />}
-        {step === 5 && <EquipmentStep draft={draft} update={update} />}
-        {step === 6 && <ReviewStep draft={draft} />}
+        {step === 5 && <SkillsStep draft={draft} update={update} />}
+        {step === 6 && <EquipmentStep draft={draft} update={update} />}
+        {step === 7 && <ReviewStep draft={draft} />}
       </div>
 
       <footer className="dvtt-wizard__footer">
@@ -235,9 +244,17 @@ function stepBlockers(
       }
       break;
     case 2:
+      // Subclass and the non-skill feature choices live on this step;
+      // expertise gates the Skills step, where its pool is known.
+      if (subclassRequired(draft) && !draft.subclass) {
+        blockers.push(`Choose a ${draft.charClass?.name} subclass.`);
+      }
+      blockers.push(...featureChoiceProblems(draft, ["options", "skills"]));
+      break;
+    case 3:
       if (!draft.background) blockers.push("Select a background.");
       break;
-    case 3: {
+    case 4: {
       // The racial bonus and ASI pickers live on this step, so they gate here.
       if (draft.race?.bonusChoice) {
         const { count, amount } = draft.race.bonusChoice;
@@ -273,7 +290,7 @@ function stepBlockers(
       }
       break;
     }
-    case 4: {
+    case 5: {
       const classLeft =
         (draft.charClass?.skillChoice.count ?? 0) - draft.classSkills.length;
       if (classLeft > 0) {
@@ -283,9 +300,10 @@ function stepBlockers(
       if (bonusLeft > 0) {
         blockers.push(`Choose ${bonusLeft} more additional skill${bonusLeft === 1 ? "" : "s"}.`);
       }
+      blockers.push(...featureChoiceProblems(draft, ["expertise"]));
       break;
     }
-    case 5: {
+    case 6: {
       const choices = draft.charClass?.equipment.choices ?? [];
       const valid =
         draft.equipmentChoices.length === choices.length &&
@@ -363,6 +381,32 @@ function describeBonuses(race: RaceData): string {
   return parts.join(", ");
 }
 
+/** Ids of the feature choices active for a class/subclass pair at a level. */
+function activeChoiceIds(
+  charClass: ClassData | null,
+  subclass: SubclassData | null,
+  level: number,
+): Set<string> {
+  return new Set(
+    [
+      ...(charClass?.featureChoices ?? []),
+      ...(subclass?.featureChoices ?? []),
+    ]
+      .filter((c) => c.level <= level)
+      .map((c) => c.id),
+  );
+}
+
+/** Drop feature picks whose choice no longer applies. */
+function prunePicks(
+  picks: Record<string, string[]>,
+  keep: Set<string>,
+): Record<string, string[]> {
+  return Object.fromEntries(
+    Object.entries(picks).filter(([id]) => keep.has(id)),
+  );
+}
+
 function ClassStep({
   draft,
   update,
@@ -371,14 +415,35 @@ function ClassStep({
   update: (p: Partial<CharacterDraft>) => void;
 }) {
   const selectClass = (charClass: ClassData) =>
-    // Reset picks that depend on the class: skills, ASI points, and
-    // equipment choices (defaulting each choice to its first option).
+    // Reset picks that depend on the class: skills, ASI points, subclass,
+    // feature picks, and equipment (defaulting each to its first option).
     update({
       charClass,
       classSkills: [],
       asiBonuses: {},
+      subclass: null,
+      featurePicks: {},
       equipmentChoices: charClass.equipment.choices.map(() => 0),
     });
+
+  const setLevel = (level: number) => {
+    // Dropping below the subclass level clears the subclass; feature picks
+    // are pruned to the choices still active at the new level.
+    const stillUnlocked =
+      !!draft.charClass &&
+      draft.charClass.subclassLevel !== undefined &&
+      level >= draft.charClass.subclassLevel;
+    const subclass = stillUnlocked ? draft.subclass : null;
+    update({
+      level,
+      asiBonuses: {},
+      subclass,
+      featurePicks: prunePicks(
+        draft.featurePicks,
+        activeChoiceIds(draft.charClass, subclass, level),
+      ),
+    });
+  };
 
   return (
     <div>
@@ -390,9 +455,7 @@ function ClassStep({
           min={1}
           max={MAX_LEVEL}
           value={draft.level}
-          onChange={(e) =>
-            update({ level: Number(e.target.value), asiBonuses: {} })
-          }
+          onChange={(e) => setLevel(Number(e.target.value))}
         />
       </label>
       <div className="dvtt-cards">
@@ -424,6 +487,264 @@ function ClassStep({
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Subclass plus the feature choices owed at the starting level: fighting
+ * styles, pact boons, weapon mastery… Expertise choices are the exception —
+ * they render on the Skills step, since they pick from the skills chosen
+ * there.
+ */
+function ClassOptionsStep({
+  draft,
+  update,
+}: {
+  draft: CharacterDraft;
+  update: (p: Partial<CharacterDraft>) => void;
+}) {
+  const charClass = draft.charClass;
+  const choices = activeFeatureChoices(draft).filter(
+    (c) => c.kind !== "expertise",
+  );
+
+  if (!charClass) {
+    return (
+      <div>
+        <h3>Class options</h3>
+        <p className="dvtt-note">Choose a class first.</p>
+      </div>
+    );
+  }
+
+  const selectSubclass = (subclass: SubclassData) =>
+    update({
+      subclass,
+      featurePicks: prunePicks(
+        draft.featurePicks,
+        activeChoiceIds(charClass, subclass, draft.level),
+      ),
+    });
+
+  const hasSubclassSection = charClass.subclasses.length > 0;
+
+  return (
+    <div>
+      <h3>Class options</h3>
+
+      {hasSubclassSection && (
+        <div className="dvtt-choice-group">
+          <h4>{charClass.name} subclass</h4>
+          {subclassRequired(draft) ? (
+            <div className="dvtt-cards">
+              {charClass.subclasses.map((s) => (
+                <button
+                  key={s.id}
+                  className={`dvtt-card${draft.subclass?.id === s.id ? " is-selected" : ""}`}
+                  onClick={() => selectSubclass(s)}
+                >
+                  <div className="dvtt-card__title">{s.name}</div>
+                  <div className="dvtt-card__detail">
+                    {s.traits.map((t) => t.name).join(", ")}
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="dvtt-note">
+              Unlocks at level {charClass.subclassLevel} — start at that level
+              or pick it up when levelling.
+            </p>
+          )}
+        </div>
+      )}
+
+      {choices.length === 0 && !subclassRequired(draft) && (
+        <p className="dvtt-note">
+          Nothing else to choose for a level {draft.level} {charClass.name}.
+        </p>
+      )}
+
+      {choices.map((choice) => (
+        <FeatureChoiceGroup
+          key={choice.id}
+          draft={draft}
+          update={update}
+          choice={choice}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** One feature choice as a picker group (radio for count 1, else checkboxes). */
+function FeatureChoiceGroup({
+  draft,
+  update,
+  choice,
+}: {
+  draft: CharacterDraft;
+  update: (p: Partial<CharacterDraft>) => void;
+  choice: FeatureChoice;
+}) {
+  const picks = draft.featurePicks[choice.id] ?? [];
+
+  const setPicks = (next: string[]) =>
+    update({
+      featurePicks: { ...draft.featurePicks, [choice.id]: next },
+    });
+
+  const toggle = (value: string) =>
+    setPicks(
+      picks.includes(value)
+        ? picks.filter((v) => v !== value)
+        : [...picks, value],
+    );
+
+  return (
+    <div className="dvtt-choice-group">
+      <h4>
+        {choice.name} — level {choice.level} ({picks.length}/{choice.count})
+      </h4>
+      {choice.description && <p className="dvtt-note">{choice.description}</p>}
+
+      {choice.kind === "options" && (
+        <div className="dvtt-checkboxes">
+          {choice.options.map((option) => {
+            const checked = picks.includes(option.name);
+            return (
+              <label key={option.name} title={option.description}>
+                <input
+                  type={choice.count === 1 ? "radio" : "checkbox"}
+                  name={`dvtt-choice-${choice.id}`}
+                  checked={checked}
+                  disabled={
+                    !checked &&
+                    choice.count > 1 &&
+                    picks.length >= choice.count
+                  }
+                  onChange={() =>
+                    choice.count === 1 ? setPicks([option.name]) : toggle(option.name)
+                  }
+                />
+                {option.name}
+              </label>
+            );
+          })}
+        </div>
+      )}
+
+      {choice.kind === "skills" && (
+        <SkillPickGrid
+          draft={draft}
+          choice={choice}
+          picks={picks as Skill[]}
+          pool={
+            choice.from === "any" ? (Object.keys(SKILLS) as Skill[]) : choice.from
+          }
+          toggle={toggle}
+        />
+      )}
+
+      {choice.kind === "expertise" && (
+        <ExpertisePickGrid
+          draft={draft}
+          choice={choice}
+          picks={picks as Skill[]}
+          toggle={toggle}
+        />
+      )}
+    </div>
+  );
+}
+
+/** New skill proficiencies from a feature choice: dedupe against every other source. */
+function SkillPickGrid({
+  draft,
+  choice,
+  picks,
+  pool,
+  toggle,
+}: {
+  draft: CharacterDraft;
+  choice: FeatureChoice;
+  picks: Skill[];
+  pool: Skill[];
+  toggle: (skill: Skill) => void;
+}) {
+  const takenElsewhere = new Set<Skill>(
+    draftProficientSkills(draft).filter((s) => !picks.includes(s)),
+  );
+  return (
+    <div className="dvtt-checkboxes">
+      {pool.map((skill) => {
+        const checked = picks.includes(skill);
+        return (
+          <label key={skill}>
+            <input
+              type="checkbox"
+              checked={checked}
+              disabled={
+                !checked &&
+                (takenElsewhere.has(skill) || picks.length >= choice.count)
+              }
+              onChange={() => toggle(skill)}
+            />
+            {humanizeSkill(skill)}
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Expertise picks: only skills the draft is already proficient in qualify. */
+function ExpertisePickGrid({
+  draft,
+  choice,
+  picks,
+  toggle,
+}: {
+  draft: CharacterDraft;
+  choice: FeatureChoice;
+  picks: Skill[];
+  toggle: (skill: Skill) => void;
+}) {
+  const pool = [...new Set(draftProficientSkills(draft))];
+  // Skills claimed by the *other* expertise choice (e.g. rogue level 6).
+  const claimedElsewhere = new Set(
+    activeFeatureChoices(draft)
+      .filter((c) => c.kind === "expertise" && c.id !== choice.id)
+      .flatMap((c) => draft.featurePicks[c.id] ?? []),
+  );
+  if (pool.length === 0) {
+    return (
+      <p className="dvtt-note">
+        Pick your skills first — expertise upgrades skills you are proficient
+        in.
+      </p>
+    );
+  }
+  return (
+    <div className="dvtt-checkboxes">
+      {pool.map((skill) => {
+        const checked = picks.includes(skill);
+        return (
+          <label key={skill}>
+            <input
+              type="checkbox"
+              checked={checked}
+              disabled={
+                !checked &&
+                (claimedElsewhere.has(skill) || picks.length >= choice.count)
+              }
+              onChange={() => toggle(skill)}
+            />
+            {humanizeSkill(skill)}
+          </label>
+        );
+      })}
     </div>
   );
 }
@@ -722,6 +1043,7 @@ function SkillsStep({
     ...granted,
     ...draft.classSkills,
     ...draft.bonusSkills,
+    ...featureSkillPicks(draft),
   ]);
 
   const toggleIn = (list: "classSkills" | "bonusSkills", skill: Skill) => {
@@ -805,6 +1127,18 @@ function SkillsStep({
           </div>
         </div>
       )}
+
+      {/* Expertise picks live here — their pool is the skills chosen above. */}
+      {activeFeatureChoices(draft)
+        .filter((c) => c.kind === "expertise")
+        .map((choice) => (
+          <FeatureChoiceGroup
+            key={choice.id}
+            draft={draft}
+            update={update}
+            choice={choice}
+          />
+        ))}
     </div>
   );
 }
@@ -889,6 +1223,9 @@ function ReviewStep({ draft }: { draft: CharacterDraft }) {
       <h3>
         {character.name} — Level {totalLevel(character)} {character.race}{" "}
         {character.classes[0]?.name}
+        {character.classes[0]?.subclass
+          ? ` (${character.classes[0].subclass})`
+          : ""}
       </h3>
       <p className="dvtt-review__subtitle">{character.background}</p>
       <div className="dvtt-topline">
@@ -916,7 +1253,13 @@ function ReviewStep({ draft }: { draft: CharacterDraft }) {
       </div>
       <p>
         <strong>Proficient skills:</strong>{" "}
-        {Object.keys(character.skills).map(humanizeSkill).join(", ") || "none"}
+        {Object.entries(character.skills)
+          .map(
+            ([skill, level]) =>
+              humanizeSkill(skill) +
+              (level === "expertise" ? " (expertise)" : ""),
+          )
+          .join(", ") || "none"}
       </p>
       <p>
         <strong>Saving throws:</strong>{" "}

@@ -101,7 +101,36 @@
           "name": "Cutting Words",
           "description": "Use Bardic Inspiration to subtract from an enemy's attack, check, or damage."
         }
+      ],
+      "featureChoices": [
+        {
+          "id": "lore-proficiencies",
+          "name": "Bonus Proficiencies",
+          "level": 3,
+          "count": 3,
+          "kind": "skills",
+          "from": "any",
+          "description": "College of Lore: gain proficiency in three skills of your choice."
+        }
       ]
+    }
+  ],
+  "featureChoices": [
+    {
+      "id": "expertise",
+      "name": "Expertise",
+      "level": 3,
+      "count": 2,
+      "kind": "expertise",
+      "description": "Your proficiency bonus is doubled for the chosen skills."
+    },
+    {
+      "id": "expertise-10",
+      "name": "Expertise",
+      "level": 10,
+      "count": 2,
+      "kind": "expertise",
+      "description": "Your proficiency bonus is doubled for the chosen skills."
     }
   ]
 }

@@ -127,5 +127,23 @@
         }
       ]
     }
+  ],
+  "featureChoices": [
+    {
+      "id": "expertise",
+      "name": "Expertise",
+      "level": 1,
+      "count": 2,
+      "kind": "expertise",
+      "description": "Your proficiency bonus is doubled for the chosen skills."
+    },
+    {
+      "id": "expertise-6",
+      "name": "Expertise",
+      "level": 6,
+      "count": 2,
+      "kind": "expertise",
+      "description": "Your proficiency bonus is doubled for the chosen skills."
+    }
   ]
 }

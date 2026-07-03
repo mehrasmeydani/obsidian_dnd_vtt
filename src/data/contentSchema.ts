@@ -71,6 +71,46 @@ export type RaceData = z.infer<typeof RaceDataSchema>;
 export const EditionSchema = z.enum(["2014", "2024"]);
 export type Edition = z.infer<typeof EditionSchema>;
 
+/**
+ * A player decision attached to a class or subclass feature (Fighting Style,
+ * Expertise, Pact Boon, Weapon Mastery…). `level` says when the choice is
+ * owed; the wizard only surfaces choices with `level <= starting level`.
+ */
+const FeatureChoiceBaseSchema = z.object({
+  /** Unique within the class, including its subclasses' choices. */
+  id: z.string().min(1),
+  name: z.string().min(1),
+  level: z.number().int().min(1).max(20),
+  count: z.number().int().positive(),
+  description: z.string().optional(),
+});
+
+export const FeatureChoiceSchema = z.discriminatedUnion("kind", [
+  /** Pick `count` named options; each pick becomes a feature. */
+  FeatureChoiceBaseSchema.extend({
+    kind: z.literal("options"),
+    options: z.array(TraitSchema).min(2),
+  }),
+  /** Pick `count` new skill proficiencies (e.g. Lore bard, Primal Knowledge). */
+  FeatureChoiceBaseSchema.extend({
+    kind: z.literal("skills"),
+    from: z.union([z.array(SkillSchema), z.literal("any")]),
+  }),
+  /** Pick `count` already-proficient skills to upgrade to expertise. */
+  FeatureChoiceBaseSchema.extend({
+    kind: z.literal("expertise"),
+  }),
+]);
+export type FeatureChoice = z.infer<typeof FeatureChoiceSchema>;
+
+export const SubclassDataSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  traits: z.array(TraitSchema),
+  featureChoices: z.array(FeatureChoiceSchema).default([]),
+});
+export type SubclassData = z.infer<typeof SubclassDataSchema>;
+
 export const ClassDataSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -84,6 +124,11 @@ export const ClassDataSchema = z.object({
   /** Levels at which this class gains an Ability Score Improvement. */
   asiLevels: z.array(z.number().int().min(2).max(20)),
   equipment: StartingEquipmentSchema,
+  /** Level the subclass is chosen at; required when `subclasses` is set. */
+  subclassLevel: z.number().int().min(1).max(20).optional(),
+  subclasses: z.array(SubclassDataSchema).default([]),
+  /** Class-level feature choices (subclasses carry their own). */
+  featureChoices: z.array(FeatureChoiceSchema).default([]),
 });
 export type ClassData = z.infer<typeof ClassDataSchema>;
 

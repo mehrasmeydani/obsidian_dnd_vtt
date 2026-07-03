@@ -101,7 +101,14 @@ export const CharacterSchema = z.object({
   race: z.string().default(""),
   background: z.string().default(""),
   classes: z
-    .array(z.object({ name: z.string(), level: z.number().int().min(1) }))
+    .array(
+      z.object({
+        name: z.string(),
+        level: z.number().int().min(1),
+        /** Subclass name, once chosen (additive — older notes lack it). */
+        subclass: z.string().optional(),
+      }),
+    )
     .default([]),
   abilityScores: AbilityScoresSchema,
   savingThrows: z.record(AbilitySchema, ProficiencyLevelSchema).default({}),

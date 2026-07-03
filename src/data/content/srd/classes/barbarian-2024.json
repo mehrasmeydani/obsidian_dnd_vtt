@@ -81,5 +81,141 @@
         }
       ]
     }
+  ],
+  "featureChoices": [
+    {
+      "id": "weapon-mastery",
+      "name": "Weapon Mastery",
+      "level": 1,
+      "count": 2,
+      "kind": "options",
+      "description": "Choose two kinds of weapons; you can use their mastery properties. You can change one choice on a long rest.",
+      "options": [
+        {
+          "name": "Club"
+        },
+        {
+          "name": "Dagger"
+        },
+        {
+          "name": "Greatclub"
+        },
+        {
+          "name": "Handaxe"
+        },
+        {
+          "name": "Javelin"
+        },
+        {
+          "name": "Light Hammer"
+        },
+        {
+          "name": "Mace"
+        },
+        {
+          "name": "Quarterstaff"
+        },
+        {
+          "name": "Sickle"
+        },
+        {
+          "name": "Spear"
+        },
+        {
+          "name": "Dart"
+        },
+        {
+          "name": "Light Crossbow"
+        },
+        {
+          "name": "Shortbow"
+        },
+        {
+          "name": "Sling"
+        },
+        {
+          "name": "Battleaxe"
+        },
+        {
+          "name": "Flail"
+        },
+        {
+          "name": "Glaive"
+        },
+        {
+          "name": "Greataxe"
+        },
+        {
+          "name": "Greatsword"
+        },
+        {
+          "name": "Halberd"
+        },
+        {
+          "name": "Lance"
+        },
+        {
+          "name": "Longsword"
+        },
+        {
+          "name": "Maul"
+        },
+        {
+          "name": "Morningstar"
+        },
+        {
+          "name": "Pike"
+        },
+        {
+          "name": "Rapier"
+        },
+        {
+          "name": "Scimitar"
+        },
+        {
+          "name": "Shortsword"
+        },
+        {
+          "name": "Trident"
+        },
+        {
+          "name": "War Pick"
+        },
+        {
+          "name": "Warhammer"
+        },
+        {
+          "name": "Whip"
+        },
+        {
+          "name": "Blowgun"
+        },
+        {
+          "name": "Hand Crossbow"
+        },
+        {
+          "name": "Heavy Crossbow"
+        },
+        {
+          "name": "Longbow"
+        }
+      ]
+    },
+    {
+      "id": "primal-knowledge",
+      "name": "Primal Knowledge",
+      "level": 3,
+      "count": 1,
+      "kind": "skills",
+      "from": [
+        "animalHandling",
+        "athletics",
+        "intimidation",
+        "nature",
+        "perception",
+        "survival"
+      ],
+      "description": "Gain proficiency in another skill from the barbarian list."
+    }
   ]
 }

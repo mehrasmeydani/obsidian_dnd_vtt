@@ -35,6 +35,8 @@ function minimalBundle(): ContentBundle {
           fixed: [{ name: "Rock" }],
           choices: [{ options: [[{ name: "Stick" }], [{ name: "Rope" }]] }],
         },
+        subclasses: [],
+        featureChoices: [],
       },
     ],
     backgrounds: [

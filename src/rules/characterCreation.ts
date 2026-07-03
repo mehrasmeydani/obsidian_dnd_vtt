@@ -13,7 +13,9 @@ import type {
   BackgroundData,
   ClassData,
   EquipmentItem,
+  FeatureChoice,
   RaceData,
+  SubclassData,
   Trait,
 } from "../data/srd";
 import { abilityModifier } from "./abilityMath";
@@ -86,6 +88,13 @@ export interface CharacterDraft {
   bonusSkills: Skill[];
   /** Chosen option index for each of the class's equipment choices. */
   equipmentChoices: number[];
+  /** Chosen subclass, once `level >= charClass.subclassLevel`. */
+  subclass: SubclassData | null;
+  /**
+   * Picks per feature choice, keyed by the choice's id. Values are option
+   * names for "options" choices and skill ids for "skills"/"expertise".
+   */
+  featurePicks: Record<string, string[]>;
 }
 
 export function emptyDraft(): CharacterDraft {
@@ -102,7 +111,53 @@ export function emptyDraft(): CharacterDraft {
     classSkills: [],
     bonusSkills: [],
     equipmentChoices: [],
+    subclass: null,
+    featurePicks: {},
   };
+}
+
+/** Whether the draft's class and level call for a subclass pick. */
+export function subclassRequired(draft: CharacterDraft): boolean {
+  return (
+    !!draft.charClass &&
+    draft.charClass.subclasses.length > 0 &&
+    draft.charClass.subclassLevel !== undefined &&
+    draft.level >= draft.charClass.subclassLevel
+  );
+}
+
+/**
+ * Feature choices the draft owes at its level: the class's own, plus the
+ * chosen subclass's once the subclass applies.
+ */
+export function activeFeatureChoices(draft: CharacterDraft): FeatureChoice[] {
+  if (!draft.charClass) return [];
+  const owed = draft.charClass.featureChoices.filter(
+    (c) => c.level <= draft.level,
+  );
+  if (subclassRequired(draft) && draft.subclass) {
+    owed.push(
+      ...draft.subclass.featureChoices.filter((c) => c.level <= draft.level),
+    );
+  }
+  return owed;
+}
+
+/** Skills picked through "skills"-kind feature choices. */
+export function featureSkillPicks(draft: CharacterDraft): Skill[] {
+  return activeFeatureChoices(draft)
+    .filter((c) => c.kind === "skills")
+    .flatMap((c) => (draft.featurePicks[c.id] ?? []) as Skill[]);
+}
+
+/** Every skill the draft is proficient in — the pool expertise picks from. */
+export function draftProficientSkills(draft: CharacterDraft): Skill[] {
+  return [
+    ...grantedSkills(draft),
+    ...draft.classSkills,
+    ...draft.bonusSkills,
+    ...featureSkillPicks(draft),
+  ];
 }
 
 /** Number of Ability Score Improvements the class has gained by `level`. */
@@ -247,6 +302,25 @@ export function validateDraft(draft: CharacterDraft): string[] {
     if (!valid) errors.push("Choose your starting equipment.");
   }
 
+  // Subclass: owed once the class's subclass level is reached; never earlier.
+  if (subclassRequired(draft)) {
+    if (!draft.subclass) {
+      errors.push("Choose a subclass.");
+    } else if (
+      !draft.charClass?.subclasses.some((s) => s.id === draft.subclass?.id)
+    ) {
+      errors.push("The chosen subclass does not belong to the class.");
+    }
+  } else if (draft.subclass) {
+    errors.push(
+      draft.charClass
+        ? `${draft.charClass.name} has no subclass at level ${draft.level}.`
+        : "Choose a class before a subclass.",
+    );
+  }
+
+  errors.push(...featureChoiceProblems(draft));
+
   const granted = new Set(grantedSkills(draft));
 
   if (draft.charClass) {
@@ -271,12 +345,76 @@ export function validateDraft(draft: CharacterDraft): string[] {
     );
   }
 
-  const chosen = [...draft.classSkills, ...draft.bonusSkills];
+  const chosen = [
+    ...draft.classSkills,
+    ...draft.bonusSkills,
+    ...featureSkillPicks(draft),
+  ];
   if (new Set(chosen).size !== chosen.length) {
     errors.push("Each skill can only be chosen once.");
   }
   if (chosen.some((s) => granted.has(s))) {
     errors.push("A chosen skill is already granted by race or background.");
+  }
+
+  return errors;
+}
+
+/**
+ * Everything wrong with the draft's feature-choice picks, as user-facing
+ * messages. Shared by `validateDraft` and the wizard's step gating so the
+ * Next-button hints match the review-step errors. `kinds` narrows the check
+ * to the choices a single wizard step owns (expertise gates the Skills step;
+ * the rest gate the Class-options step).
+ */
+export function featureChoiceProblems(
+  draft: CharacterDraft,
+  kinds?: FeatureChoice["kind"][],
+): string[] {
+  const errors: string[] = [];
+  const relevant = activeFeatureChoices(draft).filter(
+    (c) => !kinds || kinds.includes(c.kind),
+  );
+  for (const choice of relevant) {
+    const picks = draft.featurePicks[choice.id] ?? [];
+    const what = choice.kind === "options" ? "option" : "skill";
+    if (picks.length !== choice.count) {
+      errors.push(
+        `Choose ${choice.count} ${what}${choice.count === 1 ? "" : "s"} for ${choice.name}.`,
+      );
+      continue;
+    }
+    if (new Set(picks).size !== picks.length) {
+      errors.push(`${choice.name} picks must be different.`);
+    }
+    if (choice.kind === "options") {
+      const allowed = new Set(choice.options.map((o) => o.name));
+      if (picks.some((p) => !allowed.has(p))) {
+        errors.push(`A ${choice.name} pick is not one of its options.`);
+      }
+    } else if (choice.kind === "skills") {
+      const allowed =
+        choice.from === "any" ? null : new Set<string>(choice.from);
+      if (allowed && picks.some((p) => !allowed.has(p))) {
+        errors.push(`A ${choice.name} pick is not on its skill list.`);
+      }
+    } else {
+      // Expertise upgrades skills the draft is already proficient in.
+      const proficient = new Set<string>(draftProficientSkills(draft));
+      if (picks.some((p) => !proficient.has(p))) {
+        errors.push(`${choice.name} picks must be proficient skills.`);
+      }
+    }
+  }
+
+  // A skill cannot gain expertise twice (e.g. rogue level 1 + level 6 picks).
+  if (!kinds || kinds.includes("expertise")) {
+    const expertisePicks = activeFeatureChoices(draft)
+      .filter((c) => c.kind === "expertise")
+      .flatMap((c) => draft.featurePicks[c.id] ?? []);
+    if (new Set(expertisePicks).size !== expertisePicks.length) {
+      errors.push("Each skill can only gain expertise once.");
+    }
   }
 
   return errors;
@@ -309,12 +447,15 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
   }
 
   const skills: Partial<Record<Skill, ProficiencyLevel>> = {};
-  for (const skill of [
-    ...grantedSkills(draft),
-    ...draft.classSkills,
-    ...draft.bonusSkills,
-  ]) {
+  for (const skill of draftProficientSkills(draft)) {
     skills[skill] = "proficient";
+  }
+  // Expertise picks upgrade already-proficient skills.
+  for (const choice of activeFeatureChoices(draft)) {
+    if (choice.kind !== "expertise") continue;
+    for (const skill of (draft.featurePicks[choice.id] ?? []) as Skill[]) {
+      skills[skill] = "expertise";
+    }
   }
 
   const backgroundName =
@@ -325,11 +466,30 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
   // Racial traits, class features, and background features all become
   // Character.features, tagged with their source. Phase 2 swaps the static
   // SRD traits for Open5e content without touching this shape.
+  const subclass = subclassRequired(draft) ? draft.subclass : null;
   const features = [
     ...traitsToFeatures(race.name, race.traits),
     ...traitsToFeatures(charClass.name, charClass.traits),
+    ...(subclass ? traitsToFeatures(subclass.name, subclass.traits) : []),
     ...traitsToFeatures(backgroundName, background.traits),
   ];
+  // "Options" picks become features of their own ("Fighting Style: Dueling"),
+  // sourced to the class or subclass that offered the choice.
+  for (const choice of activeFeatureChoices(draft)) {
+    if (choice.kind !== "options") continue;
+    const source = charClass.featureChoices.some((c) => c.id === choice.id)
+      ? charClass.name
+      : (subclass?.name ?? charClass.name);
+    for (const pick of draft.featurePicks[choice.id] ?? []) {
+      const option = choice.options.find((o) => o.name === pick);
+      features.push({
+        id: `${slugify(source)}-${slugify(choice.name)}-${slugify(pick)}`,
+        name: `${choice.name}: ${pick}`,
+        source,
+        description: option?.description ?? choice.description,
+      });
+    }
+  }
 
   // Class fixed gear + the chosen option from each choice + background gear.
   const inventory: Item[] = [];
@@ -354,7 +514,13 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     name: draft.name.trim(),
     race: race.name,
     background: backgroundName,
-    classes: [{ name: charClass.name, level: draft.level }],
+    classes: [
+      {
+        name: charClass.name,
+        level: draft.level,
+        ...(subclass ? { subclass: subclass.name } : {}),
+      },
+    ],
     abilityScores,
     savingThrows,
     skills,
