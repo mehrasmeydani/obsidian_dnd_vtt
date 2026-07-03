@@ -1,11 +1,30 @@
 /*
  * D&D VTT styles. Built on Obsidian's CSS variables so the sheet respects the
  * user's active theme (light and dark) out of the box.
+ *
+ * The character sheet's visual language is ported from the user's handmade
+ * sheet snippet (dnd-character-sheet-v2.css): secondary-background "tiles"
+ * with centered uppercase headers, primary-background mini-cards inside them,
+ * and accent borders marking save/skill proficiency (accent-colored bonus
+ * text for expertise).
  */
+
+.dvtt-sheet,
+.dvtt-wizard {
+  --dvtt-tile-bg: var(--background-secondary);
+  --dvtt-tile-border: var(--background-modifier-border);
+  --dvtt-tile-radius: 14px;
+  --dvtt-tile-pad: 18px 22px;
+  --dvtt-tile-label: 0.78em;
+  --dvtt-card-radius: 8px;
+}
 
 .dvtt-sheet {
   padding: var(--size-4-4);
   font-size: var(--font-ui-medium);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .dvtt-sheet__header h2 {
@@ -14,60 +33,276 @@
 
 .dvtt-sheet__subtitle {
   color: var(--text-muted);
-  margin-bottom: var(--size-4-4);
 }
 
-/* Top-line stats: AC / HP / speed / initiative / passive perception */
+/* Side-by-side tiles, equal height (the skin's [!row] wrapper) */
+.dvtt-sheet__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.dvtt-sheet__row > .dvtt-tile {
+  flex: 1 1 0;
+}
+
+/* ─── Shared tile ─── */
+
+.dvtt-tile {
+  background: var(--dvtt-tile-bg);
+  border: 1px solid var(--dvtt-tile-border);
+  border-radius: var(--dvtt-tile-radius);
+  padding: var(--dvtt-tile-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 240px;
+}
+
+.dvtt-tile__title {
+  display: flex;
+  justify-content: center;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--dvtt-tile-border);
+  font-size: var(--dvtt-tile-label);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─── HP tile ─── */
+
+.dvtt-tile--hp .dvtt-hp {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-grow: 1;
+  font-size: 2.4em;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dvtt-hp__temp {
+  color: var(--color-green);
+  font-weight: 700;
+  font-size: 0.5em;
+}
+
+.dvtt-hp__max {
+  color: var(--text-muted);
+  white-space: pre;
+}
+
+/* ─── Combat tile: mini stat cards ─── */
+
+.dvtt-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 6px;
+  flex-grow: 1;
+  align-content: center;
+}
+
+.dvtt-mini {
+  background: var(--background-primary);
+  border: 1px solid var(--dvtt-tile-border);
+  border-radius: var(--dvtt-card-radius);
+  padding: 6px 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.dvtt-mini__label {
+  font-size: 0.6em;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dvtt-mini__value {
+  font-size: 1.3em;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-normal);
+}
+
+/* ─── Abilities & skills: one column per ability ─── */
+
+.dvtt-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.dvtt-sheet-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dvtt-sheet-stat {
+  background: var(--background-primary);
+  border: 1px solid var(--dvtt-tile-border);
+  border-radius: var(--dvtt-card-radius);
+  padding: 8px 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.dvtt-sheet-stat__label {
+  font-size: 0.65em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.dvtt-sheet-stat__mod {
+  font-size: 1.6em;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-normal);
+}
+
+.dvtt-sheet-stat__score {
+  font-size: 0.7em;
+  color: var(--text-muted);
+}
+
+/* Save row — same shape as a skill row, form-field background so it reads
+   as its own row type. Accent border when proficient. */
+.dvtt-save {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border: 1px solid var(--dvtt-tile-border);
+  border-radius: 6px;
+  background: var(--background-modifier-form-field);
+  font-size: 0.8em;
+}
+
+.dvtt-save__bonus {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-normal);
+}
+
+.dvtt-save.is-proficient {
+  border-color: var(--interactive-accent);
+}
+
+/* Skills under each stat */
+.dvtt-sheet-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dvtt-skill {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border: 1px solid var(--dvtt-tile-border);
+  border-radius: 6px;
+  background: var(--background-primary);
+  font-size: 0.8em;
+}
+
+.dvtt-skill__bonus {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-normal);
+}
+
+.dvtt-skill.is-proficient {
+  border-color: var(--interactive-accent);
+}
+
+/* Expert → accent border + accent-colored bonus */
+.dvtt-skill.is-expert {
+  border-color: var(--interactive-accent);
+}
+
+.dvtt-skill.is-expert .dvtt-skill__bonus {
+  color: var(--interactive-accent);
+}
+
+/* ─── Review-step blocks (wizard) — same mini-card look as the sheet ─── */
+
 .dvtt-topline {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--size-4-2);
+  gap: 6px;
   margin-bottom: var(--size-4-4);
 }
 
 .dvtt-stat {
   flex: 1 1 auto;
   min-width: 64px;
+  background: var(--background-primary);
+  border: 1px solid var(--dvtt-tile-border);
+  border-radius: var(--dvtt-card-radius);
+  padding: 6px 4px;
   text-align: center;
-  padding: var(--size-4-2);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-m);
-  background: var(--background-secondary);
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
 }
 
 .dvtt-stat__value {
-  font-size: var(--font-ui-large);
-  font-weight: var(--font-bold);
+  font-size: 1.3em;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-normal);
 }
 
 .dvtt-stat__label {
-  font-size: var(--font-ui-smaller);
+  font-size: 0.6em;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-muted);
 }
 
-/* Ability score blocks */
-.dvtt-abilities {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
-  gap: var(--size-4-2);
-  margin-bottom: var(--size-4-4);
-}
-
 .dvtt-ability {
+  background: var(--background-primary);
+  border: 1px solid var(--dvtt-tile-border);
+  border-radius: var(--dvtt-card-radius);
+  padding: 8px 4px;
   text-align: center;
-  padding: var(--size-4-2);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-m);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
 .dvtt-ability__name {
-  font-size: var(--font-ui-smaller);
+  font-size: 0.65em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--text-muted);
 }
 
 .dvtt-ability__score {
-  font-size: var(--font-ui-large);
-  font-weight: var(--font-bold);
+  font-size: 1.6em;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .dvtt-ability__mod {
@@ -75,31 +310,9 @@
 }
 
 .dvtt-ability__save {
-  font-size: var(--font-ui-smaller);
+  font-size: 0.7em;
   color: var(--text-muted);
   margin-top: var(--size-2-1);
-}
-
-/* Skills list */
-.dvtt-skills ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  columns: 2;
-  column-gap: var(--size-4-4);
-}
-
-.dvtt-skills li {
-  display: flex;
-  justify-content: space-between;
-  padding: var(--size-2-1) 0;
-  border-bottom: 1px solid var(--background-modifier-border);
-  break-inside: avoid;
-}
-
-.dvtt-skill__bonus {
-  font-variant-numeric: tabular-nums;
-  color: var(--text-accent);
 }
 
 /* ---------- Character creation wizard ---------- */
@@ -217,9 +430,9 @@
   text-align: left;
   height: auto;
   padding: var(--size-4-2);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-m);
-  background: var(--background-secondary);
+  border: 1px solid var(--dvtt-tile-border);
+  border-radius: var(--dvtt-card-radius);
+  background: var(--dvtt-tile-bg);
   cursor: pointer;
   white-space: normal;
 }

@@ -17,11 +17,15 @@ Phase 0 done; Phase 1 mostly done:
   frontmatter are preserved on update (`src/persistence/characterNote.ts`).
   Commands: "Create character", "Open character sheet", "Load character from
   active note". Setting: characters folder.
-- Sheet view is still the read-only preview. **Next big items: editable sheet
+- Sheet view is still the read-only preview, now restyled to the user's sheet
+  design (T-02, awaiting their visual check). **Next big items: editable sheet
   view; subclasses/feats/race-options (data groundwork already in the bundle,
   schema ignores it until implemented); Phase 2 content store.**
-- The user will supply a CSS skin for the character sheet (expected
-  ~2026-07-04). Keep `dvtt-*` class names stable; reskin via `styles.css` only.
+- The user's CSS arrived (2026-07-03) as `docs/reference/dnd-character-sheet-v2.css`
+  — a snippet for their handmade Meta Bind sheet, used as the **design spec**,
+  not dropped in. Its look is ported to `dvtt-*` rules in `styles.css`; it also
+  specifies the editable sheet's feature set (HP controls, rests, resource
+  pips, weapon/spell cards) for T-01/T-15. Keep `dvtt-*` class names stable.
 
 ## Layout
 

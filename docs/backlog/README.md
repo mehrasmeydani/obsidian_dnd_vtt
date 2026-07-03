@@ -12,7 +12,7 @@ flip its status here and tick the roadmap item it maps to.
 | # | Ticket | Priority | Size | Phase | Depends on | Status |
 |---|--------|----------|------|-------|------------|--------|
 | [T-01](T-01-editable-character-sheet.md) | Editable character sheet view | P1 | L | 1 | — | todo |
-| [T-02](T-02-sheet-css-skin.md) | Character sheet CSS skin | P1 | S | 1 | user CSS file | blocked |
+| [T-02](T-02-sheet-css-skin.md) | Character sheet CSS skin | P1 | S | 1 | user CSS file | in-progress |
 | [T-03](T-03-subclasses.md) | Subclass selection in wizard | P1 | M | 1 | — | todo |
 | [T-11](T-11-content-store.md) | Local content store | P1 | M | 2 | — | todo |
 | [T-04](T-04-feats.md) | Feats as ASI alternative | P2 | M | 1 | — | todo |
