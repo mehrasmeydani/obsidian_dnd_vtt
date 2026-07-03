@@ -449,6 +449,22 @@
 
 .dvtt-card__title {
   font-weight: var(--font-bold);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--size-2-2);
+}
+
+/* Rules-edition badge on class cards (5e 2014 vs 5.5e 2024) */
+.dvtt-card__edition {
+  font-size: 0.62em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--background-modifier-form-field);
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .dvtt-card__meta {

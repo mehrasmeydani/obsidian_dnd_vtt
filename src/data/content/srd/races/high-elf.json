@@ -1,0 +1,30 @@
+{
+  "id": "high-elf",
+  "name": "High Elf",
+  "speed": 30,
+  "fixedBonuses": {
+    "dex": 2,
+    "int": 1
+  },
+  "grantedSkills": [
+    "perception"
+  ],
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "See in dim light within 60 feet as if it were bright light."
+    },
+    {
+      "name": "Keen Senses",
+      "description": "Proficiency in the Perception skill."
+    },
+    {
+      "name": "Fey Ancestry",
+      "description": "Advantage on saves against being charmed; magic can't put you to sleep."
+    },
+    {
+      "name": "Trance",
+      "description": "Meditate 4 hours a day instead of sleeping."
+    }
+  ]
+}

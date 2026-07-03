@@ -33,20 +33,26 @@ Phase 0 done; Phase 1 mostly done:
   SCHEMA_VERSION). Derived values are computed, never stored.
 - `src/rules/` — pure 5e math (`abilityMath.ts`) and draft→Character logic
   (`characterCreation.ts`). No Obsidian/React imports here.
-- `src/data/` — `contentSchema.ts` (Zod for content bundles) +
-  `content/srd-5.1.json` (all game data; **content is data, not code**) +
-  `srd.ts` (thin validated loader). Future 5etools/Open5e importers emit this
-  same bundle format; only SRD content may ship with the plugin (licensing).
+- `src/data/` — `contentSchema.ts` (Zod for content bundles) + `content/srd/`
+  (game data split per entity: one JSON per class — subclasses inside — and
+  per race; small background/feat lists whole; **content is data, not code**;
+  new files must be listed in the `content/srd/index.ts` manifest) + `srd.ts`
+  (thin validated loader). Classes carry an `edition` field ("2014"/"2024");
+  the 2024 Barbarian is in (T-17 tracks the rest). Future 5etools/Open5e
+  importers emit this same bundle format; only SRD content may ship with the
+  plugin (5.1 and 5.2 are both CC-BY). Raw 5etools JSON for reference lives
+  in `docs/reference/5etools/` and must never ship.
 - `src/persistence/` — pure note format (`characterNote.ts`) split from
   vault I/O (`characterStore.ts`).
 - `src/ui/` — React views mounted into ItemViews via `mount.tsx`.
 
 ## Workflow
 
-- Tests: `npm test` works on the WSL host (Node 18); 328 tests across rules,
-  schema pinning, SRD data integrity, a 216-case race×class×background
-  assembly matrix, note-format round-trips, and jsdom wizard walkthroughs
-  (Testing Library). Add regression tests with every feature.
+- Tests: `npm test` works on the WSL host (Node 18); 357 tests across rules,
+  schema pinning, SRD data integrity, a 234-case race×class×background
+  assembly matrix (auto-grows with the bundle), note-format round-trips, and
+  jsdom wizard/sheet walkthroughs (Testing Library). Add regression tests
+  with every feature.
 - Build: `npm run build` (host Node 18+ OK) or `docker compose run --rm build`
   (node:20-slim image; compose runs as host UID so bind-mounted files stay
   user-owned). CI (`.github/workflows/ci.yml`) runs npm ci + test + build.

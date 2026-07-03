@@ -1,0 +1,106 @@
+{
+  "id": "wizard",
+  "name": "Wizard",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Spellbook"
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Quarterstaff"
+            }
+          ],
+          [
+            {
+              "name": "Dagger"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Component pouch"
+            }
+          ],
+          [
+            {
+              "name": "Arcane focus"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Scholar's pack"
+            }
+          ],
+          [
+            {
+              "name": "Explorer's pack"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 6,
+  "savingThrows": [
+    "int",
+    "wis"
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "arcana",
+      "history",
+      "insight",
+      "investigation",
+      "medicine",
+      "religion"
+    ]
+  },
+  "spellcastingAbility": "int",
+  "traits": [
+    {
+      "name": "Spellcasting",
+      "description": "Cast wizard spells using Intelligence; learn spells in a spellbook."
+    },
+    {
+      "name": "Arcane Recovery",
+      "description": "Recover spell slots (half wizard level) on a short rest, once per day."
+    }
+  ],
+  "subclassLevel": 2,
+  "subclasses": [
+    {
+      "id": "school-of-evocation",
+      "name": "School of Evocation",
+      "traits": [
+        {
+          "name": "Evocation Savant",
+          "description": "Copy evocation spells into your spellbook at half cost and time."
+        },
+        {
+          "name": "Sculpt Spells",
+          "description": "Protect allies from your own evocation spells."
+        }
+      ]
+    }
+  ]
+}

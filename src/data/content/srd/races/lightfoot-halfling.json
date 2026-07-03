@@ -1,0 +1,27 @@
+{
+  "id": "lightfoot-halfling",
+  "name": "Lightfoot Halfling",
+  "speed": 25,
+  "fixedBonuses": {
+    "dex": 2,
+    "cha": 1
+  },
+  "traits": [
+    {
+      "name": "Lucky",
+      "description": "Reroll 1s on attack rolls, ability checks, and saving throws."
+    },
+    {
+      "name": "Brave",
+      "description": "Advantage on saves against being frightened."
+    },
+    {
+      "name": "Halfling Nimbleness",
+      "description": "Move through the space of any creature larger than you."
+    },
+    {
+      "name": "Naturally Stealthy",
+      "description": "Hide even when obscured only by a larger creature."
+    }
+  ]
+}

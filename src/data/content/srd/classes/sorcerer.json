@@ -1,0 +1,111 @@
+{
+  "id": "sorcerer",
+  "name": "Sorcerer",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Dagger",
+        "quantity": 2
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Light crossbow"
+            },
+            {
+              "name": "Crossbow bolts",
+              "quantity": 20
+            }
+          ],
+          [
+            {
+              "name": "Spear"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Component pouch"
+            }
+          ],
+          [
+            {
+              "name": "Arcane focus"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Dungeoneer's pack"
+            }
+          ],
+          [
+            {
+              "name": "Explorer's pack"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 6,
+  "savingThrows": [
+    "con",
+    "cha"
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "arcana",
+      "deception",
+      "insight",
+      "intimidation",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "spellcastingAbility": "cha",
+  "traits": [
+    {
+      "name": "Spellcasting",
+      "description": "Cast sorcerer spells using Charisma."
+    },
+    {
+      "name": "Sorcerous Origin",
+      "description": "Choose the source of your innate magic (draconic bloodline, wild magic, ...)."
+    }
+  ],
+  "subclassLevel": 1,
+  "subclasses": [
+    {
+      "id": "draconic-bloodline",
+      "name": "Draconic Bloodline",
+      "traits": [
+        {
+          "name": "Dragon Ancestor",
+          "description": "Choose a dragon type; double proficiency on related CHA checks."
+        },
+        {
+          "name": "Draconic Resilience",
+          "description": "+1 HP per sorcerer level; unarmored AC 13 + DEX."
+        }
+      ]
+    }
+  ]
+}

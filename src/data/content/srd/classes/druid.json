@@ -1,0 +1,100 @@
+{
+  "id": "druid",
+  "name": "Druid",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Leather armor"
+      },
+      {
+        "name": "Explorer's pack"
+      },
+      {
+        "name": "Druidic focus"
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Wooden shield"
+            }
+          ],
+          [
+            {
+              "name": "Spear"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Scimitar"
+            }
+          ],
+          [
+            {
+              "name": "Club"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 8,
+  "savingThrows": [
+    "int",
+    "wis"
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "arcana",
+      "animalHandling",
+      "insight",
+      "medicine",
+      "nature",
+      "perception",
+      "religion",
+      "survival"
+    ]
+  },
+  "spellcastingAbility": "wis",
+  "traits": [
+    {
+      "name": "Druidic",
+      "description": "Know the secret language of druids."
+    },
+    {
+      "name": "Spellcasting",
+      "description": "Cast druid spells using Wisdom; prepare from the full druid list."
+    }
+  ],
+  "subclassLevel": 2,
+  "subclasses": [
+    {
+      "id": "circle-of-the-land",
+      "name": "Circle of the Land",
+      "traits": [
+        {
+          "name": "Bonus Cantrip",
+          "description": "Learn one extra druid cantrip."
+        },
+        {
+          "name": "Natural Recovery",
+          "description": "Recover spell slots during a short rest once per day."
+        }
+      ]
+    }
+  ]
+}

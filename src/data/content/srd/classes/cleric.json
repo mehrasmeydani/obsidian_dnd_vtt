@@ -1,0 +1,131 @@
+{
+  "id": "cleric",
+  "name": "Cleric",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Shield"
+      },
+      {
+        "name": "Holy symbol"
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Mace"
+            }
+          ],
+          [
+            {
+              "name": "Warhammer"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Scale mail"
+            }
+          ],
+          [
+            {
+              "name": "Leather armor"
+            }
+          ],
+          [
+            {
+              "name": "Chain mail"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Light crossbow"
+            },
+            {
+              "name": "Crossbow bolts",
+              "quantity": 20
+            }
+          ],
+          [
+            {
+              "name": "Spear"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Priest's pack"
+            }
+          ],
+          [
+            {
+              "name": "Explorer's pack"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 8,
+  "savingThrows": [
+    "wis",
+    "cha"
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "history",
+      "insight",
+      "medicine",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "spellcastingAbility": "wis",
+  "traits": [
+    {
+      "name": "Spellcasting",
+      "description": "Cast cleric spells using Wisdom; prepare from the full cleric list."
+    },
+    {
+      "name": "Divine Domain",
+      "description": "Choose a domain that grants bonus spells and features."
+    }
+  ],
+  "subclassLevel": 1,
+  "subclasses": [
+    {
+      "id": "life-domain",
+      "name": "Life Domain",
+      "traits": [
+        {
+          "name": "Bonus Proficiency",
+          "description": "Proficiency with heavy armor."
+        },
+        {
+          "name": "Disciple of Life",
+          "description": "Healing spells restore extra HP (2 + spell level)."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "acolyte",
+    "name": "Acolyte",
+    "grantedSkills": [
+      "insight",
+      "religion"
+    ],
+    "description": "You have spent your life in service to a temple. Shelter of the Faithful.",
+    "traits": [
+      {
+        "name": "Shelter of the Faithful",
+        "description": "Free healing and care at temples of your faith; support from fellow worshipers."
+      }
+    ],
+    "equipment": [
+      {
+        "name": "Holy symbol"
+      },
+      {
+        "name": "Prayer book"
+      },
+      {
+        "name": "Incense stick",
+        "quantity": 5
+      },
+      {
+        "name": "Vestments"
+      },
+      {
+        "name": "Common clothes"
+      },
+      {
+        "name": "Pouch (15 gp)"
+      }
+    ]
+  },
+  {
+    "id": "custom",
+    "name": "Custom",
+    "grantedSkills": [],
+    "skillChoice": {
+      "count": 2,
+      "from": "any"
+    },
+    "customName": true,
+    "description": "Name your own background and choose any two skill proficiencies.",
+    "traits": [],
+    "equipment": []
+  }
+]

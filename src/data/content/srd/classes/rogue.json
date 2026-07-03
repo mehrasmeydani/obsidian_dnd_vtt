@@ -1,0 +1,131 @@
+{
+  "id": "rogue",
+  "name": "Rogue",
+  "asiLevels": [
+    4,
+    8,
+    10,
+    12,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Leather armor"
+      },
+      {
+        "name": "Dagger",
+        "quantity": 2
+      },
+      {
+        "name": "Thieves' tools"
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Rapier"
+            }
+          ],
+          [
+            {
+              "name": "Shortsword"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Shortbow"
+            },
+            {
+              "name": "Arrows",
+              "quantity": 20
+            }
+          ],
+          [
+            {
+              "name": "Shortsword"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Burglar's pack"
+            }
+          ],
+          [
+            {
+              "name": "Dungeoneer's pack"
+            }
+          ],
+          [
+            {
+              "name": "Explorer's pack"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 8,
+  "savingThrows": [
+    "dex",
+    "int"
+  ],
+  "skillChoice": {
+    "count": 4,
+    "from": [
+      "acrobatics",
+      "athletics",
+      "deception",
+      "insight",
+      "intimidation",
+      "investigation",
+      "perception",
+      "performance",
+      "persuasion",
+      "sleightOfHand",
+      "stealth"
+    ]
+  },
+  "traits": [
+    {
+      "name": "Expertise",
+      "description": "Double proficiency bonus for two chosen proficiencies."
+    },
+    {
+      "name": "Sneak Attack",
+      "description": "Once per turn, +1d6 damage when you have advantage (or an ally is adjacent)."
+    },
+    {
+      "name": "Thieves' Cant",
+      "description": "Secret rogue dialect of jargon and code."
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "thief",
+      "name": "Thief",
+      "traits": [
+        {
+          "name": "Fast Hands",
+          "description": "Cunning Action can also disarm traps, open locks, or use objects."
+        },
+        {
+          "name": "Second-Story Work",
+          "description": "Climb at full speed; longer running jumps."
+        }
+      ]
+    }
+  ]
+}

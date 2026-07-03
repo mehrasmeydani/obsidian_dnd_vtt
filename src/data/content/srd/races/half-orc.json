@@ -1,0 +1,26 @@
+{
+  "id": "half-orc",
+  "name": "Half-Orc",
+  "speed": 30,
+  "fixedBonuses": {
+    "str": 2,
+    "con": 1
+  },
+  "grantedSkills": [
+    "intimidation"
+  ],
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "See in dim light within 60 feet as if it were bright light."
+    },
+    {
+      "name": "Relentless Endurance",
+      "description": "Drop to 1 HP instead of 0 once per long rest."
+    },
+    {
+      "name": "Savage Attacks",
+      "description": "Roll one extra weapon damage die on a melee critical hit."
+    }
+  ]
+}

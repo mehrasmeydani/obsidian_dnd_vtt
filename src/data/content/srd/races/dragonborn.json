@@ -1,0 +1,72 @@
+{
+  "id": "dragonborn",
+  "name": "Dragonborn",
+  "speed": 30,
+  "fixedBonuses": {
+    "str": 2,
+    "cha": 1
+  },
+  "traits": [
+    {
+      "name": "Draconic Ancestry",
+      "description": "Choose a dragon type; it sets your breath weapon and resistance."
+    },
+    {
+      "name": "Breath Weapon",
+      "description": "Exhale destructive energy as an action (2d6, DC 8 + CON mod + prof)."
+    },
+    {
+      "name": "Damage Resistance",
+      "description": "Resistance to the damage type of your draconic ancestry."
+    }
+  ],
+  "optionChoices": [
+    {
+      "id": "dragonborn-ancestry",
+      "name": "Draconic Ancestry",
+      "description": "Your dragon type sets your breath weapon and damage resistance.",
+      "options": [
+        {
+          "id": "black",
+          "name": "Black (acid)"
+        },
+        {
+          "id": "blue",
+          "name": "Blue (lightning)"
+        },
+        {
+          "id": "brass",
+          "name": "Brass (fire)"
+        },
+        {
+          "id": "bronze",
+          "name": "Bronze (lightning)"
+        },
+        {
+          "id": "copper",
+          "name": "Copper (acid)"
+        },
+        {
+          "id": "gold",
+          "name": "Gold (fire)"
+        },
+        {
+          "id": "green",
+          "name": "Green (poison)"
+        },
+        {
+          "id": "red",
+          "name": "Red (fire)"
+        },
+        {
+          "id": "silver",
+          "name": "Silver (cold)"
+        },
+        {
+          "id": "white",
+          "name": "White (cold)"
+        }
+      ]
+    }
+  ]
+}

@@ -333,3 +333,60 @@ describe("assembleCharacter", () => {
     );
   });
 });
+
+describe("2024 (5.5e) class variants", () => {
+  /** A complete draft using the 2024 Barbarian (one A/B equipment choice). */
+  function barbarian2024Draft(): CharacterDraft {
+    return {
+      ...validDraft(),
+      charClass: byId(CLASSES, "barbarian-2024"),
+      classSkills: ["athletics", "perception"],
+      equipmentChoices: [0],
+    };
+  }
+
+  it("keeps both editions of the Barbarian in the bundle", () => {
+    const b2014 = byId(CLASSES, "barbarian");
+    const b2024 = byId(CLASSES, "barbarian-2024");
+    expect(b2014.name).toBe("Barbarian");
+    expect(b2024.name).toBe("Barbarian");
+    expect(b2014.edition).toBe("2014");
+    expect(b2024.edition).toBe("2024");
+  });
+
+  it("gives the 2024 Barbarian 4 ASIs by level 20 (level 19 is an Epic Boon)", () => {
+    expect(asiCount(byId(CLASSES, "barbarian-2024"), 20)).toBe(4);
+    expect(asiCount(byId(CLASSES, "barbarian"), 20)).toBe(5);
+    expect(
+      asiPointsTotal({ ...barbarian2024Draft(), level: 20 }),
+    ).toBe(8);
+  });
+
+  it("assembles equipment option A: greataxe, handaxes, pack, and 15 gp", () => {
+    const character = assembleCharacter(barbarian2024Draft(), "test-id");
+    const byName = Object.fromEntries(
+      character.inventory.map((i) => [i.name, i.quantity]),
+    );
+    expect(byName["Greataxe"]).toBe(1);
+    expect(byName["Handaxe"]).toBe(4);
+    expect(byName["Explorer's pack"]).toBe(1);
+    expect(byName["Gold (gp)"]).toBe(15);
+  });
+
+  it("assembles equipment option B: 75 gp instead of gear", () => {
+    const character = assembleCharacter(
+      { ...barbarian2024Draft(), equipmentChoices: [1] },
+      "test-id",
+    );
+    const gold = character.inventory.find((i) => i.name === "Gold (gp)");
+    expect(gold?.quantity).toBe(75);
+    expect(character.inventory.map((i) => i.name)).not.toContain("Greataxe");
+  });
+
+  it("copies Weapon Mastery onto the character as a Barbarian feature", () => {
+    const character = assembleCharacter(barbarian2024Draft(), "test-id");
+    const mastery = character.features.find((f) => f.name === "Weapon Mastery");
+    expect(mastery?.source).toBe("Barbarian");
+    expect(character.features.map((f) => f.name)).toContain("Rage");
+  });
+});

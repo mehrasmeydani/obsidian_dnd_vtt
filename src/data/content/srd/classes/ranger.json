@@ -1,0 +1,110 @@
+{
+  "id": "ranger",
+  "name": "Ranger",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Longbow"
+      },
+      {
+        "name": "Arrows",
+        "quantity": 20
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Scale mail"
+            }
+          ],
+          [
+            {
+              "name": "Leather armor"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Shortsword",
+              "quantity": 2
+            }
+          ],
+          [
+            {
+              "name": "Spear",
+              "quantity": 2
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Dungeoneer's pack"
+            }
+          ],
+          [
+            {
+              "name": "Explorer's pack"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 10,
+  "savingThrows": [
+    "str",
+    "dex"
+  ],
+  "skillChoice": {
+    "count": 3,
+    "from": [
+      "animalHandling",
+      "athletics",
+      "insight",
+      "investigation",
+      "nature",
+      "perception",
+      "stealth",
+      "survival"
+    ]
+  },
+  "spellcastingAbility": "wis",
+  "traits": [
+    {
+      "name": "Favored Enemy",
+      "description": "Advantage on tracking and recalling lore about a chosen enemy type."
+    },
+    {
+      "name": "Natural Explorer",
+      "description": "Expert navigator and tracker in a chosen terrain."
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "hunter",
+      "name": "Hunter",
+      "traits": [
+        {
+          "name": "Hunter's Prey",
+          "description": "Choose Colossus Slayer, Giant Killer, or Horde Breaker."
+        }
+      ]
+    }
+  ]
+}

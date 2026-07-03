@@ -1,0 +1,27 @@
+{
+  "id": "rock-gnome",
+  "name": "Rock Gnome",
+  "speed": 25,
+  "fixedBonuses": {
+    "int": 2,
+    "con": 1
+  },
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "See in dim light within 60 feet as if it were bright light."
+    },
+    {
+      "name": "Gnome Cunning",
+      "description": "Advantage on INT, WIS, and CHA saves against magic."
+    },
+    {
+      "name": "Artificer's Lore",
+      "description": "Double proficiency on History checks about magic items and devices."
+    },
+    {
+      "name": "Tinker",
+      "description": "Construct tiny clockwork devices with tinker's tools."
+    }
+  ]
+}

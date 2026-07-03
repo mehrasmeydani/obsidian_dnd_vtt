@@ -402,7 +402,12 @@ function ClassStep({
             className={`dvtt-card${draft.charClass?.id === c.id ? " is-selected" : ""}`}
             onClick={() => selectClass(c)}
           >
-            <div className="dvtt-card__title">{c.name}</div>
+            <div className="dvtt-card__title">
+              {c.name}
+              <span className="dvtt-card__edition">
+                {c.edition === "2024" ? "5.5e (2024)" : "5e (2014)"}
+              </span>
+            </div>
             <div className="dvtt-card__meta">
               d{c.hitDie} hit die ·{" "}
               {c.savingThrows

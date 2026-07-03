@@ -1,0 +1,23 @@
+{
+  "id": "tiefling",
+  "name": "Tiefling",
+  "speed": 30,
+  "fixedBonuses": {
+    "cha": 2,
+    "int": 1
+  },
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "See in dim light within 60 feet as if it were bright light."
+    },
+    {
+      "name": "Hellish Resistance",
+      "description": "Resistance to fire damage."
+    },
+    {
+      "name": "Infernal Legacy",
+      "description": "Know the thaumaturgy cantrip; gain infernal spells at higher levels."
+    }
+  ]
+}

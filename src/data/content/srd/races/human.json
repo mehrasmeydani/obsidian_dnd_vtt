@@ -1,0 +1,19 @@
+{
+  "id": "human",
+  "name": "Human",
+  "speed": 30,
+  "fixedBonuses": {
+    "str": 1,
+    "dex": 1,
+    "con": 1,
+    "int": 1,
+    "wis": 1,
+    "cha": 1
+  },
+  "traits": [
+    {
+      "name": "Versatile",
+      "description": "+1 to every ability score."
+    }
+  ]
+}

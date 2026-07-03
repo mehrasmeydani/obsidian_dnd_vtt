@@ -1,0 +1,130 @@
+{
+  "id": "fighter",
+  "name": "Fighter",
+  "asiLevels": [
+    4,
+    6,
+    8,
+    12,
+    14,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Chain mail"
+            }
+          ],
+          [
+            {
+              "name": "Leather armor"
+            },
+            {
+              "name": "Longbow"
+            },
+            {
+              "name": "Arrows",
+              "quantity": 20
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Longsword"
+            },
+            {
+              "name": "Shield"
+            }
+          ],
+          [
+            {
+              "name": "Greatsword"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Light crossbow"
+            },
+            {
+              "name": "Crossbow bolts",
+              "quantity": 20
+            }
+          ],
+          [
+            {
+              "name": "Handaxe",
+              "quantity": 2
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Dungeoneer's pack"
+            }
+          ],
+          [
+            {
+              "name": "Explorer's pack"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 10,
+  "savingThrows": [
+    "str",
+    "con"
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "acrobatics",
+      "animalHandling",
+      "athletics",
+      "history",
+      "insight",
+      "intimidation",
+      "perception",
+      "survival"
+    ]
+  },
+  "traits": [
+    {
+      "name": "Fighting Style",
+      "description": "Choose a combat style (archery, defense, dueling, ...)."
+    },
+    {
+      "name": "Second Wind",
+      "description": "Bonus action: regain 1d10 + fighter level HP once per rest."
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "champion",
+      "name": "Champion",
+      "traits": [
+        {
+          "name": "Improved Critical",
+          "description": "Weapon attacks score a critical hit on a roll of 19 or 20."
+        }
+      ]
+    }
+  ]
+}

@@ -3,8 +3,9 @@ import { AbilitySchema, SkillSchema } from "../model/schema";
 
 /**
  * Schema for game-content bundles (races, classes, backgrounds). Content is
- * data, not code: bundles live in JSON (see `content/srd-5.1.json`) and are
- * validated here at load time. Anything that can produce this shape — the
+ * data, not code: bundles live in JSON — one file per class/race under
+ * `content/srd/`, assembled by its manifest (`content/srd/index.ts`) — and
+ * are validated here at load time. Anything that can produce this shape — the
  * bundled SRD, a Phase 2 Open5e sync, or a 5etools import — plugs in without
  * touching the rules engine or the wizard.
  */
@@ -62,9 +63,18 @@ export const RaceDataSchema = z.object({
 });
 export type RaceData = z.infer<typeof RaceDataSchema>;
 
+/**
+ * Rules edition a piece of content belongs to: "2014" is the original 5e
+ * (SRD 5.1), "2024" the revised 5.5e rules (SRD 5.2). Entries may share a
+ * name across editions (e.g. two Barbarians); ids stay unique.
+ */
+export const EditionSchema = z.enum(["2014", "2024"]);
+export type Edition = z.infer<typeof EditionSchema>;
+
 export const ClassDataSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
+  edition: EditionSchema.default("2014"),
   hitDie: z.number().int().positive(),
   savingThrows: z.tuple([AbilitySchema, AbilitySchema]),
   skillChoice: SkillChoiceSchema,

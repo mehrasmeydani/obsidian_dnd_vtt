@@ -1,0 +1,30 @@
+{
+  "id": "half-elf",
+  "name": "Half-Elf",
+  "speed": 30,
+  "fixedBonuses": {
+    "cha": 2
+  },
+  "bonusChoice": {
+    "count": 2,
+    "amount": 1
+  },
+  "skillChoice": {
+    "count": 2,
+    "from": "any"
+  },
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "See in dim light within 60 feet as if it were bright light."
+    },
+    {
+      "name": "Fey Ancestry",
+      "description": "Advantage on saves against being charmed; magic can't put you to sleep."
+    },
+    {
+      "name": "Skill Versatility",
+      "description": "Proficiency in two skills of your choice."
+    }
+  ]
+}

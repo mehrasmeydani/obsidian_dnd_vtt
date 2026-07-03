@@ -1,0 +1,93 @@
+{
+  "id": "barbarian",
+  "name": "Barbarian",
+  "edition": "2014",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Explorer's pack"
+      },
+      {
+        "name": "Javelin",
+        "quantity": 4
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Greataxe"
+            }
+          ],
+          [
+            {
+              "name": "Battleaxe"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Handaxe",
+              "quantity": 2
+            }
+          ],
+          [
+            {
+              "name": "Spear"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 12,
+  "savingThrows": [
+    "str",
+    "con"
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "animalHandling",
+      "athletics",
+      "intimidation",
+      "nature",
+      "perception",
+      "survival"
+    ]
+  },
+  "traits": [
+    {
+      "name": "Rage",
+      "description": "Bonus-action rage: advantage on STR checks/saves, bonus melee damage, resistance to bludgeoning, piercing, and slashing."
+    },
+    {
+      "name": "Unarmored Defense",
+      "description": "Without armor, AC = 10 + DEX mod + CON mod."
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "path-of-the-berserker",
+      "name": "Path of the Berserker",
+      "traits": [
+        {
+          "name": "Frenzy",
+          "description": "While raging, make a melee weapon attack as a bonus action each turn; exhaustion when the rage ends."
+        }
+      ]
+    }
+  ]
+}

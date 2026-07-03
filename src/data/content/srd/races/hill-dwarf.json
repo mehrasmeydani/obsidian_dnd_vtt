@@ -1,0 +1,23 @@
+{
+  "id": "hill-dwarf",
+  "name": "Hill Dwarf",
+  "speed": 25,
+  "fixedBonuses": {
+    "con": 2,
+    "wis": 1
+  },
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "See in dim light within 60 feet as if it were bright light."
+    },
+    {
+      "name": "Dwarven Resilience",
+      "description": "Advantage on saves against poison; resistance to poison damage."
+    },
+    {
+      "name": "Dwarven Toughness",
+      "description": "Hit point maximum increases by 1 per level."
+    }
+  ]
+}

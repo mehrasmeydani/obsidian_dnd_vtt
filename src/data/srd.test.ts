@@ -59,8 +59,11 @@ describe("races", () => {
 });
 
 describe("classes", () => {
-  it("covers the 12 SRD classes", () => {
-    expect(CLASSES).toHaveLength(12);
+  it("covers the 12 SRD 5.1 classes plus the 2024 Barbarian", () => {
+    expect(CLASSES.filter((c) => c.edition === "2014")).toHaveLength(12);
+    expect(CLASSES.filter((c) => c.edition === "2024").map((c) => c.id)).toEqual(
+      ["barbarian-2024"],
+    );
   });
 
   it.each(CLASSES.map((c) => [c.id, c] as const))(
@@ -81,9 +84,12 @@ describe("classes", () => {
 
       expect(charClass.traits.length).toBeGreaterThan(0);
 
-      // ASI levels: sorted, unique, within 2-20, and at least the PHB baseline.
+      // ASI levels: sorted, unique, within 2-20, and at least the edition's
+      // baseline (2024 classes get 4 ASIs; level 19 is an Epic Boon instead).
       const asi = charClass.asiLevels;
-      expect(asi.length).toBeGreaterThanOrEqual(5);
+      expect(asi.length).toBeGreaterThanOrEqual(
+        charClass.edition === "2024" ? 4 : 5,
+      );
       expect([...asi].sort((a, b) => a - b)).toEqual(asi);
       expect(new Set(asi).size).toBe(asi.length);
       for (const level of asi) {

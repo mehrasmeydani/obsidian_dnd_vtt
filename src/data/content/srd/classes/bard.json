@@ -1,0 +1,107 @@
+{
+  "id": "bard",
+  "name": "Bard",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Leather armor"
+      },
+      {
+        "name": "Dagger"
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Rapier"
+            }
+          ],
+          [
+            {
+              "name": "Longsword"
+            }
+          ],
+          [
+            {
+              "name": "Dagger"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Diplomat's pack"
+            }
+          ],
+          [
+            {
+              "name": "Entertainer's pack"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Lute"
+            }
+          ],
+          [
+            {
+              "name": "Musical instrument (any)"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 8,
+  "savingThrows": [
+    "dex",
+    "cha"
+  ],
+  "skillChoice": {
+    "count": 3,
+    "from": "any"
+  },
+  "spellcastingAbility": "cha",
+  "traits": [
+    {
+      "name": "Spellcasting",
+      "description": "Cast bard spells using Charisma."
+    },
+    {
+      "name": "Bardic Inspiration",
+      "description": "Bonus action: give a creature a d6 to add to one roll (CHA mod uses per long rest)."
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "college-of-lore",
+      "name": "College of Lore",
+      "traits": [
+        {
+          "name": "Bonus Proficiencies",
+          "description": "Proficiency with three skills of your choice."
+        },
+        {
+          "name": "Cutting Words",
+          "description": "Use Bardic Inspiration to subtract from an enemy's attack, check, or damage."
+        }
+      ]
+    }
+  ]
+}

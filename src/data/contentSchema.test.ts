@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseContentBundle, type ContentBundle } from "./contentSchema";
-import srdJson from "./content/srd-5.1.json";
+import { srdRaw } from "./content/srd/index";
 
 /**
  * Regression tests for the content-bundle format. Every content source —
@@ -25,6 +25,7 @@ function minimalBundle(): ContentBundle {
       {
         id: "test-class",
         name: "Test Class",
+        edition: "2014",
         hitDie: 8,
         savingThrows: ["str", "con"],
         skillChoice: { count: 2, from: "any" },
@@ -51,10 +52,11 @@ function minimalBundle(): ContentBundle {
 
 describe("parseContentBundle", () => {
   it("accepts the bundled SRD content", () => {
-    const bundle = parseContentBundle(srdJson);
-    expect(bundle.name).toBe("SRD 5.1");
+    const bundle = parseContentBundle(srdRaw);
+    expect(bundle.name).toBe("SRD");
     expect(bundle.races).toHaveLength(9);
-    expect(bundle.classes).toHaveLength(12);
+    // 12 SRD 5.1 classes + the 2024 (SRD 5.2) Barbarian variant.
+    expect(bundle.classes).toHaveLength(13);
   });
 
   it("accepts a minimal well-formed bundle", () => {

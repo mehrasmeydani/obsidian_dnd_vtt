@@ -1,0 +1,88 @@
+{
+  "id": "monk",
+  "name": "Monk",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16,
+    19
+  ],
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Dart",
+        "quantity": 10
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Shortsword"
+            }
+          ],
+          [
+            {
+              "name": "Spear"
+            }
+          ]
+        ]
+      },
+      {
+        "options": [
+          [
+            {
+              "name": "Dungeoneer's pack"
+            }
+          ],
+          [
+            {
+              "name": "Explorer's pack"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "hitDie": 8,
+  "savingThrows": [
+    "str",
+    "dex"
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "acrobatics",
+      "athletics",
+      "history",
+      "insight",
+      "religion",
+      "stealth"
+    ]
+  },
+  "traits": [
+    {
+      "name": "Unarmored Defense",
+      "description": "Without armor, AC = 10 + DEX mod + WIS mod."
+    },
+    {
+      "name": "Martial Arts",
+      "description": "Use DEX for unarmed strikes/monk weapons; bonus-action unarmed strike."
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "way-of-the-open-hand",
+      "name": "Way of the Open Hand",
+      "traits": [
+        {
+          "name": "Open Hand Technique",
+          "description": "Flurry of Blows can knock prone, push 15 ft, or block reactions."
+        }
+      ]
+    }
+  ]
+}
