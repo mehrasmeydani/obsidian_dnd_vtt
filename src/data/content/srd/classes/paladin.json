@@ -83,27 +83,19 @@
     ]
   },
   "spellcastingAbility": "cha",
-  "traits": [
-    {
-      "name": "Divine Sense",
-      "description": "Detect celestials, fiends, and undead within 60 feet."
-    },
-    {
-      "name": "Lay on Hands",
-      "description": "Heal a pool of 5 × paladin level HP per long rest."
-    }
-  ],
   "subclassLevel": 3,
   "subclasses": [
     {
       "id": "oath-of-devotion",
       "name": "Oath of Devotion",
-      "traits": [
+      "features": [
         {
+          "level": 3,
           "name": "Sacred Weapon",
           "description": "Channel Divinity: add CHA modifier to attack rolls with one weapon for 1 minute."
         },
         {
+          "level": 3,
           "name": "Turn the Unholy",
           "description": "Channel Divinity: turn fiends and undead."
         }
@@ -137,5 +129,28 @@
         }
       ]
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Divine Sense",
+      "description": "Detect celestials, fiends, and undead within 60 feet."
+    },
+    {
+      "level": 1,
+      "name": "Lay on Hands",
+      "description": "Heal a pool of 5 × paladin level HP per long rest."
+    }
+  ],
+  "proficiencies": {
+    "armor": [
+      "All armor",
+      "Shields"
+    ],
+    "weapons": [
+      "Simple weapons",
+      "Martial weapons"
+    ],
+    "tools": []
+  }
 }

@@ -29,8 +29,8 @@ flip its status here and tick the roadmap item it maps to.
 | [T-15](T-15-spell-selection.md) | Spell selection in wizard | P3 | L | 2 | T-12, T-03 | todo |
 | [T-16](T-16-level-up-editor.md) | Level-up editor & multiclassing | P4 | XL | post-MVP | T-01, T-03, T-04, T-15 | todo |
 | [T-17](T-17-2024-edition-content.md) | 2024 (5.5e) edition content | P2 | M | 1–2 | — | in-progress |
-| [T-19](T-19-leveled-class-features.md) | Leveled class features (Barbarian first) | P1 | L | 1 | T-18 | todo |
-| [T-20](T-20-armor-weapon-proficiencies.md) | Armor & weapon proficiencies as data | P2 | S | 1 | — | todo |
+| [T-19](T-19-leveled-class-features.md) | Leveled class features (Barbarian first) | P1 | L | 1 | T-18 | done |
+| [T-20](T-20-armor-weapon-proficiencies.md) | Armor & weapon proficiencies as data | P2 | S | 1 | — | done |
 | [T-21](T-21-leveled-features-remaining-classes.md) | Leveled features: remaining classes | P2 | L | 1 | T-19 | todo |
 
 ## Suggested order

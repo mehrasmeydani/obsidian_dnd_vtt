@@ -27,6 +27,15 @@ Phase 0 done; Phase 1 mostly done:
   design (T-02 done, user-verified). **Next big items: editable sheet
   view; subclasses/feats/race-options (data groundwork already in the bundle,
   schema ignores it until implemented); Phase 2 content store.**
+- Leveled class features (T-19) + proficiencies-as-data (T-20) are in: class
+  JSON now uses `features: [{level, name, description, effects?}]` (scaling
+  tiers share a name; the highest tier ≤ level wins), plus `proficiencies`
+  {armor/weapons/tools} and scaling `resources` (the Rage table). Barbarian
+  2014 + Berserker carry the full 1–20 progression; other classes are
+  level-1-only until T-21. Assembly applies feature effects (Fast Movement
+  speed, Primal Champion +4 with cap 24 — after the draft's cap-20 ASI math),
+  copies proficiencies, and fills `Character.resources`; the Class options
+  step shows the granted progression + proficiencies read-only.
 - The user's CSS arrived (2026-07-03) as `docs/reference/dnd-character-sheet-v2.css`
   — a snippet for their handmade Meta Bind sheet, used as the **design spec**,
   not dropped in. Its look is ported to `dvtt-*` rules in `styles.css`; it also
@@ -54,7 +63,7 @@ Phase 0 done; Phase 1 mostly done:
 
 ## Workflow
 
-- Tests: `npm test` works on the WSL host (Node 18); 379 tests across rules,
+- Tests: `npm test` works on the WSL host (Node 18); 394 tests across rules,
   schema pinning, SRD data integrity, a 234-case race×class×background
   assembly matrix (auto-grows with the bundle; auto-picks level-1 subclasses
   and feature choices), note-format round-trips, and jsdom wizard/sheet

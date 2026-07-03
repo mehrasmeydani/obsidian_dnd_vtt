@@ -77,31 +77,11 @@
     "from": "any"
   },
   "spellcastingAbility": "cha",
-  "traits": [
-    {
-      "name": "Spellcasting",
-      "description": "Cast bard spells using Charisma."
-    },
-    {
-      "name": "Bardic Inspiration",
-      "description": "Bonus action: give a creature a d6 to add to one roll (CHA mod uses per long rest)."
-    }
-  ],
   "subclassLevel": 3,
   "subclasses": [
     {
       "id": "college-of-lore",
       "name": "College of Lore",
-      "traits": [
-        {
-          "name": "Bonus Proficiencies",
-          "description": "Proficiency with three skills of your choice."
-        },
-        {
-          "name": "Cutting Words",
-          "description": "Use Bardic Inspiration to subtract from an enemy's attack, check, or damage."
-        }
-      ],
       "featureChoices": [
         {
           "id": "lore-proficiencies",
@@ -111,6 +91,18 @@
           "kind": "skills",
           "from": "any",
           "description": "College of Lore: gain proficiency in three skills of your choice."
+        }
+      ],
+      "features": [
+        {
+          "level": 3,
+          "name": "Bonus Proficiencies",
+          "description": "Proficiency with three skills of your choice."
+        },
+        {
+          "level": 3,
+          "name": "Cutting Words",
+          "description": "Use Bardic Inspiration to subtract from an enemy's attack, check, or damage."
         }
       ]
     }
@@ -132,5 +124,32 @@
       "kind": "expertise",
       "description": "Your proficiency bonus is doubled for the chosen skills."
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "Cast bard spells using Charisma."
+    },
+    {
+      "level": 1,
+      "name": "Bardic Inspiration",
+      "description": "Bonus action: give a creature a d6 to add to one roll (CHA mod uses per long rest)."
+    }
+  ],
+  "proficiencies": {
+    "armor": [
+      "Light armor"
+    ],
+    "weapons": [
+      "Simple weapons",
+      "Hand crossbows",
+      "Longswords",
+      "Rapiers",
+      "Shortswords"
+    ],
+    "tools": [
+      "Three musical instruments of your choice"
+    ]
+  }
 }

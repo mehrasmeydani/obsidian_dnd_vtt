@@ -29,7 +29,9 @@ function minimalBundle(): ContentBundle {
         hitDie: 8,
         savingThrows: ["str", "con"],
         skillChoice: { count: 2, from: "any" },
-        traits: [{ name: "Feature" }],
+        features: [{ name: "Feature", level: 1, effects: [] }],
+        proficiencies: { armor: [], weapons: ["Simple weapons"], tools: [] },
+        resources: [],
         asiLevels: [4, 8],
         equipment: {
           fixed: [{ name: "Rock" }],
@@ -98,5 +100,80 @@ describe("parseContentBundle", () => {
     const badQuantity = minimalBundle();
     badQuantity.classes[0].equipment.fixed = [{ name: "Rock", quantity: 0 }];
     expect(() => parseContentBundle(badQuantity)).toThrow();
+  });
+
+  it("rejects class features with levels outside 1-20", () => {
+    for (const level of [0, 21]) {
+      const bad = minimalBundle();
+      bad.classes[0].features = [{ name: "Feature", level, effects: [] }];
+      expect(() => parseContentBundle(bad)).toThrow();
+    }
+  });
+
+  it("defaults proficiencies and resources when omitted", () => {
+    const raw = minimalBundle() as unknown as {
+      classes: Record<string, unknown>[];
+    };
+    delete raw.classes[0].proficiencies;
+    delete raw.classes[0].resources;
+    const bundle = parseContentBundle(raw);
+    expect(bundle.classes[0].proficiencies).toEqual({
+      armor: [],
+      weapons: [],
+      tools: [],
+    });
+    expect(bundle.classes[0].resources).toEqual([]);
+  });
+
+  it("accepts scaling resources with numeric and unlimited uses", () => {
+    const bundle = minimalBundle();
+    bundle.classes[0].resources = [
+      {
+        id: "rage",
+        name: "Rage",
+        per: "long-rest",
+        levels: [
+          { level: 1, uses: 2, note: "+2 rage damage" },
+          { level: 20, uses: "unlimited" },
+        ],
+      },
+    ];
+    expect(() => parseContentBundle(bundle)).not.toThrow();
+
+    const badUses = minimalBundle();
+    badUses.classes[0].resources = [
+      {
+        id: "rage",
+        name: "Rage",
+        per: "long-rest",
+        levels: [{ level: 1, uses: 0 }],
+      },
+    ] as never;
+    expect(() => parseContentBundle(badUses)).toThrow();
+  });
+
+  it("validates feature effects", () => {
+    const bundle = minimalBundle();
+    bundle.classes[0].features = [
+      {
+        name: "Primal Champion",
+        level: 20,
+        effects: [
+          { kind: "ability-increase", abilities: ["str", "con"], amount: 4, max: 24 },
+          { kind: "speed-bonus", amount: 10 },
+        ],
+      },
+    ];
+    expect(() => parseContentBundle(bundle)).not.toThrow();
+
+    const badEffect = minimalBundle();
+    badEffect.classes[0].features = [
+      {
+        name: "Broken",
+        level: 1,
+        effects: [{ kind: "fly-speed", amount: 30 } as never],
+      },
+    ];
+    expect(() => parseContentBundle(badEffect)).toThrow();
   });
 });

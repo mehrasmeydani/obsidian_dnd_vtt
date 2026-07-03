@@ -91,8 +91,35 @@ export const FeatureSchema = z.object({
   name: z.string(),
   source: z.string().optional(),
   description: z.string().optional(),
+  /** Class level the feature was gained at (class/subclass features only). */
+  level: z.number().int().min(1).max(20).optional(),
 });
 export type Feature = z.infer<typeof FeatureSchema>;
+
+/**
+ * A limited-use pool (Rage, Ki…) with its current spend. `max` is copied from
+ * the class resource table at the character's level; "unlimited" pools render
+ * without pips.
+ */
+export const ResourceSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  max: z.union([z.number().int().min(0), z.literal("unlimited")]),
+  used: z.number().int().min(0).default(0),
+  per: z.enum(["short-rest", "long-rest"]),
+  note: z.string().optional(),
+});
+export type Resource = z.infer<typeof ResourceSchema>;
+
+/** Armor/weapon/tool proficiencies, as display strings from content data. */
+export const CharacterProficienciesSchema = z.object({
+  armor: z.array(z.string()).default([]),
+  weapons: z.array(z.string()).default([]),
+  tools: z.array(z.string()).default([]),
+});
+export type CharacterProficiencies = z.infer<
+  typeof CharacterProficienciesSchema
+>;
 
 export const CharacterSchema = z.object({
   id: z.string(),
@@ -123,6 +150,8 @@ export const CharacterSchema = z.object({
   /** Ability used for spellcasting DC/attack, if any. */
   spellcastingAbility: AbilitySchema.optional(),
   features: z.array(FeatureSchema).default([]),
+  proficiencies: CharacterProficienciesSchema.default({}),
+  resources: z.array(ResourceSchema).default([]),
   notes: z.string().default(""),
 });
 export type Character = z.infer<typeof CharacterSchema>;

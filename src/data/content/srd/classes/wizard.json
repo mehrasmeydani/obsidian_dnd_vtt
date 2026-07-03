@@ -76,31 +76,46 @@
     ]
   },
   "spellcastingAbility": "int",
-  "traits": [
-    {
-      "name": "Spellcasting",
-      "description": "Cast wizard spells using Intelligence; learn spells in a spellbook."
-    },
-    {
-      "name": "Arcane Recovery",
-      "description": "Recover spell slots (half wizard level) on a short rest, once per day."
-    }
-  ],
   "subclassLevel": 2,
   "subclasses": [
     {
       "id": "school-of-evocation",
       "name": "School of Evocation",
-      "traits": [
+      "features": [
         {
+          "level": 2,
           "name": "Evocation Savant",
           "description": "Copy evocation spells into your spellbook at half cost and time."
         },
         {
+          "level": 2,
           "name": "Sculpt Spells",
           "description": "Protect allies from your own evocation spells."
         }
       ]
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "Cast wizard spells using Intelligence; learn spells in a spellbook."
+    },
+    {
+      "level": 1,
+      "name": "Arcane Recovery",
+      "description": "Recover spell slots (half wizard level) on a short rest, once per day."
+    }
+  ],
+  "proficiencies": {
+    "armor": [],
+    "weapons": [
+      "Daggers",
+      "Darts",
+      "Slings",
+      "Quarterstaffs",
+      "Light crossbows"
+    ],
+    "tools": []
+  }
 }

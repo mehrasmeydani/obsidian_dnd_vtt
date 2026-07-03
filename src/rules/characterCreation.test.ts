@@ -8,6 +8,7 @@ import {
   bonusSkillCount,
   emptyDraft,
   finalAbilityScores,
+  grantedClassFeatures,
   pointBuyCost,
   pointBuyTotal,
   startingHp,
@@ -400,6 +401,166 @@ describe("2024 (5.5e) class variants", () => {
     const mastery = character.features.find((f) => f.name === "Weapon Mastery");
     expect(mastery?.source).toBe("Barbarian");
     expect(character.features.map((f) => f.name)).toContain("Rage");
+  });
+});
+
+describe("leveled class features (T-19) and proficiencies (T-20)", () => {
+  const barbarian = () => byId(CLASSES, "barbarian");
+  const berserker = () => barbarian().subclasses[0];
+
+  /** A human barbarian (Path of the Berserker from level 3 up). */
+  function barbarianDraft(level: number): CharacterDraft {
+    return {
+      ...validDraft(),
+      race: byId(RACES, "human"), // +1 all abilities, speed 30
+      charClass: barbarian(),
+      level,
+      subclass: level >= 3 ? berserker() : null,
+      classSkills: ["athletics", "perception"],
+      equipmentChoices: [0, 0],
+      featurePicks: {},
+    };
+  }
+
+  it("collapses scaling tiers to the highest one reached", () => {
+    const names = (level: number) =>
+      grantedClassFeatures(barbarian(), null, level).map(
+        (g) => `${g.feature.name}@${g.feature.level}`,
+      );
+    expect(names(1)).toEqual(["Rage@1", "Unarmored Defense@1"]);
+    expect(names(9)).toContain("Brutal Critical@9");
+    expect(names(13)).toContain("Brutal Critical@13");
+    expect(names(13)).not.toContain("Brutal Critical@9");
+    expect(
+      names(20).filter((n) => n.startsWith("Brutal Critical")),
+    ).toEqual(["Brutal Critical@17"]);
+  });
+
+  it("assembles a level-9 berserker with tiered features, speed, and rage pool", () => {
+    const draft: CharacterDraft = {
+      ...barbarianDraft(9),
+      asiBonuses: { str: 4 }, // ASIs at 4 and 8
+    };
+    expect(validateDraft(draft)).toEqual([]);
+    const character = assembleCharacter(draft, "test-id");
+
+    // Fast Movement (level 5): 30 racial + 10.
+    expect(character.speed).toBe(40);
+
+    const brutal = character.features.filter(
+      (f) => f.name === "Brutal Critical",
+    );
+    expect(brutal).toHaveLength(1);
+    expect(brutal[0].level).toBe(9);
+    expect(brutal[0].description).toMatch(/one additional weapon damage die/);
+
+    const names = character.features.map((f) => f.name);
+    expect(names).toEqual(
+      expect.arrayContaining([
+        "Reckless Attack",
+        "Danger Sense",
+        "Extra Attack",
+        "Feral Instinct",
+        "Frenzy",
+        "Mindless Rage",
+      ]),
+    );
+    // Not yet: level 10+ features.
+    expect(names).not.toContain("Intimidating Presence");
+    expect(names).not.toContain("Relentless Rage");
+
+    expect(character.resources).toEqual([
+      {
+        id: "rage",
+        name: "Rage",
+        max: 4,
+        used: 0,
+        per: "long-rest",
+        note: "+3 rage damage",
+      },
+    ]);
+  });
+
+  it("assembles a level-20 berserker: full feature set, Primal Champion +4/+4, unlimited rage", () => {
+    const draft: CharacterDraft = {
+      ...barbarianDraft(20),
+      // Human +1 all: str 16, con 15 before ASIs. 5 ASIs = 10 points.
+      asiBonuses: { str: 4, con: 5, dex: 1 },
+    };
+    expect(validateDraft(draft)).toEqual([]);
+    const character = assembleCharacter(draft, "test-id");
+
+    // Primal Champion: +4 STR/CON over the draft's capped-at-20 finals.
+    expect(finalAbilityScores(draft).str).toBe(20);
+    expect(finalAbilityScores(draft).con).toBe(20);
+    expect(character.abilityScores.str).toBe(24);
+    expect(character.abilityScores.con).toBe(24);
+
+    // HP uses the improved CON (mod +7): d12 at 1, then 19 × (7 + 7).
+    expect(character.maxHp).toBe(startingHp(12, 7, 20));
+
+    expect(character.speed).toBe(40);
+
+    const names = character.features.map((f) => f.name);
+    for (const expected of [
+      "Rage",
+      "Unarmored Defense",
+      "Reckless Attack",
+      "Danger Sense",
+      "Extra Attack",
+      "Fast Movement",
+      "Feral Instinct",
+      "Brutal Critical",
+      "Relentless Rage",
+      "Persistent Rage",
+      "Indomitable Might",
+      "Primal Champion",
+      "Frenzy",
+      "Mindless Rage",
+      "Intimidating Presence",
+      "Retaliation",
+    ]) {
+      expect(names).toContain(expected);
+    }
+    const brutal = character.features.find((f) => f.name === "Brutal Critical");
+    expect(brutal?.level).toBe(17);
+    expect(brutal?.description).toMatch(/three additional/);
+
+    expect(character.resources[0].max).toBe("unlimited");
+    expect(character.resources[0].note).toBe("+4 rage damage");
+  });
+
+  it("does not raise a score already at the feature's cap past it", () => {
+    // STR 20 + 4 caps at 24; CON left at 16+... stays under the cap.
+    const draft: CharacterDraft = {
+      ...barbarianDraft(20),
+      asiBonuses: { str: 4, dex: 5, wis: 1 }, // con stays 15
+    };
+    const character = assembleCharacter(draft, "test-id");
+    expect(character.abilityScores.str).toBe(24);
+    expect(character.abilityScores.con).toBe(19); // 15 + 4, under the 24 cap
+  });
+
+  it("copies class armor/weapon/tool proficiencies onto the character (T-20)", () => {
+    const character = assembleCharacter(validDraft(), "test-id");
+    expect(character.proficiencies).toEqual({
+      armor: ["All armor", "Shields"],
+      weapons: ["Simple weapons", "Martial weapons"],
+      tools: [],
+    });
+  });
+
+  it("gives level-1 characters only level-1 features and the level-1 rage pool", () => {
+    const character = assembleCharacter(barbarianDraft(1), "test-id");
+    const classFeatures = character.features.filter(
+      (f) => f.source === "Barbarian",
+    );
+    expect(classFeatures.map((f) => f.name).sort()).toEqual([
+      "Rage",
+      "Unarmored Defense",
+    ]);
+    expect(character.speed).toBe(30);
+    expect(character.resources[0]).toMatchObject({ max: 2, used: 0 });
   });
 });
 

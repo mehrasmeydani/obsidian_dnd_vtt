@@ -271,6 +271,58 @@ describe("CharacterCreationWizard", () => {
     expect(character.features.map((f) => f.name)).toContain("Second-Story Work");
   });
 
+  it("shows the granted progression and proficiencies on the Class options step", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Grok" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Human/ }));
+    fireEvent.click(nextButton());
+
+    // Level 20 Barbarian (2014 — the 2024 variant is a separate card).
+    fireEvent.click(screen.getByRole("button", { name: /Barbarian.*2014/ }));
+    fireEvent.change(screen.getByRole("spinbutton"), {
+      target: { value: "20" },
+    });
+    fireEvent.click(nextButton());
+    fireEvent.click(
+      screen.getByRole("button", { name: /Path of the Berserker/ }),
+    );
+
+    // Granted proficiencies render as chips, not picks.
+    const profGroup = choiceGroup(/Proficiencies — granted/);
+    expect(profGroup.getByText("Martial weapons")).toBeTruthy();
+    expect(profGroup.getByText("Medium armor")).toBeTruthy();
+
+    // Full progression, read-only, with subclass features and level tags.
+    const featureGroup = choiceGroup(/Features — granted at level 20/);
+    expect(featureGroup.getByText("Primal Champion")).toBeTruthy();
+    expect(featureGroup.getByText("Retaliation")).toBeTruthy();
+    // Scaling features collapse to the level's tier: one Brutal Critical.
+    expect(featureGroup.getAllByText("Brutal Critical")).toHaveLength(1);
+    expect(
+      featureGroup.getByText(/three additional weapon damage dice/),
+    ).toBeTruthy();
+    // The Rage pool shows the level-20 row.
+    expect(
+      featureGroup.getByText(/Rage: unlimited per long rest · \+4 rage damage/),
+    ).toBeTruthy();
+
+    // Dropping to level 4 trims the list to what is actually granted.
+    fireEvent.click(screen.getByRole("button", { name: "Class" }));
+    fireEvent.change(screen.getByRole("spinbutton"), {
+      target: { value: "4" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Class options" }));
+    const trimmed = choiceGroup(/Features — granted at level 4/);
+    expect(trimmed.getByText("Reckless Attack")).toBeTruthy();
+    expect(trimmed.queryByText("Extra Attack")).toBeNull();
+    expect(trimmed.getByText(/Rage: 3 per long rest/)).toBeTruthy();
+  });
+
   it("supports races with bonus ability and skill choices (half-elf bard)", () => {
     const onComplete = vi.fn<(c: Character) => void>();
     render(

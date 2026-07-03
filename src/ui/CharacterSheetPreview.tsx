@@ -106,7 +106,51 @@ export function CharacterSheetPreview({ character }: { character: Character }) {
           ))}
         </div>
       </section>
+
+      {character.resources.length > 0 && (
+        <section className="dvtt-tile dvtt-tile--resources">
+          <div className="dvtt-tile__title">Resources</div>
+          <div className="dvtt-chips">
+            {character.resources.map((r) => (
+              <span className="dvtt-chip" key={r.id}>
+                {r.name}:{" "}
+                {r.max === "unlimited"
+                  ? "unlimited"
+                  : `${r.max - r.used}/${r.max}`}{" "}
+                per {r.per === "long-rest" ? "long rest" : "short rest"}
+                {r.note ? ` · ${r.note}` : ""}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <ProficienciesTile character={character} />
     </div>
+  );
+}
+
+/** Armor/weapon/tool proficiencies, when the character carries any. */
+function ProficienciesTile({ character }: { character: Character }) {
+  const groups = (
+    [
+      ["Armor", character.proficiencies.armor],
+      ["Weapons", character.proficiencies.weapons],
+      ["Tools", character.proficiencies.tools],
+    ] as const
+  ).filter(([, list]) => list.length > 0);
+  if (groups.length === 0) return null;
+
+  return (
+    <section className="dvtt-tile dvtt-tile--proficiencies">
+      <div className="dvtt-tile__title">Proficiencies</div>
+      {groups.map(([label, list]) => (
+        <div className="dvtt-prof-group" key={label}>
+          <span className="dvtt-prof-group__label">{label}</span>
+          <span className="dvtt-prof-group__list">{list.join(", ")}</span>
+        </div>
+      ))}
+    </section>
   );
 }
 

@@ -97,31 +97,19 @@
       "stealth"
     ]
   },
-  "traits": [
-    {
-      "name": "Expertise",
-      "description": "Double proficiency bonus for two chosen proficiencies."
-    },
-    {
-      "name": "Sneak Attack",
-      "description": "Once per turn, +1d6 damage when you have advantage (or an ally is adjacent)."
-    },
-    {
-      "name": "Thieves' Cant",
-      "description": "Secret rogue dialect of jargon and code."
-    }
-  ],
   "subclassLevel": 3,
   "subclasses": [
     {
       "id": "thief",
       "name": "Thief",
-      "traits": [
+      "features": [
         {
+          "level": 3,
           "name": "Fast Hands",
           "description": "Cunning Action can also disarm traps, open locks, or use objects."
         },
         {
+          "level": 3,
           "name": "Second-Story Work",
           "description": "Climb at full speed; longer running jumps."
         }
@@ -145,5 +133,37 @@
       "kind": "expertise",
       "description": "Your proficiency bonus is doubled for the chosen skills."
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Expertise",
+      "description": "Double proficiency bonus for two chosen proficiencies."
+    },
+    {
+      "level": 1,
+      "name": "Sneak Attack",
+      "description": "Once per turn, +1d6 damage when you have advantage (or an ally is adjacent)."
+    },
+    {
+      "level": 1,
+      "name": "Thieves' Cant",
+      "description": "Secret rogue dialect of jargon and code."
+    }
+  ],
+  "proficiencies": {
+    "armor": [
+      "Light armor"
+    ],
+    "weapons": [
+      "Simple weapons",
+      "Hand crossbows",
+      "Longswords",
+      "Rapiers",
+      "Shortswords"
+    ],
+    "tools": [
+      "Thieves' tools"
+    ]
+  }
 }

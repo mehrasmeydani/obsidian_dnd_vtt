@@ -101,31 +101,46 @@
     ]
   },
   "spellcastingAbility": "wis",
-  "traits": [
-    {
-      "name": "Spellcasting",
-      "description": "Cast cleric spells using Wisdom; prepare from the full cleric list."
-    },
-    {
-      "name": "Divine Domain",
-      "description": "Choose a domain that grants bonus spells and features."
-    }
-  ],
   "subclassLevel": 1,
   "subclasses": [
     {
       "id": "life-domain",
       "name": "Life Domain",
-      "traits": [
+      "features": [
         {
+          "level": 1,
           "name": "Bonus Proficiency",
           "description": "Proficiency with heavy armor."
         },
         {
+          "level": 1,
           "name": "Disciple of Life",
           "description": "Healing spells restore extra HP (2 + spell level)."
         }
       ]
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "Cast cleric spells using Wisdom; prepare from the full cleric list."
+    },
+    {
+      "level": 1,
+      "name": "Divine Domain",
+      "description": "Choose a domain that grants bonus spells and features."
+    }
+  ],
+  "proficiencies": {
+    "armor": [
+      "Light armor",
+      "Medium armor",
+      "Shields"
+    ],
+    "weapons": [
+      "Simple weapons"
+    ],
+    "tools": []
+  }
 }

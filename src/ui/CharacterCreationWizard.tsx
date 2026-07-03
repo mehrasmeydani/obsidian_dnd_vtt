@@ -34,6 +34,7 @@ import {
   featureChoiceProblems,
   featureSkillPicks,
   finalAbilityScores,
+  grantedClassFeatures,
   grantedSkills,
   pointBuyTotal,
   subclassRequired,
@@ -482,7 +483,10 @@ function ClassStep({
                 : ""}
             </div>
             <div className="dvtt-card__detail">
-              {c.traits.map((t) => t.name).join(", ")}
+              {c.features
+                .filter((f) => f.level === 1)
+                .map((f) => f.name)
+                .join(", ")}
             </div>
           </button>
         ))}
@@ -546,7 +550,7 @@ function ClassOptionsStep({
                 >
                   <div className="dvtt-card__title">{s.name}</div>
                   <div className="dvtt-card__detail">
-                    {s.traits.map((t) => t.name).join(", ")}
+                    {s.features.map((f) => `${f.name} (${f.level})`).join(", ")}
                   </div>
                 </button>
               ))}
@@ -574,6 +578,115 @@ function ClassOptionsStep({
           choice={choice}
         />
       ))}
+
+      <GrantedProficiencies charClass={charClass} />
+      <GrantedFeatureList
+        charClass={charClass}
+        subclass={subclassRequired(draft) ? draft.subclass : null}
+        level={draft.level}
+      />
+    </div>
+  );
+}
+
+/** Armor/weapon/tool proficiencies the class grants — display only, not a pick. */
+function GrantedProficiencies({ charClass }: { charClass: ClassData }) {
+  const groups = (
+    [
+      ["Armor", charClass.proficiencies.armor],
+      ["Weapons", charClass.proficiencies.weapons],
+      ["Tools", charClass.proficiencies.tools],
+    ] as const
+  ).filter(([, list]) => list.length > 0);
+  if (groups.length === 0) return null;
+
+  return (
+    <div className="dvtt-choice-group">
+      <h4>Proficiencies — granted</h4>
+      {groups.map(([label, list]) => (
+        <div className="dvtt-prof-group" key={label}>
+          <span className="dvtt-prof-group__label">{label}</span>
+          <span className="dvtt-chips">
+            {list.map((entry) => (
+              <span className="dvtt-chip" key={entry}>
+                {entry}
+              </span>
+            ))}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Read-only progression detail: every class/subclass feature the starting
+ * level grants (scaling tiers collapsed to the level's tier), plus scaling
+ * resource pools at their current row. Choices are made above; grants are
+ * shown, never picked.
+ */
+function GrantedFeatureList({
+  charClass,
+  subclass,
+  level,
+}: {
+  charClass: ClassData;
+  subclass: SubclassData | null;
+  level: number;
+}) {
+  const granted = grantedClassFeatures(charClass, subclass, level);
+  if (granted.length === 0 && charClass.resources.length === 0) return null;
+
+  const resources = charClass.resources.flatMap((resource) => {
+    const row = [...resource.levels]
+      .filter((r) => r.level <= level)
+      .sort((a, b) => a.level - b.level)
+      .pop();
+    return row ? [{ resource, row }] : [];
+  });
+
+  return (
+    <div className="dvtt-choice-group">
+      <h4>
+        Features — granted at level {level}
+        {subclass ? ` (${charClass.name} · ${subclass.name})` : ""}
+      </h4>
+      {resources.length > 0 && (
+        <div className="dvtt-chips">
+          {resources.map(({ resource, row }) => (
+            <span className="dvtt-chip" key={resource.id}>
+              {resource.name}:{" "}
+              {row.uses === "unlimited" ? "unlimited" : `${row.uses}`} per{" "}
+              {resource.per === "long-rest" ? "long rest" : "short rest"}
+              {row.note ? ` · ${row.note}` : ""}
+            </span>
+          ))}
+        </div>
+      )}
+      <ul className="dvtt-granted-features">
+        {granted.map(({ source, feature }) => (
+          <li key={`${source}-${feature.name}`}>
+            <details className="dvtt-granted-feature">
+              <summary>
+                <span className="dvtt-granted-feature__level">
+                  Lv {feature.level}
+                </span>
+                <span className="dvtt-granted-feature__name">
+                  {feature.name}
+                </span>
+                {source !== charClass.name && (
+                  <span className="dvtt-granted-feature__source">{source}</span>
+                )}
+              </summary>
+              {feature.description && (
+                <p className="dvtt-granted-feature__body">
+                  {feature.description}
+                </p>
+              )}
+            </details>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -1282,7 +1395,11 @@ function ReviewStep({ draft }: { draft: CharacterDraft }) {
             {character.features.map((f) => (
               <li key={f.id}>
                 <strong>{f.name}</strong>
-                <span className="dvtt-feature__source"> ({f.source})</span>
+                <span className="dvtt-feature__source">
+                  {" "}
+                  ({f.source}
+                  {f.level !== undefined ? `, level ${f.level}` : ""})
+                </span>
                 {f.description ? ` — ${f.description}` : ""}
               </li>
             ))}

@@ -81,31 +81,11 @@
     ]
   },
   "spellcastingAbility": "cha",
-  "traits": [
-    {
-      "name": "Spellcasting",
-      "description": "Cast sorcerer spells using Charisma."
-    },
-    {
-      "name": "Sorcerous Origin",
-      "description": "Choose the source of your innate magic (draconic bloodline, wild magic, ...)."
-    }
-  ],
   "subclassLevel": 1,
   "subclasses": [
     {
       "id": "draconic-bloodline",
       "name": "Draconic Bloodline",
-      "traits": [
-        {
-          "name": "Dragon Ancestor",
-          "description": "Choose a dragon type; double proficiency on related CHA checks."
-        },
-        {
-          "name": "Draconic Resilience",
-          "description": "+1 HP per sorcerer level; unarmored AC 13 + DEX."
-        }
-      ],
       "featureChoices": [
         {
           "id": "dragon-ancestor",
@@ -157,7 +137,42 @@
             }
           ]
         }
+      ],
+      "features": [
+        {
+          "level": 1,
+          "name": "Dragon Ancestor",
+          "description": "Choose a dragon type; double proficiency on related CHA checks."
+        },
+        {
+          "level": 1,
+          "name": "Draconic Resilience",
+          "description": "+1 HP per sorcerer level; unarmored AC 13 + DEX."
+        }
       ]
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "Cast sorcerer spells using Charisma."
+    },
+    {
+      "level": 1,
+      "name": "Sorcerous Origin",
+      "description": "Choose the source of your innate magic (draconic bloodline, wild magic, ...)."
+    }
+  ],
+  "proficiencies": {
+    "armor": [],
+    "weapons": [
+      "Daggers",
+      "Darts",
+      "Slings",
+      "Quarterstaffs",
+      "Light crossbows"
+    ],
+    "tools": []
+  }
 }

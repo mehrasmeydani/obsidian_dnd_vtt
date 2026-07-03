@@ -70,31 +70,11 @@
     ]
   },
   "spellcastingAbility": "wis",
-  "traits": [
-    {
-      "name": "Druidic",
-      "description": "Know the secret language of druids."
-    },
-    {
-      "name": "Spellcasting",
-      "description": "Cast druid spells using Wisdom; prepare from the full druid list."
-    }
-  ],
   "subclassLevel": 2,
   "subclasses": [
     {
       "id": "circle-of-the-land",
       "name": "Circle of the Land",
-      "traits": [
-        {
-          "name": "Bonus Cantrip",
-          "description": "Learn one extra druid cantrip."
-        },
-        {
-          "name": "Natural Recovery",
-          "description": "Recover spell slots during a short rest once per day."
-        }
-      ],
       "featureChoices": [
         {
           "id": "circle-land",
@@ -130,7 +110,53 @@
             }
           ]
         }
+      ],
+      "features": [
+        {
+          "level": 2,
+          "name": "Bonus Cantrip",
+          "description": "Learn one extra druid cantrip."
+        },
+        {
+          "level": 2,
+          "name": "Natural Recovery",
+          "description": "Recover spell slots during a short rest once per day."
+        }
       ]
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Druidic",
+      "description": "Know the secret language of druids."
+    },
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "Cast druid spells using Wisdom; prepare from the full druid list."
+    }
+  ],
+  "proficiencies": {
+    "armor": [
+      "Light armor (nonmetal)",
+      "Medium armor (nonmetal)",
+      "Shields (nonmetal)"
+    ],
+    "weapons": [
+      "Clubs",
+      "Daggers",
+      "Darts",
+      "Javelins",
+      "Maces",
+      "Quarterstaffs",
+      "Scimitars",
+      "Sickles",
+      "Slings",
+      "Spears"
+    ],
+    "tools": [
+      "Herbalism kit"
+    ]
+  }
 }

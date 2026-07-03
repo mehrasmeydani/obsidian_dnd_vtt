@@ -12,6 +12,7 @@ import {
 import type {
   BackgroundData,
   ClassData,
+  ClassFeature,
   EquipmentItem,
   FeatureChoice,
   RaceData,
@@ -141,6 +142,41 @@ export function activeFeatureChoices(draft: CharacterDraft): FeatureChoice[] {
     );
   }
   return owed;
+}
+
+/** A granted class/subclass feature tagged with who grants it. */
+export interface GrantedFeature {
+  source: string;
+  feature: ClassFeature;
+}
+
+/**
+ * Every class and subclass feature granted at `level`, in level order.
+ * Same-named entries are tiers of one scaling feature (Brutal Critical at
+ * 9/13/17): only the highest tier with `level <= level` survives.
+ */
+export function grantedClassFeatures(
+  charClass: ClassData,
+  subclass: SubclassData | null,
+  level: number,
+): GrantedFeature[] {
+  const all: GrantedFeature[] = [
+    ...charClass.features.map((feature) => ({ source: charClass.name, feature })),
+    ...(subclass
+      ? subclass.features.map((feature) => ({ source: subclass.name, feature }))
+      : []),
+  ].filter((g) => g.feature.level <= level);
+
+  // Tier collapse: keep only the highest tier per source+name.
+  const byKey = new Map<string, GrantedFeature>();
+  for (const granted of all) {
+    const key = `${granted.source} ${granted.feature.name}`;
+    const existing = byKey.get(key);
+    if (!existing || existing.feature.level <= granted.feature.level) {
+      byKey.set(key, granted);
+    }
+  }
+  return [...byKey.values()].sort((a, b) => a.feature.level - b.feature.level);
 }
 
 /** Skills picked through "skills"-kind feature choices. */
@@ -434,12 +470,53 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
   const charClass = draft.charClass as ClassData;
   const background = draft.background as BackgroundData;
 
+  const subclass = subclassRequired(draft) ? draft.subclass : null;
+  const granted = grantedClassFeatures(charClass, subclass, draft.level);
+
+  // Feature effects change derived numbers after the (cap-20) draft math:
+  // Primal Champion raises STR/CON to at most its own cap of 24, and does so
+  // before HP so the improved CON counts; Fast Movement adds to speed.
   const abilityScores = finalAbilityScores(draft);
+  let speed = race.speed;
+  for (const { feature } of granted) {
+    for (const effect of feature.effects) {
+      if (effect.kind === "speed-bonus") {
+        speed += effect.amount;
+      } else {
+        for (const ability of effect.abilities) {
+          abilityScores[ability] = Math.max(
+            abilityScores[ability],
+            Math.min(abilityScores[ability] + effect.amount, effect.max),
+          );
+        }
+      }
+    }
+  }
+
   const maxHp = startingHp(
     charClass.hitDie,
     abilityModifier(abilityScores.con),
     draft.level,
   );
+
+  // Scaling resource pools (Rage): the highest table row at this level wins.
+  const resources = charClass.resources.flatMap((resource) => {
+    const row = [...resource.levels]
+      .filter((r) => r.level <= draft.level)
+      .sort((a, b) => a.level - b.level)
+      .pop();
+    if (!row) return [];
+    return [
+      {
+        id: resource.id,
+        name: resource.name,
+        max: row.uses,
+        used: 0,
+        per: resource.per,
+        ...(row.note ? { note: row.note } : {}),
+      },
+    ];
+  });
 
   const savingThrows: Partial<Record<Ability, ProficiencyLevel>> = {};
   for (const ability of charClass.savingThrows) {
@@ -464,13 +541,18 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
       : background.name;
 
   // Racial traits, class features, and background features all become
-  // Character.features, tagged with their source. Phase 2 swaps the static
-  // SRD traits for Open5e content without touching this shape.
-  const subclass = subclassRequired(draft) ? draft.subclass : null;
+  // Character.features, tagged with their source (and, for class features,
+  // the level they were gained at). Phase 2 swaps the static SRD traits for
+  // Open5e content without touching this shape.
   const features = [
     ...traitsToFeatures(race.name, race.traits),
-    ...traitsToFeatures(charClass.name, charClass.traits),
-    ...(subclass ? traitsToFeatures(subclass.name, subclass.traits) : []),
+    ...granted.map(({ source, feature }) => ({
+      id: `${slugify(source)}-${slugify(feature.name)}`,
+      name: feature.name,
+      source,
+      description: feature.description,
+      level: feature.level,
+    })),
     ...traitsToFeatures(backgroundName, background.traits),
   ];
   // "Options" picks become features of their own ("Fighting Style: Dueling"),
@@ -527,9 +609,11 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     maxHp,
     currentHp: maxHp,
     armorClass: 10 + abilityModifier(abilityScores.dex),
-    speed: race.speed,
+    speed,
     spellcastingAbility: charClass.spellcastingAbility,
     features,
+    proficiencies: charClass.proficiencies,
+    resources,
     inventory,
   });
 }

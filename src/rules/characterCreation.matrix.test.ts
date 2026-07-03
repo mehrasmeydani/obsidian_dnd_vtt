@@ -13,6 +13,7 @@ import {
   assembleCharacter,
   emptyDraft,
   finalAbilityScores,
+  grantedClassFeatures,
   validateDraft,
   type CharacterDraft,
 } from "./characterCreation";
@@ -167,8 +168,8 @@ describe.each(BACKGROUNDS.map((bg) => [bg.id, bg] as const))(
       ]);
       expect(new Set(Object.keys(character.skills))).toEqual(expectedSkills);
 
-      // All traits arrive as features (subclass traits and option picks
-      // included), tagged with their source.
+      // All traits and level-1 class/subclass grants arrive as features
+      // (option picks included), tagged with their source.
       const optionPickCount = [
         ...charClass.featureChoices,
         ...(draft.subclass?.featureChoices ?? []),
@@ -177,11 +178,13 @@ describe.each(BACKGROUNDS.map((bg) => [bg.id, bg] as const))(
         .reduce((sum, c) => sum + c.count, 0);
       expect(character.features).toHaveLength(
         race.traits.length +
-          charClass.traits.length +
-          (draft.subclass?.traits.length ?? 0) +
+          grantedClassFeatures(charClass, draft.subclass, 1).length +
           background.traits.length +
           optionPickCount,
       );
+
+      // Class proficiencies land on the character (T-20).
+      expect(character.proficiencies).toEqual(charClass.proficiencies);
       const featureIds = character.features.map((f) => f.id);
       expect(new Set(featureIds).size).toBe(featureIds.length);
 

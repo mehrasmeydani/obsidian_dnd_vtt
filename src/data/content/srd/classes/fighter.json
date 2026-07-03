@@ -104,23 +104,14 @@
       "survival"
     ]
   },
-  "traits": [
-    {
-      "name": "Fighting Style",
-      "description": "Choose a combat style (archery, defense, dueling, ...)."
-    },
-    {
-      "name": "Second Wind",
-      "description": "Bonus action: regain 1d10 + fighter level HP once per rest."
-    }
-  ],
   "subclassLevel": 3,
   "subclasses": [
     {
       "id": "champion",
       "name": "Champion",
-      "traits": [
+      "features": [
         {
+          "level": 3,
           "name": "Improved Critical",
           "description": "Weapon attacks score a critical hit on a roll of 19 or 20."
         }
@@ -162,5 +153,28 @@
         }
       ]
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Fighting Style",
+      "description": "Choose a combat style (archery, defense, dueling, ...)."
+    },
+    {
+      "level": 1,
+      "name": "Second Wind",
+      "description": "Bonus action: regain 1d10 + fighter level HP once per rest."
+    }
+  ],
+  "proficiencies": {
+    "armor": [
+      "All armor",
+      "Shields"
+    ],
+    "weapons": [
+      "Simple weapons",
+      "Martial weapons"
+    ],
+    "tools": []
+  }
 }

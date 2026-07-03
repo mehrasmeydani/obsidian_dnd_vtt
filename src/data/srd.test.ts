@@ -82,7 +82,34 @@ describe("classes", () => {
         expect(count).toBeLessThanOrEqual(from.length);
       }
 
-      expect(charClass.traits.length).toBeGreaterThan(0);
+      // Features: at least one at level 1, all levels in range, and scaling
+      // tiers (same name, several levels) never repeat a level.
+      expect(charClass.features.some((f) => f.level === 1)).toBe(true);
+      const featureSets = [
+        charClass.features,
+        ...charClass.subclasses.map((s) => s.features),
+      ];
+      for (const features of featureSets) {
+        const seen = new Set<string>();
+        for (const feature of features) {
+          expect(feature.name).toBeTruthy();
+          expect(feature.level).toBeGreaterThanOrEqual(1);
+          expect(feature.level).toBeLessThanOrEqual(20);
+          const key = `${feature.name}@${feature.level}`;
+          expect(seen.has(key)).toBe(false);
+          seen.add(key);
+        }
+      }
+
+      // Every class grants weapon proficiencies; armor/tools may be empty.
+      expect(charClass.proficiencies.weapons.length).toBeGreaterThan(0);
+
+      // Resource tables are sorted by level with no duplicate rows.
+      for (const resource of charClass.resources) {
+        const levels = resource.levels.map((r) => r.level);
+        expect([...levels].sort((a, b) => a - b)).toEqual(levels);
+        expect(new Set(levels).size).toBe(levels.length);
+      }
 
       // ASI levels: sorted, unique, within 2-20, and at least the edition's
       // baseline (2024 classes get 4 ASIs; level 19 is an Epic Boon instead).
@@ -151,6 +178,67 @@ describe("classes", () => {
       }
     },
   );
+});
+
+describe("2014 Barbarian progression (T-19)", () => {
+  const barbarian = CLASSES.find((c) => c.id === "barbarian")!;
+
+  it("carries the full 1-20 class feature table", () => {
+    const at = (name: string) =>
+      barbarian.features
+        .filter((f) => f.name === name)
+        .map((f) => f.level)
+        .sort((a, b) => a - b);
+    expect(at("Rage")).toEqual([1]);
+    expect(at("Unarmored Defense")).toEqual([1]);
+    expect(at("Reckless Attack")).toEqual([2]);
+    expect(at("Danger Sense")).toEqual([2]);
+    expect(at("Extra Attack")).toEqual([5]);
+    expect(at("Fast Movement")).toEqual([5]);
+    expect(at("Feral Instinct")).toEqual([7]);
+    expect(at("Brutal Critical")).toEqual([9, 13, 17]);
+    expect(at("Relentless Rage")).toEqual([11]);
+    expect(at("Persistent Rage")).toEqual([15]);
+    expect(at("Indomitable Might")).toEqual([18]);
+    expect(at("Primal Champion")).toEqual([20]);
+  });
+
+  it("carries the Berserker subclass features at 3/6/10/14", () => {
+    const berserker = barbarian.subclasses.find(
+      (s) => s.id === "path-of-the-berserker",
+    )!;
+    expect(
+      berserker.features.map((f) => [f.name, f.level]),
+    ).toEqual([
+      ["Frenzy", 3],
+      ["Mindless Rage", 6],
+      ["Intimidating Presence", 10],
+      ["Retaliation", 14],
+    ]);
+  });
+
+  it("models the Rage table (uses and damage) as a resource", () => {
+    const rage = barbarian.resources.find((r) => r.id === "rage")!;
+    expect(rage.per).toBe("long-rest");
+    expect(rage.levels).toEqual([
+      { level: 1, uses: 2, note: "+2 rage damage" },
+      { level: 3, uses: 3, note: "+2 rage damage" },
+      { level: 6, uses: 4, note: "+2 rage damage" },
+      { level: 9, uses: 4, note: "+3 rage damage" },
+      { level: 12, uses: 5, note: "+3 rage damage" },
+      { level: 16, uses: 5, note: "+4 rage damage" },
+      { level: 17, uses: 6, note: "+4 rage damage" },
+      { level: 20, uses: "unlimited", note: "+4 rage damage" },
+    ]);
+  });
+
+  it("grants barbarian armor and weapon proficiencies (T-20)", () => {
+    expect(barbarian.proficiencies).toEqual({
+      armor: ["Light armor", "Medium armor", "Shields"],
+      weapons: ["Simple weapons", "Martial weapons"],
+      tools: [],
+    });
+  });
 });
 
 describe("backgrounds", () => {

@@ -84,27 +84,11 @@
     ]
   },
   "spellcastingAbility": "wis",
-  "traits": [
-    {
-      "name": "Favored Enemy",
-      "description": "Advantage on tracking and recalling lore about a chosen enemy type."
-    },
-    {
-      "name": "Natural Explorer",
-      "description": "Expert navigator and tracker in a chosen terrain."
-    }
-  ],
   "subclassLevel": 3,
   "subclasses": [
     {
       "id": "hunter",
       "name": "Hunter",
-      "traits": [
-        {
-          "name": "Hunter's Prey",
-          "description": "Choose Colossus Slayer, Giant Killer, or Horde Breaker."
-        }
-      ],
       "featureChoices": [
         {
           "id": "hunters-prey",
@@ -126,6 +110,13 @@
               "description": "Once per turn, make another attack against a different creature within 5 feet of the original target."
             }
           ]
+        }
+      ],
+      "features": [
+        {
+          "level": 3,
+          "name": "Hunter's Prey",
+          "description": "Choose Colossus Slayer, Giant Killer, or Horde Breaker."
         }
       ]
     }
@@ -243,5 +234,29 @@
         }
       ]
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Favored Enemy",
+      "description": "Advantage on tracking and recalling lore about a chosen enemy type."
+    },
+    {
+      "level": 1,
+      "name": "Natural Explorer",
+      "description": "Expert navigator and tracker in a chosen terrain."
+    }
+  ],
+  "proficiencies": {
+    "armor": [
+      "Light armor",
+      "Medium armor",
+      "Shields"
+    ],
+    "weapons": [
+      "Simple weapons",
+      "Martial weapons"
+    ],
+    "tools": []
+  }
 }

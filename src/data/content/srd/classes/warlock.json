@@ -85,23 +85,14 @@
     ]
   },
   "spellcastingAbility": "cha",
-  "traits": [
-    {
-      "name": "Otherworldly Patron",
-      "description": "Pact with a powerful entity that grants features."
-    },
-    {
-      "name": "Pact Magic",
-      "description": "Cast warlock spells using Charisma; slots recharge on a short rest."
-    }
-  ],
   "subclassLevel": 1,
   "subclasses": [
     {
       "id": "the-fiend",
       "name": "The Fiend",
-      "traits": [
+      "features": [
         {
+          "level": 1,
           "name": "Dark One's Blessing",
           "description": "Gain temporary HP (CHA mod + warlock level) when you drop a hostile to 0."
         }
@@ -131,5 +122,26 @@
         }
       ]
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Otherworldly Patron",
+      "description": "Pact with a powerful entity that grants features."
+    },
+    {
+      "level": 1,
+      "name": "Pact Magic",
+      "description": "Cast warlock spells using Charisma; slots recharge on a short rest."
+    }
+  ],
+  "proficiencies": {
+    "armor": [
+      "Light armor"
+    ],
+    "weapons": [
+      "Simple weapons"
+    ],
+    "tools": []
+  }
 }

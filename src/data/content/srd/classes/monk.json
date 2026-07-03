@@ -62,27 +62,40 @@
       "stealth"
     ]
   },
-  "traits": [
-    {
-      "name": "Unarmored Defense",
-      "description": "Without armor, AC = 10 + DEX mod + WIS mod."
-    },
-    {
-      "name": "Martial Arts",
-      "description": "Use DEX for unarmed strikes/monk weapons; bonus-action unarmed strike."
-    }
-  ],
   "subclassLevel": 3,
   "subclasses": [
     {
       "id": "way-of-the-open-hand",
       "name": "Way of the Open Hand",
-      "traits": [
+      "features": [
         {
+          "level": 3,
           "name": "Open Hand Technique",
           "description": "Flurry of Blows can knock prone, push 15 ft, or block reactions."
         }
       ]
     }
-  ]
+  ],
+  "features": [
+    {
+      "level": 1,
+      "name": "Unarmored Defense",
+      "description": "Without armor, AC = 10 + DEX mod + WIS mod."
+    },
+    {
+      "level": 1,
+      "name": "Martial Arts",
+      "description": "Use DEX for unarmed strikes/monk weapons; bonus-action unarmed strike."
+    }
+  ],
+  "proficiencies": {
+    "armor": [],
+    "weapons": [
+      "Simple weapons",
+      "Shortswords"
+    ],
+    "tools": [
+      "One type of artisan's tools or one musical instrument"
+    ]
+  }
 }

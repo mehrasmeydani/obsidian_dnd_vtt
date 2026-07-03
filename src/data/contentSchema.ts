@@ -16,6 +16,71 @@ export const TraitSchema = z.object({
 });
 export type Trait = z.infer<typeof TraitSchema>;
 
+/**
+ * A mechanical effect a class feature applies to the character at assembly.
+ * Only effects that change derived sheet numbers are modeled; purely textual
+ * features carry none.
+ */
+export const FeatureEffectSchema = z.discriminatedUnion("kind", [
+  /** Fast Movement: flat bonus to walking speed. */
+  z.object({
+    kind: z.literal("speed-bonus"),
+    amount: z.number().int().positive(),
+  }),
+  /** Primal Champion: raise scores, with a new cap above the usual 20. */
+  z.object({
+    kind: z.literal("ability-increase"),
+    abilities: z.array(AbilitySchema).min(1),
+    amount: z.number().int().positive(),
+    /** New maximum for the raised scores (increase never exceeds it). */
+    max: z.number().int().positive(),
+  }),
+]);
+export type FeatureEffect = z.infer<typeof FeatureEffectSchema>;
+
+/**
+ * A class or subclass feature granted at `level`. Entries that share a name
+ * are tiers of one scaling feature (Brutal Critical at 9/13/17): a character
+ * gets only the highest tier with `level <= character level`.
+ */
+export const ClassFeatureSchema = z.object({
+  name: z.string().min(1),
+  level: z.number().int().min(1).max(20),
+  description: z.string().optional(),
+  effects: z.array(FeatureEffectSchema).default([]),
+});
+export type ClassFeature = z.infer<typeof ClassFeatureSchema>;
+
+/**
+ * A limited-use class resource (Rage, Ki, Channel Divinity…) whose pool
+ * scales with class level. The highest entry with `level <= class level`
+ * applies; the sheet renders the pool as pips.
+ */
+export const ClassResourceSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  per: z.enum(["short-rest", "long-rest"]),
+  levels: z
+    .array(
+      z.object({
+        level: z.number().int().min(1).max(20),
+        uses: z.union([z.number().int().positive(), z.literal("unlimited")]),
+        /** A rider that scales alongside the pool, e.g. "+2 rage damage". */
+        note: z.string().optional(),
+      }),
+    )
+    .min(1),
+});
+export type ClassResource = z.infer<typeof ClassResourceSchema>;
+
+/** Armor/weapon/tool proficiencies granted outright (they are not a pick). */
+export const ProficienciesSchema = z.object({
+  armor: z.array(z.string().min(1)).default([]),
+  weapons: z.array(z.string().min(1)).default([]),
+  tools: z.array(z.string().min(1)).default([]),
+});
+export type Proficiencies = z.infer<typeof ProficienciesSchema>;
+
 /** "Choose `count` skills from `from`" — `"any"` means all 18 skills. */
 export const SkillChoiceSchema = z.object({
   count: z.number().int().positive(),
@@ -106,7 +171,8 @@ export type FeatureChoice = z.infer<typeof FeatureChoiceSchema>;
 export const SubclassDataSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  traits: z.array(TraitSchema),
+  /** Granted subclass features by level (see `ClassFeatureSchema`). */
+  features: z.array(ClassFeatureSchema),
   featureChoices: z.array(FeatureChoiceSchema).default([]),
 });
 export type SubclassData = z.infer<typeof SubclassDataSchema>;
@@ -119,8 +185,12 @@ export const ClassDataSchema = z.object({
   savingThrows: z.tuple([AbilitySchema, AbilitySchema]),
   skillChoice: SkillChoiceSchema,
   spellcastingAbility: AbilitySchema.optional(),
-  /** Level-1 class features. */
-  traits: z.array(TraitSchema),
+  /** Granted class features by level (see `ClassFeatureSchema`). */
+  features: z.array(ClassFeatureSchema),
+  /** Armor/weapon/tool proficiencies the class grants at level 1. */
+  proficiencies: ProficienciesSchema.default({}),
+  /** Scaling limited-use pools (Rage…), read by the sheet's resource pips. */
+  resources: z.array(ClassResourceSchema).default([]),
   /** Levels at which this class gains an Ability Score Improvement. */
   asiLevels: z.array(z.number().int().min(2).max(20)),
   equipment: StartingEquipmentSchema,
