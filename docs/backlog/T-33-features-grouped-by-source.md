@@ -8,8 +8,8 @@ separate groups — class features sorted by level, with feats appearing
 both in the feats group and inline in the class-by-level list.
 
 ## Acceptance criteria
-- [ ] Features tile renders grouped: Race / Class (level-sorted, subclass
+- [x] Features tile renders grouped: Race / Class (level-sorted, subclass
       included, leveled feats inline) / Background / Feats / Other.
-- [ ] Feats taken at an ASI level appear in both the Feats group and the
+- [x] Feats taken at an ASI level appear in both the Feats group and the
       class progression.
-- [ ] jsdom test for the grouping.
+- [x] jsdom test for the grouping.

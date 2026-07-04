@@ -53,4 +53,8 @@ wrong.
   mode) and the Equipped checkbox (edit mode) — gold and gear are plain
   chips.
 
+- **T-33 Feature grouping** — Features & Traits now renders per origin:
+  race, class (level-sorted, subclass + leveled feats inline),
+  background, feats (leveled feats appear in both class and feats).
+
 <!-- appended as each fix lands -->

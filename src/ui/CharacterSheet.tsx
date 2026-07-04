@@ -208,35 +208,7 @@ export function CharacterSheet({
       <InventoryTile character={character} apply={apply} editing={editing} />
       <SpellsTile character={character} apply={apply} editing={editing} />
 
-      {character.features.length > 0 && (
-        <section className="dvtt-tile dvtt-tile--features">
-          <div className="dvtt-tile__title">Features &amp; Traits</div>
-          <ul className="dvtt-granted-features">
-            {character.features.map((f) => (
-              <li key={f.id}>
-                <details className="dvtt-granted-feature">
-                  <summary>
-                    {f.level !== undefined && (
-                      <span className="dvtt-granted-feature__level">
-                        Lv {f.level}
-                      </span>
-                    )}
-                    <span className="dvtt-granted-feature__name">{f.name}</span>
-                    {f.source && (
-                      <span className="dvtt-granted-feature__source">
-                        {f.source}
-                      </span>
-                    )}
-                  </summary>
-                  {f.description && (
-                    <p className="dvtt-granted-feature__body">{f.description}</p>
-                  )}
-                </details>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <FeaturesTile character={character} />
 
       <ProficienciesTile character={character} />
       <NotesTile character={character} apply={apply} editing={editing} />
@@ -847,6 +819,81 @@ function SpellsTile({
           Add spell
         </button>
       )}
+    </section>
+  );
+}
+
+/**
+ * Features & Traits grouped by origin (T-33): race, class (sorted by the
+ * level gained, subclass features and leveled feats inline), background,
+ * and feats. Feats taken at an ASI level appear both in the class
+ * progression and in the Feats group.
+ */
+function FeaturesTile({ character }: { character: Character }) {
+  if (character.features.length === 0) return null;
+
+  const classSources = new Set(
+    character.classes.flatMap((c) =>
+      c.subclass ? [c.name, c.subclass] : [c.name],
+    ),
+  );
+  const features = character.features;
+  const raceItems = features.filter((f) => f.source === character.race);
+  const backgroundItems = features.filter(
+    (f) => f.source === character.background && f.source !== character.race,
+  );
+  const featItems = features.filter((f) => f.source === "Feat");
+  const classItems = [
+    ...features.filter((f) => f.source !== undefined && classSources.has(f.source)),
+    // Leveled feats slot into the class progression too.
+    ...featItems.filter((f) => f.level !== undefined),
+  ].sort((a, b) => (a.level ?? 0) - (b.level ?? 0));
+  const grouped = new Set([...raceItems, ...backgroundItems, ...featItems, ...classItems]);
+  const otherItems = features.filter((f) => !grouped.has(f));
+
+  const groups = [
+    { label: character.race || "Race", items: raceItems },
+    {
+      label: character.classes.map((c) => c.name).join(" / ") || "Class",
+      items: classItems,
+    },
+    { label: character.background || "Background", items: backgroundItems },
+    { label: "Feats", items: featItems },
+    { label: "Other", items: otherItems },
+  ].filter((group) => group.items.length > 0);
+
+  return (
+    <section className="dvtt-tile dvtt-tile--features">
+      <div className="dvtt-tile__title">Features &amp; Traits</div>
+      {groups.map((group) => (
+        <div className="dvtt-feature-group" key={group.label}>
+          <div className="dvtt-feature-group__label">{group.label}</div>
+          <ul className="dvtt-granted-features">
+            {group.items.map((f) => (
+              <li key={f.id}>
+                <details className="dvtt-granted-feature">
+                  <summary>
+                    {f.level !== undefined && (
+                      <span className="dvtt-granted-feature__level">
+                        Lv {f.level}
+                      </span>
+                    )}
+                    <span className="dvtt-granted-feature__name">{f.name}</span>
+                    {f.source && (
+                      <span className="dvtt-granted-feature__source">
+                        {f.source}
+                      </span>
+                    )}
+                  </summary>
+                  {f.description && (
+                    <p className="dvtt-granted-feature__body">{f.description}</p>
+                  )}
+                </details>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </section>
   );
 }

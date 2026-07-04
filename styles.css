@@ -816,6 +816,19 @@
   margin-top: auto;
 }
 
+/* Feature origin groups (T-33) */
+.dvtt-feature-group + .dvtt-feature-group {
+  margin-top: var(--size-4-2);
+}
+
+.dvtt-feature-group__label {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--size-2-1);
+}
+
 /* Wearing / In bags inventory groups (T-36) */
 .dvtt-inv-group + .dvtt-inv-group {
   margin-top: var(--size-4-2);

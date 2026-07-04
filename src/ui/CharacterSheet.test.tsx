@@ -358,6 +358,47 @@ describe("equip toggle (T-22, always live)", () => {
   });
 });
 
+describe("features grouped by origin (T-33)", () => {
+  it("groups race/class/background/feats, class sorted by level with feats inline", () => {
+    const character = CharacterSchema.parse({
+      ...sampleCharacter(),
+      race: "Hill Dwarf",
+      background: "Acolyte",
+      classes: [{ name: "Rogue", level: 4, subclass: "Thief" }],
+      features: [
+        { id: "r1", name: "Darkvision", source: "Hill Dwarf" },
+        { id: "c2", name: "Cunning Action", source: "Rogue", level: 2 },
+        { id: "c1", name: "Sneak Attack", source: "Rogue", level: 1 },
+        { id: "s1", name: "Fast Hands", source: "Thief", level: 3 },
+        { id: "b1", name: "Shelter of the Faithful", source: "Acolyte" },
+        { id: "f1", name: "Grappler", source: "Feat", level: 4 },
+      ],
+    });
+    const { container } = renderSheet(character);
+    const groups = [...container.querySelectorAll(".dvtt-feature-group")];
+    const labels = groups.map(
+      (g) => g.querySelector(".dvtt-feature-group__label")?.textContent,
+    );
+    expect(labels).toEqual(["Hill Dwarf", "Rogue", "Acolyte", "Feats"]);
+
+    const classGroup = groups[labels.indexOf("Rogue")];
+    const classNames = [
+      ...classGroup.querySelectorAll(".dvtt-granted-feature__name"),
+    ].map((el) => el.textContent);
+    // Level-sorted, subclass features inline, the level-4 feat included.
+    expect(classNames).toEqual([
+      "Sneak Attack",
+      "Cunning Action",
+      "Fast Hands",
+      "Grappler",
+    ]);
+
+    // The feat also appears in its own group.
+    const featGroup = groups[labels.indexOf("Feats")];
+    expect(featGroup.textContent).toContain("Grappler");
+  });
+});
+
 describe("edit mode", () => {
   it("recalculates derived values live when a score changes, and never offers them as inputs", () => {
     const { container } = renderSheet();
