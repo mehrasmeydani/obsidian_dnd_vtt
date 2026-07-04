@@ -7,6 +7,6 @@ As a **player** rolling HP or starting gold, I want the roll to feel like
 dice — a brief tumble/pop — instead of numbers appearing instantly.
 
 ## Acceptance criteria
-- [ ] HP roll chips and the gold result animate when (re)rolled (CSS pop/
+- [x] HP roll chips and the gold result animate when (re)rolled (CSS pop/
       stagger; respects prefers-reduced-motion).
-- [ ] No test breakage: animation is presentation-only.
+- [x] No test breakage: animation is presentation-only.

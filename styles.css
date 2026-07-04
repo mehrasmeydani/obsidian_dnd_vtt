@@ -816,6 +816,36 @@
   margin-top: auto;
 }
 
+/* Dice roll tumble (T-27): chips/totals pop in when (re)rolled. */
+@keyframes dvtt-die-tumble {
+  0% {
+    transform: rotate(-10deg) scale(0.5);
+    opacity: 0;
+  }
+  55% {
+    transform: rotate(6deg) scale(1.15);
+    opacity: 1;
+  }
+  80% {
+    transform: rotate(-2deg) scale(0.97);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.dvtt-roll-pop {
+  display: inline-block;
+  animation: dvtt-die-tumble 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.15) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dvtt-roll-pop {
+    animation: none;
+  }
+}
+
 /* Collapsible tiles (T-32): the title doubles as the toggle. */
 button.dvtt-tile__title--toggle {
   display: flex;

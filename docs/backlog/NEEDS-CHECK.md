@@ -61,4 +61,8 @@ wrong.
   Proficiencies & languages, and Notes fold behind their titles
   (chevron); HP/Combat/Abilities stay always visible.
 
+- **T-27 Dice animation** — HP roll chips tumble in one after another
+  and the gold total pops on every (re)roll; disabled under
+  prefers-reduced-motion.
+
 <!-- appended as each fix lands -->

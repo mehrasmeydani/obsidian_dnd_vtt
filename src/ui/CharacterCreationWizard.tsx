@@ -1280,8 +1280,14 @@ function HpModePicker({
         : null
       : startingHp(charClass.hitDie, conMod, draft.level);
 
-  const reroll = () =>
+  // Bumped on every roll so the chips remount and their tumble animation
+  // replays even when a die lands on the same number (T-27).
+  const [rollSeq, setRollSeq] = useState(0);
+
+  const reroll = () => {
+    setRollSeq((seq) => seq + 1);
     update({ hpRolls: rollDice(needed, charClass.hitDie) });
+  };
 
   return (
     <div className="dvtt-choice-group">
@@ -1301,12 +1307,13 @@ function HpModePicker({
             type="radio"
             name="dvtt-hp-mode"
             checked={draft.hpMode === "rolled"}
-            onChange={() =>
+            onChange={() => {
+              setRollSeq((seq) => seq + 1);
               update({
                 hpMode: "rolled",
                 hpRolls: rollDice(needed, charClass.hitDie),
-              })
-            }
+              });
+            }}
           />
           Rolled (d{charClass.hitDie} per level after 1st)
         </label>
@@ -1318,7 +1325,11 @@ function HpModePicker({
               Level 1: {charClass.hitDie} (max)
             </span>
             {draft.hpRolls.map((roll, i) => (
-              <span className="dvtt-chip" key={i}>
+              <span
+                className="dvtt-chip dvtt-roll-pop"
+                key={`${rollSeq}-${i}`}
+                style={{ animationDelay: `${i * 70}ms` }}
+              >
                 Level {i + 2}: {roll}
               </span>
             ))}
@@ -1674,6 +1685,13 @@ function EquipmentStep({
   };
 
   const goldFormula = charClass?.startingGold;
+  // Remount the gold figure per roll so the tumble replays (T-27).
+  const [rollSeq, setRollSeq] = useState(0);
+  const rollGoldNow = () => {
+    if (!goldFormula) return;
+    setRollSeq((seq) => seq + 1);
+    update({ equipmentMode: "gold", goldRoll: rollGold(goldFormula) });
+  };
 
   return (
     <div>
@@ -1697,12 +1715,7 @@ function EquipmentStep({
               type="radio"
               name="dvtt-equipment-mode"
               checked={draft.equipmentMode === "gold"}
-              onChange={() =>
-                update({
-                  equipmentMode: "gold",
-                  goldRoll: rollGold(goldFormula),
-                })
-              }
+              onChange={rollGoldNow}
             />
             Take starting gold instead ({goldRollLabel(goldFormula)})
           </label>
@@ -1713,14 +1726,15 @@ function EquipmentStep({
         <div className="dvtt-choice-group">
           <h4>Starting gold</h4>
           <p>
-            You rolled <strong>{draft.goldRoll ?? "—"} gp</strong> — it lands
-            in your inventory as "Gold (gp)"; buy gear during play. This
-            replaces the class package, its choices, and the background gear.
+            You rolled{" "}
+            <strong className="dvtt-roll-pop" key={rollSeq}>
+              {draft.goldRoll ?? "—"} gp
+            </strong>{" "}
+            — it lands in your inventory as "Gold (gp)"; buy gear during
+            play. This replaces the class package, its choices, and the
+            background gear.
           </p>
-          <button
-            type="button"
-            onClick={() => update({ goldRoll: rollGold(goldFormula) })}
-          >
+          <button type="button" onClick={rollGoldNow}>
             Reroll
           </button>
         </div>
