@@ -8,6 +8,27 @@ group. See [docs/ROADMAP.md](docs/ROADMAP.md) for architecture and the phased pl
 > classes, backgrounds, levels, equipment) saves characters as vault notes
 > and loads them back. Next: the editable sheet view.
 
+## Content & licensing
+
+**The plugin ships rules structure, not books.** The only game content
+bundled with the plugin is from the D&D **System Reference Documents**
+(SRD 5.1 for 2014 rules, SRD 5.2 for 2024 rules), which Wizards of the
+Coast publishes under **CC-BY-4.0** — that's why each class ships with
+exactly one subclass, and why non-SRD material (other subclasses, feats,
+spells, races from the PHB/XPHB and other books) is never included.
+
+Everything beyond the SRD reaches your vault through **your own data**:
+
+- **"Import 5etools data"** converts JSON files *you supply* into local
+  content bundles inside your own plugin folder.
+- **"Refresh 5e content from Open5e"** fetches only SRD-licensed
+  documents from the Open5e API.
+
+Imported content is stored locally, is never uploaded, bundled, or
+redistributed by the plugin, and is **your responsibility**: only import
+material you legally own, and don't share the resulting bundle files.
+The plugin authors take no responsibility for content users import.
+
 ## Developing
 
 You can build with a local Node toolchain **or** with Docker (no local Node

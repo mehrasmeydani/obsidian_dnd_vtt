@@ -11,3 +11,7 @@ test-vault/
 # misc
 .DS_Store
 *.log
+
+# WotC-copyrighted reference data: local-only, never committed or shipped.
+# Drop your own 5etools JSON here for cross-checking; tests skip when absent.
+docs/reference/5etools/

@@ -622,7 +622,9 @@ class DndVttSettingTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName("5etools import folder")
       .setDesc(
-        'Vault folder scanned by the "Import 5etools data" command for your own 5etools JSON files. Imported content stays local — only SRD content may be redistributed.',
+        'Vault folder scanned by the "Import 5etools data" command for your own 5etools JSON files. ' +
+          "Imported content stays local and is never shared by the plugin. You are responsible " +
+          "for only importing material you legally own — only SRD content may be redistributed.",
       )
       .addText((text) =>
         text

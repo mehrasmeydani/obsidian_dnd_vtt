@@ -119,8 +119,11 @@ Phase 0 done; Phase 1 mostly done:
   (thin validated loader). Classes carry an `edition` field ("2014"/"2024");
   the 2024 Barbarian is in (T-17 tracks the rest). Future 5etools/Open5e
   importers emit this same bundle format; only SRD content may ship with the
-  plugin (5.1 and 5.2 are both CC-BY). Raw 5etools JSON for reference lives
-  in `docs/reference/5etools/` and must never ship.
+  plugin (5.1 and 5.2 are both CC-BY; see the README's "Content &
+  licensing" — everything else is user-imported at their own
+  responsibility). Raw 5etools reference JSON is **git-ignored and
+  local-only** (`docs/reference/5etools/`, see `docs/reference/README.md`);
+  the importer integration test skips when it's absent (CI).
 - `src/persistence/` — pure note format (`characterNote.ts`) split from
   vault I/O (`characterStore.ts`).
 - `src/ui/` — React views mounted into ItemViews via `mount.tsx`.

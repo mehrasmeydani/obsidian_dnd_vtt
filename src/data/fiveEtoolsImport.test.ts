@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -379,11 +379,16 @@ describe("importFiveEtools", () => {
     ).not.toThrow();
   });
 
-  it("converts the real 5etools reference files into a valid bundle", () => {
+  // The reference data is WotC-copyrighted and git-ignored (local-only,
+  // see docs/reference/README.md): this sweep runs when a developer has
+  // their own copy on disk and skips cleanly everywhere else (CI).
+  const REFERENCE_DIR = join(__dirname, "../../docs/reference/5etools");
+
+  it.skipIf(!existsSync(join(REFERENCE_DIR, "races.json")))(
+    "converts the real 5etools reference files into a valid bundle",
+    () => {
     const reference = (file: string): unknown =>
-      JSON.parse(
-        readFileSync(join(__dirname, "../../docs/reference/5etools", file), "utf8"),
-      );
+      JSON.parse(readFileSync(join(REFERENCE_DIR, file), "utf8"));
     const { bundle, skipped } = importFiveEtools([
       { name: "races.json", json: reference("races.json") },
       { name: "backgrounds.json", json: reference("backgrounds.json") },
