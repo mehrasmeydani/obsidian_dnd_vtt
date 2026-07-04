@@ -44,4 +44,8 @@ wrong.
   additional, feature choice) disappears from all the others, both
   directions; unchecking brings it back; granted skills never listed.
 
+- **T-34 Rest confirmation** — Short/Long rest flips into an inline
+  "Take a short/long rest? Confirm / Cancel" pair; nothing happens until
+  Confirm.
+
 <!-- appended as each fix lands -->

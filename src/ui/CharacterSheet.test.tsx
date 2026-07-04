@@ -199,17 +199,38 @@ describe("play controls (always live)", () => {
     expect(last().resources.find((r) => r.id === "rage")?.used).toBe(2);
   });
 
-  it("short rest refills short-rest pools only; long rest refills everything", () => {
+  it("short rest refills short-rest pools only; long rest refills everything (after confirming, T-34)", () => {
     const { last } = renderSheet();
     fireEvent.click(screen.getByLabelText("Rage pip 1"));
     fireEvent.click(screen.getByRole("button", { name: "Short rest" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
     expect(last().resources.find((r) => r.id === "ki")?.used).toBe(0);
     expect(last().resources.find((r) => r.id === "rage")?.used).toBe(2);
 
     fireEvent.click(screen.getByRole("button", { name: "Long rest" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
     expect(last().resources.every((r) => r.used === 0)).toBe(true);
     expect(last().currentHp).toBe(24);
     expect(last().tempHp).toBe(0);
+  });
+
+  it("rests do nothing until confirmed; cancel backs out (T-34)", () => {
+    const { last, changes } = renderSheet();
+    fireEvent.click(screen.getByLabelText("Ki pip 1")); // ki 2 used → spend UI state
+    const before = changes.length;
+
+    fireEvent.click(screen.getByRole("button", { name: "Long rest" }));
+    // Only the confirm prompt appeared; nothing changed yet.
+    expect(screen.getByText("Take a long rest?")).toBeTruthy();
+    expect(changes.length).toBe(before);
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByText("Take a long rest?")).toBeNull();
+    expect(changes.length).toBe(before);
+    expect(last().currentHp).toBe(17); // still hurt
+
+    // The normal buttons are back.
+    expect(screen.getByRole("button", { name: "Short rest" })).toBeTruthy();
   });
 
   it("renders unlimited resources without pips", () => {

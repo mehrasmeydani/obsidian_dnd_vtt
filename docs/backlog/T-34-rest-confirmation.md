@@ -7,6 +7,6 @@ As a **player**, I don't want a stray click on Short/Long rest to wipe my
 resource pips and heal me mid-fight — rests should confirm first.
 
 ## Acceptance criteria
-- [ ] Clicking Short/Long rest flips the button into an inline
+- [x] Clicking Short/Long rest flips the button into an inline
       Confirm/Cancel pair; only Confirm applies the rest.
-- [ ] jsdom tests: cancel does nothing, confirm rests.
+- [x] jsdom tests: cancel does nothing, confirm rests.

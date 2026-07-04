@@ -360,6 +360,10 @@ function RestTile({
   character: Character;
   apply: (patch: Partial<Character>) => void;
 }) {
+  // Rests confirm before applying (T-34): a stray click must not wipe pips
+  // or heal mid-fight. The clicked button flips into Confirm/Cancel.
+  const [confirming, setConfirming] = useState<"short" | "long" | null>(null);
+
   const shortRest = () =>
     apply({
       resources: character.resources.map((r) =>
@@ -372,6 +376,11 @@ function RestTile({
       tempHp: 0,
       resources: character.resources.map((r) => ({ ...r, used: 0 })),
     });
+  const confirmRest = () => {
+    if (confirming === "short") shortRest();
+    if (confirming === "long") longRest();
+    setConfirming(null);
+  };
 
   return (
     <section className="dvtt-tile dvtt-tile--rest">
@@ -393,10 +402,24 @@ function RestTile({
         />
       ))}
       <div className="dvtt-rest-buttons">
-        <button onClick={shortRest}>Short rest</button>
-        <button className="mod-cta" onClick={longRest}>
-          Long rest
-        </button>
+        {confirming === null ? (
+          <>
+            <button onClick={() => setConfirming("short")}>Short rest</button>
+            <button className="mod-cta" onClick={() => setConfirming("long")}>
+              Long rest
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="dvtt-rest-confirm__label">
+              {confirming === "short" ? "Take a short rest?" : "Take a long rest?"}
+            </span>
+            <button className="mod-cta" onClick={confirmRest}>
+              Confirm
+            </button>
+            <button onClick={() => setConfirming(null)}>Cancel</button>
+          </>
+        )}
       </div>
     </section>
   );
