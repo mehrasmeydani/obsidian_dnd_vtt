@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BACKGROUNDS, CLASSES, FEATS, RACES } from "../data/srd";
+import type { Skill } from "../model/schema";
 import { armorClass } from "./armorClass";
 import {
   POINT_BUY_BUDGET,
@@ -12,6 +13,7 @@ import {
   grantedClassFeatures,
   pointBuyCost,
   pointBuyTotal,
+  pruneStaleExpertise,
   startingHp,
   subclassRequired,
   validateDraft,
@@ -421,6 +423,56 @@ describe("2024 (5.5e) class variants", () => {
     const mastery = character.features.find((f) => f.name === "Weapon Mastery");
     expect(mastery?.source).toBe("Barbarian");
     expect(character.features.map((f) => f.name)).toContain("Rage");
+  });
+});
+
+describe("expertise picks released when proficiency is removed (T-37)", () => {
+  /** A rogue draft with Stealth+Insight expertise on top of its skills. */
+  function rogueDraft(): CharacterDraft {
+    return {
+      ...validDraft(),
+      charClass: byId(CLASSES, "rogue"),
+      classSkills: ["stealth", "acrobatics", "deception", "perception"],
+      equipmentChoices: byId(CLASSES, "rogue").equipment.choices.map(() => 0),
+      featurePicks: { expertise: ["stealth", "insight"] },
+    };
+  }
+
+  it("accepts the draft while the proficiencies back the expertise", () => {
+    expect(validateDraft(rogueDraft())).toEqual([]);
+  });
+
+  it("drops an expertise pick when its class-skill proficiency is unchecked", () => {
+    const removed = {
+      ...rogueDraft(),
+      classSkills: ["acrobatics", "deception", "perception"] as Skill[],
+    };
+    // Without pruning, the stale pick fails validation with no UI to fix it.
+    expect(validateDraft(removed)).toContain(
+      "Expertise picks must be proficient skills.",
+    );
+
+    const pruned = pruneStaleExpertise(removed);
+    expect(pruned.featurePicks.expertise).toEqual(["insight"]);
+    // The draft is now merely incomplete (needs a 4th skill + 2nd expertise),
+    // never stuck.
+    const errors = validateDraft(pruned);
+    expect(errors).not.toContain("Expertise picks must be proficient skills.");
+    expect(errors).toContain("Choose 4 class skills.");
+    expect(errors).toContain("Choose 2 skills for Expertise.");
+  });
+
+  it("keeps granted-skill expertise (insight) when unrelated skills change", () => {
+    const pruned = pruneStaleExpertise({
+      ...rogueDraft(),
+      classSkills: ["stealth", "acrobatics", "deception", "athletics"],
+    });
+    expect(pruned.featurePicks.expertise).toEqual(["stealth", "insight"]);
+  });
+
+  it("returns the same draft object when nothing is stale", () => {
+    const draft = rogueDraft();
+    expect(pruneStaleExpertise(draft)).toBe(draft);
   });
 });
 

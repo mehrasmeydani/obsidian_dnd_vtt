@@ -190,6 +190,8 @@ export function CharacterSheet({
         </div>
       </section>
 
+      <DefensesTile character={character} apply={apply} editing={editing} />
+
       <section className="dvtt-tile dvtt-tile--abilities">
         <div className="dvtt-tile__title">Abilities &amp; Skills</div>
         <div className="dvtt-sheet-grid">
@@ -213,6 +215,121 @@ export function CharacterSheet({
       <ProficienciesTile character={character} />
       <NotesTile character={character} apply={apply} editing={editing} />
     </div>
+  );
+}
+
+/** The 14 standard 5e conditions plus Exhaustion (T-35). */
+const CONDITIONS = [
+  "Blinded",
+  "Charmed",
+  "Deafened",
+  "Exhaustion",
+  "Frightened",
+  "Grappled",
+  "Incapacitated",
+  "Invisible",
+  "Paralyzed",
+  "Petrified",
+  "Poisoned",
+  "Prone",
+  "Restrained",
+  "Stunned",
+  "Unconscious",
+] as const;
+
+/**
+ * Defenses & conditions (T-35). Conditions are a play control — always
+ * live toggle chips over the standard list. The damage-type lists
+ * (resistances/immunities/vulnerabilities) are data: comma-separated
+ * inputs in edit mode, chips in read mode.
+ */
+function DefensesTile({
+  character,
+  apply,
+  editing,
+}: {
+  character: Character;
+  apply: (patch: Partial<Character>) => void;
+  editing: boolean;
+}) {
+  const lists = [
+    ["Resistances", "resistances", character.resistances],
+    ["Immunities", "immunities", character.immunities],
+    ["Vulnerabilities", "vulnerabilities", character.vulnerabilities],
+  ] as const;
+  const hasDefenses = lists.some(([, , list]) => list.length > 0);
+  if (!editing && !hasDefenses && character.conditions.length === 0) {
+    // Nothing recorded: keep the sheet tight, but stay reachable — the
+    // conditions row still renders so play toggles are one click away.
+  }
+
+  const toggleCondition = (condition: string) =>
+    apply({
+      conditions: character.conditions.includes(condition)
+        ? character.conditions.filter((c) => c !== condition)
+        : [...character.conditions, condition],
+    });
+
+  const commitList = (
+    key: "resistances" | "immunities" | "vulnerabilities",
+    raw: string,
+  ) =>
+    apply({
+      [key]: raw
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+    });
+
+  return (
+    <section className="dvtt-tile dvtt-tile--defenses">
+      <div className="dvtt-tile__title">Defenses &amp; Conditions</div>
+
+      {editing ? (
+        <div className="dvtt-defense-edit">
+          {lists.map(([label, key, list]) => (
+            <label className="dvtt-field" key={key}>
+              <span>{label} (comma-separated)</span>
+              <input
+                type="text"
+                aria-label={label}
+                defaultValue={list.join(", ")}
+                onBlur={(e) => commitList(key, e.target.value)}
+              />
+            </label>
+          ))}
+        </div>
+      ) : (
+        lists
+          .filter(([, , list]) => list.length > 0)
+          .map(([label, key, list]) => (
+            <div className="dvtt-prof-group" key={key}>
+              <span className="dvtt-prof-group__label">{label}</span>
+              <span className="dvtt-prof-group__list">{list.join(", ")}</span>
+            </div>
+          ))
+      )}
+
+      <div className="dvtt-conditions">
+        <span className="dvtt-prof-group__label">Conditions</span>
+        <div className="dvtt-chips">
+          {CONDITIONS.map((condition) => {
+            const active = character.conditions.includes(condition);
+            return (
+              <button
+                type="button"
+                key={condition}
+                className={`dvtt-chip dvtt-chip--toggle${active ? " is-active" : ""}`}
+                aria-pressed={active}
+                onClick={() => toggleCondition(condition)}
+              >
+                {condition}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 

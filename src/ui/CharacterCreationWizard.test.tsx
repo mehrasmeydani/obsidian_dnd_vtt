@@ -342,6 +342,60 @@ describe("CharacterCreationWizard", () => {
     expect(bonusGroup().queryByLabelText("Religion")).toBeNull();
   });
 
+  it("releases an expertise pick when its proficiency is unchecked (T-37)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Merric" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /^Rogue/ }));
+    fireEvent.click(nextButton());
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.change(screen.getByLabelText("Extra language (1)"), {
+      target: { value: "abyssal" },
+    });
+    fireEvent.change(screen.getByLabelText("Extra language (2)"), {
+      target: { value: "celestial" },
+    });
+    fireEvent.click(nextButton());
+    const selects = screen.getAllByRole("combobox");
+    [10, 15, 14, 8, 12, 13].forEach((value, i) => {
+      fireEvent.change(selects[i], { target: { value: String(value) } });
+    });
+    fireEvent.click(nextButton());
+
+    // Choose skills, give Stealth expertise…
+    const classGroup = () => choiceGroup(/Rogue skills/);
+    for (const skill of ["Stealth", "Acrobatics", "Deception", "Perception"]) {
+      fireEvent.click(classGroup().getByLabelText(skill));
+    }
+    const expertiseGroup = () => choiceGroup(/Expertise — level 1/);
+    fireEvent.click(expertiseGroup().getByLabelText("Stealth"));
+    fireEvent.click(expertiseGroup().getByLabelText("Insight"));
+    expect(nextButton().disabled).toBe(false);
+
+    // …then remove the Stealth proficiency: the expertise pick must be
+    // released — the step blocks with honest hints instead of jamming.
+    fireEvent.click(classGroup().getByLabelText("Stealth"));
+    expect(expertiseGroup().queryByLabelText("Stealth")).toBeNull();
+    expect(nextButton().disabled).toBe(true);
+    expect(screen.getByText(/Choose 1 more class skill/)).toBeTruthy();
+    // The stale pick was released: the counter dropped from 2/2 to 1/2.
+    expect(screen.getByText(/Expertise — level 1 \(1\/2\)/)).toBeTruthy();
+
+    // Recovering: re-check Stealth and expertise is choosable again.
+    fireEvent.click(classGroup().getByLabelText("Stealth"));
+    fireEvent.click(expertiseGroup().getByLabelText("Stealth"));
+    expect(nextButton().disabled).toBe(false);
+  });
+
   it("allows jumping between steps via the header once they are reachable", () => {
     render(
       <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,

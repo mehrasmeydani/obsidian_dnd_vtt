@@ -65,4 +65,11 @@ wrong.
   and the gold total pops on every (re)roll; disabled under
   prefers-reduced-motion.
 
+- **T-37 Stale expertise (your live report)** — unchecking a proficient
+  skill now releases its expertise pick; the counter drops and the step
+  explains what's owed instead of jamming. (The end-to-end repro also
+  confirmed feats/feature groups render on the sheet for valid
+  characters — if a specific note still shows no Feats section, send it
+  my way via the todo file.)
+
 <!-- appended as each fix lands -->

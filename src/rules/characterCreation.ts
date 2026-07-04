@@ -231,6 +231,28 @@ export function draftProficientSkills(draft: CharacterDraft): Skill[] {
   ];
 }
 
+/**
+ * Drop expertise picks whose underlying skill proficiency is gone (T-37):
+ * unchecking a proficient skill must release its expertise pick, otherwise
+ * the draft carries a stale, invisible pick that fails validation with no
+ * way to clear it from the UI. Returns the same draft when nothing changed.
+ */
+export function pruneStaleExpertise(draft: CharacterDraft): CharacterDraft {
+  const proficient = new Set<string>(draftProficientSkills(draft));
+  let changed = false;
+  const featurePicks = { ...draft.featurePicks };
+  for (const choice of activeFeatureChoices(draft)) {
+    if (choice.kind !== "expertise") continue;
+    const picks = featurePicks[choice.id] ?? [];
+    const kept = picks.filter((skill) => proficient.has(skill));
+    if (kept.length !== picks.length) {
+      featurePicks[choice.id] = kept;
+      changed = true;
+    }
+  }
+  return changed ? { ...draft, featurePicks } : draft;
+}
+
 /** Number of Ability Score Improvements the class has gained by `level`. */
 export function asiCount(charClass: ClassData, level: number): number {
   return earnedAsiLevels(charClass, level).length;

@@ -163,6 +163,14 @@ export const CharacterSchema = z.object({
   features: z.array(FeatureSchema).default([]),
   /** Languages known, from race/background grants and picks (T-08). */
   languages: z.array(z.string()).default([]),
+  /** Damage types this character resists, e.g. "Poison" (T-35). */
+  resistances: z.array(z.string()).default([]),
+  /** Damage types this character is immune to (T-35). */
+  immunities: z.array(z.string()).default([]),
+  /** Damage types this character is vulnerable to (T-35). */
+  vulnerabilities: z.array(z.string()).default([]),
+  /** Active conditions during play (Poisoned, Prone…), a live toggle (T-35). */
+  conditions: z.array(z.string()).default([]),
   proficiencies: CharacterProficienciesSchema.default({}),
   resources: z.array(ResourceSchema).default([]),
   notes: z.string().default(""),

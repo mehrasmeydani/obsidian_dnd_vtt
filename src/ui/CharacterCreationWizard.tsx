@@ -47,6 +47,7 @@ import {
   hpRollsNeeded,
   optionChoiceProblems,
   pointBuyTotal,
+  pruneStaleExpertise,
   startingHp,
   subclassRequired,
   validateDraft,
@@ -124,8 +125,11 @@ export function CharacterCreationWizard({
     Record<Ability, number | null>
   >({ str: null, dex: null, con: null, int: null, wis: null, cha: null });
 
+  // Every draft change prunes expertise picks whose underlying proficiency
+  // was removed (T-37): unchecking a skill must release its expertise slot
+  // instead of leaving a stale, invisible pick that blocks validation.
   const update = (patch: Partial<CharacterDraft>) =>
-    setDraft((d) => ({ ...d, ...patch }));
+    setDraft((d) => pruneStaleExpertise({ ...d, ...patch }));
 
   const blockers = useMemo(
     () => stepBlockers(step, draft, method, assignments),
