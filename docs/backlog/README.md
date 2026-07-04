@@ -25,7 +25,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-12](T-12-open5e-client.md) | Open5e client + refresh command | P2 | M | 2 | T-11 | needs-check |
 | [T-13](T-13-5etools-importer.md) | 5etools importer | P2 | M | 2 | T-11 | needs-check |
 | [T-07](T-07-rolled-hp-starting-gold.md) | Rolled HP & starting gold | P3 | S | 1 | — | needs-check |
-| [T-08](T-08-languages-tools.md) | Languages & tool proficiencies | P3 | S | 1 | T-05 | todo |
+| [T-08](T-08-languages-tools.md) | Languages & tool proficiencies | P3 | S | 1 | T-05 | needs-check |
 | [T-09](T-09-flavor-fields.md) | Flavor fields | P3 | S | 1 | — | todo |
 | [T-14](T-14-content-browser.md) | Content browser view | P3 | L | 2 | T-11, T-12 | todo |
 | [T-15](T-15-spell-selection.md) | Spell selection in wizard | P3 | L | 2 | T-12, T-03 | todo |
@@ -37,8 +37,8 @@ flip its status here and tick the roadmap item it maps to.
 | [T-22](T-22-equip-toggle-play-control.md) | Equip toggle as a play control | P2 | S | 1 | T-01, T-06 | needs-check |
 | [T-23](T-23-two-way-markdown-data.md) | Two-way Markdown data (frontmatter projection) | P2 | M | 1–2 | T-01 | needs-check |
 | [T-24](T-24-campaign-folder-structure.md) | Campaign folder structure managed by the plugin | P2 | M | 1–2 | — | needs-check |
-| [T-25](T-25-level-field-empty.md) | Level field shows 0 when erased | P2 | XS | 1 | — | todo |
-| [T-26](T-26-asi-racial-label.md) | ASI points mislabeled as racial | P2 | XS | 1 | — | todo |
+| [T-25](T-25-level-field-empty.md) | Level field shows 0 when erased | P2 | XS | 1 | — | needs-check |
+| [T-26](T-26-asi-racial-label.md) | ASI points mislabeled as racial | P2 | XS | 1 | — | needs-check |
 | [T-27](T-27-dice-roll-animation.md) | Dice roll animation | P2 | S | 1 | T-07 | todo |
 | [T-28](T-28-skill-pick-cross-filtering.md) | Skill picks filter across lists | P2 | S | 1 | — | todo |
 | [T-29](T-29-hover-info-cards.md) | Hover info cards (future) | P3 | L | 2+ | T-14 | todo |

@@ -8,7 +8,7 @@ I erase it — not snap to `0` — so that entering a two-digit level doesn't
 fight me.
 
 ## Acceptance criteria
-- [ ] Erasing the level input shows an empty field, not `0`.
-- [ ] The draft keeps its last valid level while the field is empty (Next
+- [x] Erasing the level input shows an empty field, not `0`.
+- [x] The draft keeps its last valid level while the field is empty (Next
       hint explains if left empty); leaving the field restores the value.
-- [ ] jsdom test for erase → empty → retype.
+- [x] jsdom test for erase → empty → retype.

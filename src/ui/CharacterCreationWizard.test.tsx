@@ -213,6 +213,83 @@ describe("CharacterCreationWizard", () => {
     expect(screen.getByText(/Assign 2 more improvement points/)).toBeTruthy();
   });
 
+  it("empties the level field when erased instead of showing 0 (T-25)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Borin" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
+    fireEvent.click(nextButton());
+
+    const level = () => screen.getByRole("spinbutton") as HTMLInputElement;
+    fireEvent.change(level(), { target: { value: "4" } });
+    expect(level().value).toBe("4");
+
+    // Erasing shows an empty field, not 0; the draft keeps the last level.
+    fireEvent.change(level(), { target: { value: "" } });
+    expect(level().value).toBe("");
+    fireEvent.change(level(), { target: { value: "12" } });
+    expect(level().value).toBe("12");
+
+    // Leaving the field empty restores the draft's level.
+    fireEvent.change(level(), { target: { value: "" } });
+    fireEvent.blur(level());
+    expect(level().value).toBe("12");
+  });
+
+  it("labels racial and ASI increases separately (T-26)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Borin" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
+    fireEvent.click(nextButton());
+
+    // Level 4 fighter earns one ASI (2 points).
+    fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
+    fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "4" } });
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /^Champion/ }));
+    fireEvent.click(screen.getByLabelText("Archery"));
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.change(screen.getByLabelText("Extra language (1)"), {
+      target: { value: "abyssal" },
+    });
+    fireEvent.change(screen.getByLabelText("Extra language (2)"), {
+      target: { value: "celestial" },
+    });
+    fireEvent.click(nextButton());
+
+    // Put both ASI points into STR: hill dwarf has no STR racial bonus, so
+    // the row must say ASI, not racial.
+    const asiGroup = choiceGroup(/Ability score improvements/);
+    const plusButtons = asiGroup.getAllByRole("button", { name: "+" });
+    fireEvent.click(plusButtons[0]);
+    fireEvent.click(plusButtons[0]);
+
+    const row = (name: string) =>
+      screen
+        .getAllByText(name)
+        .map((el) => el.closest(".dvtt-ability-row"))
+        .find((el): el is HTMLElement => el !== null)!;
+    expect(row("Strength").textContent).toContain("+2 ASI");
+    expect(row("Strength").textContent).not.toContain("racial");
+    // CON keeps its racial +2 label (hill dwarf), with no ASI part.
+    expect(row("Constitution").textContent).toContain("+2 racial");
+    expect(row("Constitution").textContent).not.toContain("ASI");
+  });
+
   it("allows jumping between steps via the header once they are reachable", () => {
     render(
       <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,

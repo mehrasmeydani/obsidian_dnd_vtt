@@ -35,4 +35,9 @@ wrong.
 
 ## From your todo file (fixed this round)
 
+- **T-25 Level field** — erasing the starting level shows an empty field
+  (draft keeps the last valid level; leaving the field restores it).
+- **T-26 ASI labels** — ability rows now say "+2 racial" and "+1 ASI"
+  separately instead of calling everything racial.
+
 <!-- appended as each fix lands -->

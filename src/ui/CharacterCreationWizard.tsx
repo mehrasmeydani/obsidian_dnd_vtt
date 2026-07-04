@@ -578,6 +578,11 @@ function ClassStep({
       equipmentChoices: charClass.equipment.choices.map(() => 0),
     });
 
+  // The input keeps its own text so erasing shows an empty field instead of
+  // snapping to 0 (T-25); the draft holds the last valid level meanwhile,
+  // and leaving the field restores it.
+  const [levelText, setLevelText] = useState(String(draft.level));
+
   const setLevel = (level: number) => {
     // Dropping below the subclass level clears the subclass; feature picks
     // are pruned to the choices still active at the new level.
@@ -607,8 +612,21 @@ function ClassStep({
           type="number"
           min={1}
           max={MAX_LEVEL}
-          value={draft.level}
-          onChange={(e) => setLevel(Number(e.target.value))}
+          value={levelText}
+          onChange={(e) => {
+            const text = e.target.value;
+            setLevelText(text);
+            const value = Number(text);
+            if (
+              text !== "" &&
+              Number.isInteger(value) &&
+              value >= 1 &&
+              value <= MAX_LEVEL
+            ) {
+              setLevel(value);
+            }
+          }}
+          onBlur={() => setLevelText(String(draft.level))}
         />
       </label>
       <div className="dvtt-cards">
@@ -1134,7 +1152,15 @@ function AbilitiesStep({
 
       <div className="dvtt-ability-rows">
         {ABILITIES.map((ability) => {
-          const racialDelta = final[ability] - draft.baseScores[ability];
+          // Label increases by where they actually came from (T-26): racial
+          // bonuses (fixed + chosen) and ASI points are separate things.
+          const racialDelta =
+            (draft.race?.fixedBonuses[ability] ?? 0) +
+            (draft.race?.bonusChoice &&
+            draft.racialBonusAbilities.includes(ability)
+              ? draft.race.bonusChoice.amount
+              : 0);
+          const asiDelta = draft.asiBonuses[ability] ?? 0;
           return (
             <div className="dvtt-ability-row" key={ability}>
               <span className="dvtt-ability-row__name">
@@ -1195,9 +1221,15 @@ function AbilitiesStep({
               )}
 
               <span className="dvtt-ability-row__final">
-                {racialDelta > 0 && (
+                {(racialDelta > 0 || asiDelta > 0) && (
                   <span className="dvtt-ability-row__racial">
-                    +{racialDelta} racial →
+                    {[
+                      racialDelta > 0 ? `+${racialDelta} racial` : null,
+                      asiDelta > 0 ? `+${asiDelta} ASI` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}{" "}
+                    →
                   </span>
                 )}{" "}
                 <strong>{final[ability]}</strong> (

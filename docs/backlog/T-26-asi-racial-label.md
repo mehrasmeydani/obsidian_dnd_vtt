@@ -8,6 +8,6 @@ increase came from an ASI — today everything above the base score is
 labeled "racial".
 
 ## Acceptance criteria
-- [ ] Ability rows show racial and ASI deltas separately ("+2 racial",
+- [x] Ability rows show racial and ASI deltas separately ("+2 racial",
       "+1 ASI"), only when non-zero.
-- [ ] jsdom test covering a draft with both racial and ASI increases.
+- [x] jsdom test covering a draft with both racial and ASI increases.
