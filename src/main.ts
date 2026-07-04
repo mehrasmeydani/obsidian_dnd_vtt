@@ -2,6 +2,7 @@ import {
   Notice,
   Plugin,
   PluginSettingTab,
+  requestUrl,
   Setting,
   type App,
   type WorkspaceLeaf,
@@ -21,6 +22,7 @@ import {
 } from "./persistence/characterStore";
 import { createSessionNote } from "./persistence/sessionStore";
 import { newSessionNote } from "./persistence/sessionNote";
+import { refreshOpen5eContent } from "./data/open5e";
 import { ContentStore } from "./data/contentStore";
 import { parseContentBundle } from "./data/contentSchema";
 import type { TFile } from "obsidian";
@@ -114,6 +116,13 @@ export default class DndVttPlugin extends Plugin {
         void this.createSessionNote();
       },
     });
+    this.addCommand({
+      id: "refresh-open5e-content",
+      name: "Refresh 5e content from Open5e",
+      callback: () => {
+        void this.refreshOpen5eContent();
+      },
+    });
   }
 
   async onunload(): Promise<void> {
@@ -155,6 +164,65 @@ export default class DndVttPlugin extends Plugin {
           `D&D VTT: skipping content bundle "${fileName}" — ${bundleProblem(error)}`,
         );
       }
+    }
+  }
+
+  /**
+   * The explicit, manual Open5e refresh (T-12): download SRD spells,
+   * monsters, and magic items; cache each category as a content bundle
+   * under `<plugin dir>/data/content/` (picked up offline on every future
+   * startup); and merge them into the running content store. This command
+   * is the only place the plugin ever touches the network.
+   */
+  private async refreshOpen5eContent(): Promise<void> {
+    const progress = new Notice("Refreshing 5e content from Open5e…", 0);
+    try {
+      const { bundles, failures } = await refreshOpen5eContent(
+        { getJson: async (url) => (await requestUrl({ url })).json },
+        (message) => progress.setMessage(message),
+      );
+
+      const dir = `${this.manifest.dir}/data/content`;
+      const adapter = this.app.vault.adapter;
+      for (const segment of ["data", "data/content"]) {
+        const path = `${this.manifest.dir}/${segment}`;
+        if (!(await adapter.exists(path))) await adapter.mkdir(path);
+      }
+
+      const summary: string[] = [];
+      for (const { fileName, bundle, skipped } of bundles) {
+        await adapter.write(
+          `${dir}/${fileName}`,
+          JSON.stringify(bundle, null, 2),
+        );
+        this.content.addBundle(
+          fileName,
+          bundle,
+          !this.settings.disabledBundles.includes(fileName),
+        );
+        const count =
+          bundle.spells.length + bundle.monsters.length + bundle.items.length;
+        summary.push(`${bundle.name}: ${count}`);
+        if (skipped.length > 0) {
+          console.warn(
+            `D&D VTT: ${skipped.length} Open5e records skipped in ${fileName}`,
+            skipped,
+          );
+          summary.push(`(${skipped.length} skipped — see console)`);
+        }
+      }
+      for (const failure of failures) {
+        console.error(`D&D VTT: Open5e refresh failed — ${failure}`);
+        summary.push(`FAILED ${failure}`);
+      }
+      progress.setMessage(`Open5e refresh done. ${summary.join(" · ")}`);
+      setTimeout(() => progress.hide(), 8000);
+    } catch (error) {
+      console.error("D&D VTT: Open5e refresh failed", error);
+      progress.setMessage(
+        "Open5e refresh failed. See the developer console for details.",
+      );
+      setTimeout(() => progress.hide(), 8000);
     }
   }
 
@@ -339,10 +407,23 @@ class DndVttSettingTab extends PluginSettingTab {
       .setHeading();
 
     for (const entry of this.plugin.content.list()) {
+      const counts = (
+        [
+          ["races", entry.bundle.races.length],
+          ["classes", entry.bundle.classes.length],
+          ["backgrounds", entry.bundle.backgrounds.length],
+          ["spells", entry.bundle.spells.length],
+          ["monsters", entry.bundle.monsters.length],
+          ["items", entry.bundle.items.length],
+        ] as const
+      )
+        .filter(([, count]) => count > 0)
+        .map(([label, count]) => `${count} ${label}`)
+        .join(" · ");
       const meta = [
         entry.bundle.source,
         entry.bundle.fetchedAt ? `fetched ${entry.bundle.fetchedAt}` : null,
-        `${entry.bundle.races.length} races · ${entry.bundle.classes.length} classes · ${entry.bundle.backgrounds.length} backgrounds`,
+        counts || "empty",
       ]
         .filter(Boolean)
         .join(" — ");

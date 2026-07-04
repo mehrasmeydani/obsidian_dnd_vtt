@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AbilitySchema, SkillSchema } from "../model/schema";
+import { AbilityScoresSchema, AbilitySchema, SkillSchema } from "../model/schema";
 
 /**
  * Schema for game-content bundles (races, classes, backgrounds). Content is
@@ -273,6 +273,68 @@ export const BackgroundDataSchema = z.object({
 });
 export type BackgroundData = z.infer<typeof BackgroundDataSchema>;
 
+/**
+ * A spell, shaped to serve the content browser (T-14) and wizard spell
+ * selection (T-15). Presentation strings (range, components, duration) stay
+ * strings — the rules engine never computes with them.
+ */
+export const SpellDataSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  /** 0 = cantrip. */
+  level: z.number().int().min(0).max(9),
+  school: z.string().min(1),
+  castingTime: z.string(),
+  range: z.string(),
+  /** e.g. "V, S, M (a pinch of salt)". */
+  components: z.string(),
+  duration: z.string(),
+  concentration: z.boolean().default(false),
+  ritual: z.boolean().default(false),
+  /** Class names (lowercase) whose lists include this spell. */
+  classes: z.array(z.string().min(1)).default([]),
+  description: z.string(),
+  higherLevels: z.string().optional(),
+});
+export type SpellData = z.infer<typeof SpellDataSchema>;
+
+/** A stat block for the content browser (and later the battle map). */
+export const MonsterDataSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  size: z.string().min(1),
+  type: z.string().min(1),
+  alignment: z.string().optional(),
+  armorClass: z.number().int().positive(),
+  armorDescription: z.string().optional(),
+  hitPoints: z.number().int().positive(),
+  hitDice: z.string().optional(),
+  /** e.g. { walk: 30, fly: 60 }. */
+  speed: z.record(z.string(), z.number()).default({}),
+  abilityScores: AbilityScoresSchema,
+  /** Kept as written ("1/4", "5") — display only. */
+  challengeRating: z.string(),
+  senses: z.string().optional(),
+  languages: z.string().optional(),
+  traits: z.array(TraitSchema).default([]),
+  actions: z.array(TraitSchema).default([]),
+  reactions: z.array(TraitSchema).default([]),
+  legendaryActions: z.array(TraitSchema).default([]),
+});
+export type MonsterData = z.infer<typeof MonsterDataSchema>;
+
+/** An item (magic or mundane) for the content browser and inventory. */
+export const ItemDataSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  /** e.g. "Wondrous item", "Weapon (longsword)". */
+  type: z.string().optional(),
+  rarity: z.string().optional(),
+  requiresAttunement: z.boolean().default(false),
+  description: z.string(),
+});
+export type ItemData = z.infer<typeof ItemDataSchema>;
+
 export const ContentBundleSchema = z.object({
   /** Human-readable source name, e.g. "SRD 5.1". */
   name: z.string().min(1),
@@ -285,6 +347,9 @@ export const ContentBundleSchema = z.object({
   backgrounds: z.array(BackgroundDataSchema),
   feats: z.array(FeatDataSchema).default([]),
   armor: z.array(ArmorDataSchema).default([]),
+  spells: z.array(SpellDataSchema).default([]),
+  monsters: z.array(MonsterDataSchema).default([]),
+  items: z.array(ItemDataSchema).default([]),
 });
 export type ContentBundle = z.infer<typeof ContentBundleSchema>;
 

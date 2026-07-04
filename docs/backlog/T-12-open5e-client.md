@@ -9,13 +9,13 @@ that the API is only called when I ask — never on startup — and everything
 works offline afterwards.
 
 ## Acceptance criteria
-- [ ] Typed Open5e client (paginated fetch) for spells, monsters, and items;
+- [x] Typed Open5e client (paginated fetch) for spells, monsters, and items;
       responses transformed into content-bundle JSON (schema extended with
       those categories) and written to the content store.
-- [ ] Manual command with progress notice; per-category `fetchedAt` recorded;
+- [x] Manual command with progress notice; per-category `fetchedAt` recorded;
       re-running replaces the cached bundle.
-- [ ] Zero network calls outside the explicit refresh.
-- [ ] Transform functions are pure and unit-tested against recorded API
+- [x] Zero network calls outside the explicit refresh.
+- [x] Transform functions are pure and unit-tested against recorded API
       fixtures (no live API in tests).
 
 ## Technical notes

@@ -4,7 +4,10 @@ import type {
   ClassData,
   ContentBundle,
   FeatData,
+  ItemData,
+  MonsterData,
   RaceData,
+  SpellData,
 } from "./contentSchema";
 
 /**
@@ -38,6 +41,9 @@ export class ContentStore {
         backgrounds: BACKGROUNDS,
         feats: FEATS,
         armor: ARMOR,
+        spells: [],
+        monsters: [],
+        items: [],
       },
       enabled: true,
       builtin: true,
@@ -80,6 +86,18 @@ export class ContentStore {
 
   get feats(): FeatData[] {
     return this.merged((b) => b.feats);
+  }
+
+  get spells(): SpellData[] {
+    return this.merged((b) => b.spells);
+  }
+
+  get monsters(): MonsterData[] {
+    return this.merged((b) => b.monsters);
+  }
+
+  get items(): ItemData[] {
+    return this.merged((b) => b.items);
   }
 
   /** Merge one entity list across enabled bundles: later bundles win by id. */
