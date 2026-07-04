@@ -8,14 +8,14 @@ visibility level (private / party / dm), so that when sync arrives in Phase 3
 each participant sees exactly what they should.
 
 ## Acceptance criteria
-- [ ] Note format defined like the character note: ordinary vault Markdown +
+- [x] Note format defined like the character note: ordinary vault Markdown +
       frontmatter marker + visibility field (schema `NoteSchema` already
       exists).
-- [ ] Command to create a session note (in a configurable folder, defaulting
+- [x] Command to create a session note (in a configurable folder, defaulting
       near the user's existing `Sessions/` convention).
-- [ ] Visibility editable via frontmatter; validated on load with graceful
+- [x] Visibility editable via frontmatter; validated on load with graceful
       errors.
-- [ ] Serializer round-trip tests.
+- [x] Serializer round-trip tests.
 
 ## Technical notes
 - Reuse `persistence/` patterns; visibility enforcement is client-side only

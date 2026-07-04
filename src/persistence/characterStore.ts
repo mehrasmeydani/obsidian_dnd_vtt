@@ -14,7 +14,7 @@ import {
  */
 
 /** Create every missing segment of `folderPath` ("a/b/c" style). */
-async function ensureFolder(app: App, folderPath: string): Promise<void> {
+export async function ensureFolder(app: App, folderPath: string): Promise<void> {
   const normalized = normalizePath(folderPath);
   if (!normalized || normalized === "/" || normalized === ".") return;
 

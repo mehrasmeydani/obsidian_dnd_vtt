@@ -19,6 +19,8 @@ import {
   loadCharacterNote,
   saveCharacterNote,
 } from "./persistence/characterStore";
+import { createSessionNote } from "./persistence/sessionStore";
+import { newSessionNote } from "./persistence/sessionNote";
 import { ContentStore } from "./data/contentStore";
 import { parseContentBundle } from "./data/contentSchema";
 import type { TFile } from "obsidian";
@@ -28,12 +30,15 @@ import { ZodError } from "zod";
 interface DndVttSettings {
   /** Vault folder where new character notes are created. */
   charactersFolder: string;
+  /** Vault folder where new session notes are created. */
+  sessionsFolder: string;
   /** File names of content bundles the user switched off. */
   disabledBundles: string[];
 }
 
 const DEFAULT_SETTINGS: DndVttSettings = {
   charactersFolder: "Characters",
+  sessionsFolder: "Sessions",
   disabledBundles: [],
 };
 
@@ -100,6 +105,13 @@ export default class DndVttPlugin extends Plugin {
       name: "Load character from active note",
       callback: () => {
         void this.loadCharacterFromActiveNote();
+      },
+    });
+    this.addCommand({
+      id: "create-session-note",
+      name: "Create session note",
+      callback: () => {
+        void this.createSessionNote();
       },
     });
   }
@@ -223,6 +235,29 @@ export default class DndVttPlugin extends Plugin {
     this.showCharacter(character, file);
   }
 
+  /**
+   * Create today's session note in the sessions folder and open it for
+   * editing (T-10). Visibility starts private; the note explains how to
+   * change it via frontmatter.
+   */
+  private async createSessionNote(): Promise<void> {
+    try {
+      const note = newSessionNote(crypto.randomUUID(), new Date());
+      const file = await createSessionNote(
+        this.app,
+        note,
+        this.settings.sessionsFolder,
+      );
+      await this.app.workspace.getLeaf(true).openFile(file);
+      new Notice(`Session note created at ${file.path}`);
+    } catch (error) {
+      console.error("D&D VTT: failed to create session note", error);
+      new Notice(
+        "Failed to create the session note. See the developer console for details.",
+      );
+    }
+  }
+
   /** Parse the active note as a character and show it in the sheet. */
   private async loadCharacterFromActiveNote(): Promise<void> {
     const file = this.app.workspace.getActiveFile();
@@ -274,6 +309,22 @@ class DndVttSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.charactersFolder =
               value.trim() || DEFAULT_SETTINGS.charactersFolder;
+            await this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(this.containerEl)
+      .setName("Sessions folder")
+      .setDesc(
+        'Vault folder where new session notes are created, e.g. "Hell dnd/Sessions". Created if missing.',
+      )
+      .addText((text) =>
+        text
+          .setPlaceholder(DEFAULT_SETTINGS.sessionsFolder)
+          .setValue(this.plugin.settings.sessionsFolder)
+          .onChange(async (value) => {
+            this.plugin.settings.sessionsFolder =
+              value.trim() || DEFAULT_SETTINGS.sessionsFolder;
             await this.plugin.saveSettings();
           }),
       );
