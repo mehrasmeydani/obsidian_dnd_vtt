@@ -310,7 +310,7 @@ describe("assembleCharacter", () => {
     const secondWind = character.features.find((f) => f.name === "Second Wind");
     expect(secondWind?.source).toBe("Fighter");
     expect(secondWind?.id).toBe("fighter-second-wind");
-    expect(secondWind?.description).toMatch(/Bonus action/);
+    expect(secondWind?.description).toMatch(/bonus action/i);
   });
 
   it("sets the spellcasting ability for casters", () => {
@@ -701,6 +701,45 @@ describe("leveled class features (T-19) and proficiencies (T-20)", () => {
 
     const fighter = assembleCharacter(validDraft(), "test-id");
     expect(fighter.unarmoredDefense).toBeUndefined();
+  });
+
+  it("applies monk Unarmored Movement speed tiers and the Ki pool at assembly (T-21)", () => {
+    const monk = byId(CLASSES, "monk");
+    const draft = (level: number): CharacterDraft => ({
+      ...validDraft(),
+      race: byId(RACES, "human"), // speed 30
+      charClass: monk,
+      level,
+      subclass: level >= 3 ? monk.subclasses[0] : null,
+      classSkills: ["acrobatics", "stealth"],
+      equipmentChoices: monk.equipment.choices.map(() => 0),
+      // 2 points per earned ASI, spread to stay under the 20 cap.
+      asiBonuses: (() => {
+        const points = monk.asiLevels.filter((l) => l <= level).length * 2;
+        return points > 0
+          ? { dex: Math.min(points, 4), wis: Math.max(0, points - 4) }
+          : {};
+      })(),
+    });
+
+    // Level 1: no Unarmored Movement yet.
+    expect(assembleCharacter(draft(1), "id").speed).toBe(30);
+    // Level 6 tier: +15.
+    const level6 = assembleCharacter(draft(6), "id");
+    expect(level6.speed).toBe(45);
+    expect(level6.resources.find((r) => r.id === "ki")).toMatchObject({
+      max: 6,
+      per: "short-rest",
+    });
+    // Level 18 tier: +30, and only the highest tier is granted.
+    const level18 = assembleCharacter(draft(18), "id");
+    expect(level18.speed).toBe(60);
+    expect(
+      level18.features.filter((f) => f.name === "Unarmored Movement"),
+    ).toHaveLength(1);
+    expect(
+      level18.features.map((f) => f.name),
+    ).toEqual(expect.arrayContaining(["Quivering Palm", "Empty Body"]));
   });
 
   it("gives level-1 characters only level-1 features and the level-1 rage pool", () => {

@@ -113,7 +113,27 @@
         {
           "level": 3,
           "name": "Improved Critical",
-          "description": "Weapon attacks score a critical hit on a roll of 19 or 20."
+          "description": "Your weapon attacks score a critical hit on a roll of 19 or 20."
+        },
+        {
+          "level": 7,
+          "name": "Remarkable Athlete",
+          "description": "Add half your proficiency bonus (round up) to any Strength, Dexterity, or Constitution check that doesn't already use it. Your running long jump distance increases by your Strength modifier in feet."
+        },
+        {
+          "level": 10,
+          "name": "Additional Fighting Style",
+          "description": "Choose a second option from the Fighting Style class feature."
+        },
+        {
+          "level": 15,
+          "name": "Superior Critical",
+          "description": "Your weapon attacks score a critical hit on a roll of 18-20."
+        },
+        {
+          "level": 18,
+          "name": "Survivor",
+          "description": "At the start of each of your turns, regain 5 + your Constitution modifier hit points if you have no more than half your hit points left (and more than 0)."
         }
       ]
     }
@@ -163,7 +183,47 @@
     {
       "level": 1,
       "name": "Second Wind",
-      "description": "Bonus action: regain 1d10 + fighter level HP once per rest."
+      "description": "On your turn, use a bonus action to regain 1d10 + your fighter level hit points. Once used, you must finish a short or long rest before using it again."
+    },
+    {
+      "level": 2,
+      "name": "Action Surge",
+      "description": "On your turn, take one additional action. Once used, you must finish a short or long rest before using it again."
+    },
+    {
+      "level": 17,
+      "name": "Action Surge",
+      "description": "On your turn, take one additional action. You can use Action Surge twice before a rest, but only once on the same turn."
+    },
+    {
+      "level": 5,
+      "name": "Extra Attack",
+      "description": "You can attack twice, instead of once, whenever you take the Attack action on your turn."
+    },
+    {
+      "level": 11,
+      "name": "Extra Attack",
+      "description": "You can attack three times whenever you take the Attack action on your turn."
+    },
+    {
+      "level": 20,
+      "name": "Extra Attack",
+      "description": "You can attack four times whenever you take the Attack action on your turn."
+    },
+    {
+      "level": 9,
+      "name": "Indomitable",
+      "description": "Reroll a saving throw that you fail; you must use the new roll. Once used, you must finish a long rest before using it again."
+    },
+    {
+      "level": 13,
+      "name": "Indomitable",
+      "description": "Reroll a saving throw that you fail; you must use the new roll. Two uses between long rests."
+    },
+    {
+      "level": 17,
+      "name": "Indomitable",
+      "description": "Reroll a saving throw that you fail; you must use the new roll. Three uses between long rests."
     }
   ],
   "proficiencies": {
@@ -176,5 +236,52 @@
       "Martial weapons"
     ],
     "tools": []
-  }
+  },
+  "resources": [
+    {
+      "id": "second-wind",
+      "name": "Second Wind",
+      "per": "short-rest",
+      "levels": [
+        {
+          "level": 1,
+          "uses": 1
+        }
+      ]
+    },
+    {
+      "id": "action-surge",
+      "name": "Action Surge",
+      "per": "short-rest",
+      "levels": [
+        {
+          "level": 2,
+          "uses": 1
+        },
+        {
+          "level": 17,
+          "uses": 2
+        }
+      ]
+    },
+    {
+      "id": "indomitable",
+      "name": "Indomitable",
+      "per": "long-rest",
+      "levels": [
+        {
+          "level": 9,
+          "uses": 1
+        },
+        {
+          "level": 13,
+          "uses": 2
+        },
+        {
+          "level": 17,
+          "uses": 3
+        }
+      ]
+    }
+  ]
 }

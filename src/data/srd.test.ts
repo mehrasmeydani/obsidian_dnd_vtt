@@ -241,6 +241,97 @@ describe("2014 Barbarian progression (T-19)", () => {
   });
 });
 
+describe("leveled feature progressions for every class (T-21)", () => {
+  it("every class carries features beyond level 1", () => {
+    for (const cls of CLASSES) {
+      const maxLevel = Math.max(...cls.features.map((f) => f.level));
+      // The 2024 Barbarian is level-1-only until T-17 finishes its backfill.
+      if (cls.id === "barbarian-2024") continue;
+      expect(maxLevel, `${cls.id} max feature level`).toBeGreaterThanOrEqual(18);
+      expect(cls.features.length, `${cls.id} feature count`).toBeGreaterThanOrEqual(5);
+    }
+  });
+
+  it("keeps every feature level within 1-20", () => {
+    for (const cls of CLASSES) {
+      for (const feature of cls.features) {
+        expect(feature.level, `${cls.id} ${feature.name}`).toBeGreaterThanOrEqual(1);
+        expect(feature.level, `${cls.id} ${feature.name}`).toBeLessThanOrEqual(20);
+      }
+      for (const sub of cls.subclasses) {
+        for (const feature of sub.features) {
+          expect(feature.level, `${sub.id} ${feature.name}`).toBeGreaterThanOrEqual(1);
+          expect(feature.level, `${sub.id} ${feature.name}`).toBeLessThanOrEqual(20);
+        }
+      }
+    }
+  });
+
+  it("never repeats a feature name within the same level", () => {
+    const assertUnique = (owner: string, features: { name: string; level: number }[]) => {
+      const seen = new Set<string>();
+      for (const feature of features) {
+        const key = `${feature.level}:${feature.name}`;
+        expect(seen.has(key), `${owner} duplicates ${key}`).toBe(false);
+        seen.add(key);
+      }
+    };
+    for (const cls of CLASSES) {
+      assertUnique(cls.id, cls.features);
+      for (const sub of cls.subclasses) assertUnique(sub.id, sub.features);
+    }
+  });
+
+  it("every 2014 subclass carries features at its subclass level and beyond", () => {
+    for (const cls of CLASSES.filter((c) => c.edition === "2014")) {
+      for (const sub of cls.subclasses) {
+        expect(sub.features.length, sub.id).toBeGreaterThanOrEqual(4);
+        const levels = sub.features.map((f) => f.level);
+        expect(Math.min(...levels), sub.id).toBe(cls.subclassLevel ?? 1);
+        expect(Math.max(...levels), sub.id).toBeGreaterThanOrEqual(14);
+      }
+    }
+  });
+
+  it("monk Unarmored Movement carries scaling speed-bonus effects", () => {
+    const monk = CLASSES.find((c) => c.id === "monk")!;
+    const tiers = monk.features
+      .filter((f) => f.name === "Unarmored Movement")
+      .map((f) => [f.level, f.effects[0]]);
+    expect(tiers).toEqual([
+      [2, { kind: "speed-bonus", amount: 10 }],
+      [6, { kind: "speed-bonus", amount: 15 }],
+      [10, { kind: "speed-bonus", amount: 20 }],
+      [14, { kind: "speed-bonus", amount: 25 }],
+      [18, { kind: "speed-bonus", amount: 30 }],
+    ]);
+  });
+
+  it("models the new scaling resource pools", () => {
+    const resource = (classId: string, resourceId: string) =>
+      CLASSES.find((c) => c.id === classId)!.resources.find(
+        (r) => r.id === resourceId,
+      )!;
+    expect(resource("monk", "ki").levels).toHaveLength(19);
+    expect(resource("monk", "ki").levels[0]).toEqual({ level: 2, uses: 2 });
+    expect(resource("monk", "ki").levels[18]).toEqual({ level: 20, uses: 20 });
+    expect(resource("fighter", "action-surge").levels).toEqual([
+      { level: 2, uses: 1 },
+      { level: 17, uses: 2 },
+    ]);
+    expect(resource("druid", "wild-shape").levels).toEqual([
+      { level: 2, uses: 2 },
+      { level: 20, uses: "unlimited" },
+    ]);
+    expect(resource("paladin", "lay-on-hands").levels[19]).toEqual({
+      level: 20,
+      uses: 100,
+      note: "hit points of healing",
+    });
+    expect(resource("sorcerer", "sorcery-points").levels[0].level).toBe(2);
+  });
+});
+
 describe("backgrounds", () => {
   it("grants or offers at least two skills each", () => {
     for (const bg of BACKGROUNDS) {

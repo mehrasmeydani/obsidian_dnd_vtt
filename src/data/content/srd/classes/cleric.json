@@ -110,12 +110,37 @@
         {
           "level": 1,
           "name": "Bonus Proficiency",
-          "description": "Proficiency with heavy armor."
+          "description": "You gain proficiency with heavy armor."
         },
         {
           "level": 1,
           "name": "Disciple of Life",
-          "description": "Healing spells restore extra HP (2 + spell level)."
+          "description": "Whenever you use a spell of 1st level or higher to restore hit points, the creature regains additional hit points equal to 2 + the spell's level."
+        },
+        {
+          "level": 2,
+          "name": "Channel Divinity: Preserve Life",
+          "description": "As an action, restore hit points equal to five times your cleric level, divided among creatures within 30 feet (none above half its maximum; no effect on undead or constructs)."
+        },
+        {
+          "level": 6,
+          "name": "Blessed Healer",
+          "description": "When you cast a spell of 1st level or higher that restores hit points to another creature, you regain 2 + the spell's level hit points."
+        },
+        {
+          "level": 8,
+          "name": "Divine Strike",
+          "description": "Once on each of your turns when you hit a creature with a weapon attack, deal an extra 1d8 radiant damage."
+        },
+        {
+          "level": 14,
+          "name": "Divine Strike",
+          "description": "Your Divine Strike extra radiant damage increases to 2d8."
+        },
+        {
+          "level": 17,
+          "name": "Supreme Healing",
+          "description": "When you would normally roll dice to restore hit points with a spell, use the highest possible number for each die instead."
         }
       ]
     }
@@ -124,12 +149,62 @@
     {
       "level": 1,
       "name": "Spellcasting",
-      "description": "Cast cleric spells using Wisdom; prepare from the full cleric list."
+      "description": "You cast cleric spells using Wisdom, drawing from the whole cleric list; you prepare Wisdom modifier + cleric level spells each day and know all cantrips you've chosen."
     },
     {
       "level": 1,
       "name": "Divine Domain",
-      "description": "Choose a domain that grants bonus spells and features."
+      "description": "Your domain (chosen at 1st level) grants domain spells — always prepared, not counting against your limit — and extra features at 1st, 2nd, 6th, 8th, and 17th level."
+    },
+    {
+      "level": 2,
+      "name": "Channel Divinity",
+      "description": "Channel divine energy for Turn Undead (each undead within 30 feet that can see or hear you must make a Wisdom save or be turned for 1 minute) or a domain effect. One use per short or long rest."
+    },
+    {
+      "level": 6,
+      "name": "Channel Divinity",
+      "description": "Channel Divinity: two uses between rests."
+    },
+    {
+      "level": 18,
+      "name": "Channel Divinity",
+      "description": "Channel Divinity: three uses between rests."
+    },
+    {
+      "level": 5,
+      "name": "Destroy Undead",
+      "description": "When an undead of CR 1/2 or lower fails its save against your Turn Undead, it is instantly destroyed."
+    },
+    {
+      "level": 8,
+      "name": "Destroy Undead",
+      "description": "Destroy Undead now affects undead of CR 1 or lower."
+    },
+    {
+      "level": 11,
+      "name": "Destroy Undead",
+      "description": "Destroy Undead now affects undead of CR 2 or lower."
+    },
+    {
+      "level": 14,
+      "name": "Destroy Undead",
+      "description": "Destroy Undead now affects undead of CR 3 or lower."
+    },
+    {
+      "level": 17,
+      "name": "Destroy Undead",
+      "description": "Destroy Undead now affects undead of CR 4 or lower."
+    },
+    {
+      "level": 10,
+      "name": "Divine Intervention",
+      "description": "As an action, call on your deity: roll percentile dice, and if you roll a number equal to or lower than your cleric level, the deity intervenes. On success you can't use it again for 7 days; otherwise after a long rest."
+    },
+    {
+      "level": 20,
+      "name": "Divine Intervention",
+      "description": "Your call for intervention succeeds automatically, no roll required (then unusable for 7 days)."
     }
   ],
   "proficiencies": {
@@ -142,5 +217,26 @@
       "Simple weapons"
     ],
     "tools": []
-  }
+  },
+  "resources": [
+    {
+      "id": "channel-divinity",
+      "name": "Channel Divinity",
+      "per": "short-rest",
+      "levels": [
+        {
+          "level": 2,
+          "uses": 1
+        },
+        {
+          "level": 6,
+          "uses": 2
+        },
+        {
+          "level": 18,
+          "uses": 3
+        }
+      ]
+    }
+  ]
 }

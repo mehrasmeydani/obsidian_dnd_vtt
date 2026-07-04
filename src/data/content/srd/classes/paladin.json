@@ -91,13 +91,38 @@
       "features": [
         {
           "level": 3,
+          "name": "Oath Spells",
+          "description": "Your oath grants always-prepared spells at 3rd, 5th, 9th, 13th, and 17th level (protection from evil and good, sanctuary, and more)."
+        },
+        {
+          "level": 3,
           "name": "Sacred Weapon",
-          "description": "Channel Divinity: add CHA modifier to attack rolls with one weapon for 1 minute."
+          "description": "Channel Divinity: for 1 minute, add your Charisma modifier to attack rolls with one weapon, which emits bright light and counts as magical."
         },
         {
           "level": 3,
           "name": "Turn the Unholy",
-          "description": "Channel Divinity: turn fiends and undead."
+          "description": "Channel Divinity: each fiend or undead within 30 feet that can see or hear you must succeed on a Wisdom save or be turned for 1 minute."
+        },
+        {
+          "level": 7,
+          "name": "Aura of Devotion",
+          "description": "You and friendly creatures within 10 feet can't be charmed while you are conscious."
+        },
+        {
+          "level": 18,
+          "name": "Aura of Devotion",
+          "description": "Your Aura of Devotion extends to 30 feet."
+        },
+        {
+          "level": 15,
+          "name": "Purity of Spirit",
+          "description": "You are always under the effects of a protection from evil and good spell."
+        },
+        {
+          "level": 20,
+          "name": "Holy Nimbus",
+          "description": "As an action, emanate an aura of sunlight for 1 minute: bright light to 30 feet, enemies starting their turn in it take 10 radiant damage, and you have advantage on saves against spells cast by fiends or undead. Once per long rest."
         }
       ]
     }
@@ -134,12 +159,72 @@
     {
       "level": 1,
       "name": "Divine Sense",
-      "description": "Detect celestials, fiends, and undead within 60 feet."
+      "description": "As an action, until the end of your next turn, know the location of any celestial, fiend, or undead within 60 feet not behind total cover, and detect consecrated or desecrated places. Uses: 1 + Charisma modifier per long rest."
     },
     {
       "level": 1,
       "name": "Lay on Hands",
-      "description": "Heal a pool of 5 × paladin level HP per long rest."
+      "description": "A pool of healing power: restore hit points up to 5 times your paladin level per long rest, or spend 5 points to cure a disease or neutralize a poison. No effect on undead or constructs."
+    },
+    {
+      "level": 2,
+      "name": "Fighting Style",
+      "description": "Choose a combat style (defense, dueling, great weapon fighting, or protection)."
+    },
+    {
+      "level": 2,
+      "name": "Spellcasting",
+      "description": "You cast paladin spells using Charisma; you prepare Charisma modifier + half your paladin level spells each day."
+    },
+    {
+      "level": 2,
+      "name": "Divine Smite",
+      "description": "When you hit a creature with a melee weapon attack, expend a spell slot to deal 2d8 extra radiant damage, +1d8 per slot level above 1st (max 5d8), +1d8 against undead or fiends."
+    },
+    {
+      "level": 3,
+      "name": "Divine Health",
+      "description": "The divine magic flowing through you makes you immune to disease."
+    },
+    {
+      "level": 3,
+      "name": "Sacred Oath",
+      "description": "Your oath (sworn at 3rd level) grants oath spells, Channel Divinity options, and features at 3rd, 7th, 15th, and 20th level."
+    },
+    {
+      "level": 5,
+      "name": "Extra Attack",
+      "description": "You can attack twice, instead of once, whenever you take the Attack action on your turn."
+    },
+    {
+      "level": 6,
+      "name": "Aura of Protection",
+      "description": "You and friendly creatures within 10 feet add your Charisma modifier (minimum +1) to saving throws while you are conscious."
+    },
+    {
+      "level": 18,
+      "name": "Aura of Protection",
+      "description": "Your Aura of Protection extends to 30 feet."
+    },
+    {
+      "level": 10,
+      "name": "Aura of Courage",
+      "description": "You and friendly creatures within 10 feet can't be frightened while you are conscious."
+    },
+    {
+      "level": 18,
+      "name": "Aura of Courage",
+      "description": "Your Aura of Courage extends to 30 feet."
+    },
+    {
+      "level": 11,
+      "name": "Improved Divine Smite",
+      "description": "Your melee weapon strikes carry divine power: all your melee weapon hits deal an extra 1d8 radiant damage."
+    },
+    {
+      "level": 14,
+      "name": "Cleansing Touch",
+      "description": "As an action, end one spell on yourself or a willing creature you touch. Uses equal your Charisma modifier (minimum 1) per long rest."
     }
   ],
   "proficiencies": {
@@ -152,5 +237,125 @@
       "Martial weapons"
     ],
     "tools": []
-  }
+  },
+  "resources": [
+    {
+      "id": "lay-on-hands",
+      "name": "Lay on Hands",
+      "per": "long-rest",
+      "levels": [
+        {
+          "level": 1,
+          "uses": 5,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 2,
+          "uses": 10,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 3,
+          "uses": 15,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 4,
+          "uses": 20,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 5,
+          "uses": 25,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 6,
+          "uses": 30,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 7,
+          "uses": 35,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 8,
+          "uses": 40,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 9,
+          "uses": 45,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 10,
+          "uses": 50,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 11,
+          "uses": 55,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 12,
+          "uses": 60,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 13,
+          "uses": 65,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 14,
+          "uses": 70,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 15,
+          "uses": 75,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 16,
+          "uses": 80,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 17,
+          "uses": 85,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 18,
+          "uses": 90,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 19,
+          "uses": 95,
+          "note": "hit points of healing"
+        },
+        {
+          "level": 20,
+          "uses": 100,
+          "note": "hit points of healing"
+        }
+      ]
+    },
+    {
+      "id": "channel-divinity",
+      "name": "Channel Divinity",
+      "per": "short-rest",
+      "levels": [
+        {
+          "level": 3,
+          "uses": 1
+        }
+      ]
+    }
+  ]
 }

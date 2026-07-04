@@ -97,12 +97,22 @@
         {
           "level": 3,
           "name": "Bonus Proficiencies",
-          "description": "Proficiency with three skills of your choice."
+          "description": "You gain proficiency with three skills of your choice."
         },
         {
           "level": 3,
           "name": "Cutting Words",
-          "description": "Use Bardic Inspiration to subtract from an enemy's attack, check, or damage."
+          "description": "When a creature you can see within 60 feet makes an attack roll, ability check, or damage roll, use your reaction to expend a Bardic Inspiration use and subtract the die from the roll."
+        },
+        {
+          "level": 6,
+          "name": "Additional Magical Secrets",
+          "description": "Learn two spells from any class's spell list (they don't count against your spells known)."
+        },
+        {
+          "level": 14,
+          "name": "Peerless Skill",
+          "description": "When you make an ability check, expend a Bardic Inspiration use and add the die to the roll (after rolling, before the outcome)."
         }
       ]
     }
@@ -129,12 +139,87 @@
     {
       "level": 1,
       "name": "Spellcasting",
-      "description": "Cast bard spells using Charisma."
+      "description": "You cast bard spells using Charisma from a fixed list of spells known, and can use a musical instrument as a focus."
     },
     {
       "level": 1,
       "name": "Bardic Inspiration",
-      "description": "Bonus action: give a creature a d6 to add to one roll (CHA mod uses per long rest)."
+      "description": "As a bonus action, give one creature within 60 feet an inspiration die (d6) it can add to one ability check, attack roll, or saving throw in the next 10 minutes. Uses equal your Charisma modifier, regained on a long rest."
+    },
+    {
+      "level": 5,
+      "name": "Bardic Inspiration",
+      "description": "Your Bardic Inspiration die is a d8."
+    },
+    {
+      "level": 10,
+      "name": "Bardic Inspiration",
+      "description": "Your Bardic Inspiration die is a d10."
+    },
+    {
+      "level": 15,
+      "name": "Bardic Inspiration",
+      "description": "Your Bardic Inspiration die is a d12."
+    },
+    {
+      "level": 2,
+      "name": "Jack of All Trades",
+      "description": "Add half your proficiency bonus (rounded down) to any ability check that doesn't already include it."
+    },
+    {
+      "level": 2,
+      "name": "Song of Rest",
+      "description": "During a short rest, friendly creatures who can hear your performance and spend Hit Dice regain an extra 1d6 hit points."
+    },
+    {
+      "level": 9,
+      "name": "Song of Rest",
+      "description": "Your Song of Rest die is a d8."
+    },
+    {
+      "level": 13,
+      "name": "Song of Rest",
+      "description": "Your Song of Rest die is a d10."
+    },
+    {
+      "level": 17,
+      "name": "Song of Rest",
+      "description": "Your Song of Rest die is a d12."
+    },
+    {
+      "level": 3,
+      "name": "Expertise",
+      "description": "Double your proficiency bonus for two chosen skill proficiencies; two more at 10th level."
+    },
+    {
+      "level": 5,
+      "name": "Font of Inspiration",
+      "description": "You regain all expended uses of Bardic Inspiration when you finish a short or long rest."
+    },
+    {
+      "level": 6,
+      "name": "Countercharm",
+      "description": "As an action, start a performance that lasts until the end of your next turn: you and friendly creatures within 30 feet have advantage on saves against being frightened or charmed."
+    },
+    {
+      "level": 10,
+      "name": "Magical Secrets",
+      "description": "Learn two spells from any class's spell list; they count as bard spells for you."
+    },
+    {
+      "level": 14,
+      "name": "Magical Secrets",
+      "description": "Learn two more spells from any class (four total)."
+    },
+    {
+      "level": 18,
+      "name": "Magical Secrets",
+      "description": "Learn two more spells from any class (six total)."
+    },
+    {
+      "level": 20,
+      "name": "Superior Inspiration",
+      "description": "When you roll initiative and have no uses of Bardic Inspiration left, you regain one use."
     }
   ],
   "proficiencies": {
@@ -151,5 +236,6 @@
     "tools": [
       "Three musical instruments of your choice"
     ]
-  }
+  },
+  "resources": []
 }

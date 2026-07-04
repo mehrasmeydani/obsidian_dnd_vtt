@@ -106,12 +106,27 @@
         {
           "level": 3,
           "name": "Fast Hands",
-          "description": "Cunning Action can also disarm traps, open locks, or use objects."
+          "description": "Use the Cunning Action bonus action to make a Sleight of Hand check, use thieves' tools to disarm a trap or open a lock, or take the Use an Object action."
         },
         {
           "level": 3,
           "name": "Second-Story Work",
-          "description": "Climb at full speed; longer running jumps."
+          "description": "Climbing no longer costs you extra movement, and your running jump distance increases by your Dexterity modifier in feet."
+        },
+        {
+          "level": 9,
+          "name": "Supreme Sneak",
+          "description": "You have advantage on Dexterity (Stealth) checks if you move no more than half your speed on the same turn."
+        },
+        {
+          "level": 13,
+          "name": "Use Magic Device",
+          "description": "You ignore all class, race, and level requirements on the use of magic items."
+        },
+        {
+          "level": 17,
+          "name": "Thief's Reflexes",
+          "description": "Take two turns during the first round of any combat: your normal turn, and a second turn at your initiative minus 10. You can't use this feature when surprised."
         }
       ]
     }
@@ -138,17 +153,57 @@
     {
       "level": 1,
       "name": "Expertise",
-      "description": "Double proficiency bonus for two chosen proficiencies."
+      "description": "Double your proficiency bonus for two chosen skill proficiencies (or one skill and thieves' tools); two more at 6th level."
     },
     {
       "level": 1,
       "name": "Sneak Attack",
-      "description": "Once per turn, +1d6 damage when you have advantage (or an ally is adjacent)."
+      "description": "Once per turn, deal extra damage to one creature you hit with an attack with a finesse or ranged weapon if you have advantage, or if another enemy of the target is within 5 feet of it and you don't have disadvantage. The extra damage is 1d6 per two rogue levels (rounded up)."
     },
     {
       "level": 1,
       "name": "Thieves' Cant",
-      "description": "Secret rogue dialect of jargon and code."
+      "description": "You know the secret rogue mix of dialect, jargon, and code, and understand the secret signs used to convey short hidden messages."
+    },
+    {
+      "level": 2,
+      "name": "Cunning Action",
+      "description": "Take a bonus action on each of your turns to Dash, Disengage, or Hide."
+    },
+    {
+      "level": 5,
+      "name": "Uncanny Dodge",
+      "description": "When an attacker you can see hits you with an attack, use your reaction to halve the attack's damage against you."
+    },
+    {
+      "level": 7,
+      "name": "Evasion",
+      "description": "When subjected to an effect that allows a Dexterity saving throw for half damage, you take no damage on a success and only half on a failure."
+    },
+    {
+      "level": 11,
+      "name": "Reliable Talent",
+      "description": "Whenever you make an ability check that uses a proficient skill, treat a d20 roll of 9 or lower as a 10."
+    },
+    {
+      "level": 14,
+      "name": "Blindsense",
+      "description": "If you can hear, you are aware of the location of any hidden or invisible creature within 10 feet of you."
+    },
+    {
+      "level": 15,
+      "name": "Slippery Mind",
+      "description": "You gain proficiency in Wisdom saving throws."
+    },
+    {
+      "level": 18,
+      "name": "Elusive",
+      "description": "No attack roll has advantage against you while you aren't incapacitated."
+    },
+    {
+      "level": 20,
+      "name": "Stroke of Luck",
+      "description": "Turn a missed attack against a target within range into a hit, or treat a failed ability check as a natural 20. Once used, you must finish a short or long rest before using it again."
     }
   ],
   "proficiencies": {
@@ -165,5 +220,18 @@
     "tools": [
       "Thieves' tools"
     ]
-  }
+  },
+  "resources": [
+    {
+      "id": "stroke-of-luck",
+      "name": "Stroke of Luck",
+      "per": "short-rest",
+      "levels": [
+        {
+          "level": 20,
+          "uses": 1
+        }
+      ]
+    }
+  ]
 }

@@ -94,7 +94,22 @@
         {
           "level": 1,
           "name": "Dark One's Blessing",
-          "description": "Gain temporary HP (CHA mod + warlock level) when you drop a hostile to 0."
+          "description": "When you reduce a hostile creature to 0 hit points, gain temporary hit points equal to your Charisma modifier + your warlock level."
+        },
+        {
+          "level": 6,
+          "name": "Dark One's Own Luck",
+          "description": "When you make an ability check or saving throw, add a d10 to the roll (after the roll, before effects). Once per short or long rest."
+        },
+        {
+          "level": 10,
+          "name": "Fiendish Resilience",
+          "description": "Choose one damage type at the end of a short or long rest: you have resistance to it until you choose another (nonmagical and non-silvered weapons only)."
+        },
+        {
+          "level": 14,
+          "name": "Hurl Through Hell",
+          "description": "When you hit a creature with an attack, send it hurtling through the lower planes: it disappears until the end of your next turn and takes 10d10 psychic damage on return (fiends excepted). Once per long rest."
         }
       ]
     }
@@ -127,12 +142,42 @@
     {
       "level": 1,
       "name": "Otherworldly Patron",
-      "description": "Pact with a powerful entity that grants features."
+      "description": "Your patron (chosen at 1st level) grants features at 1st, 6th, 10th, and 14th level."
     },
     {
       "level": 1,
       "name": "Pact Magic",
-      "description": "Cast warlock spells using Charisma; slots recharge on a short rest."
+      "description": "You cast warlock spells using Charisma. Your few spell slots are all the same level and are all regained on a short or long rest."
+    },
+    {
+      "level": 2,
+      "name": "Eldritch Invocations",
+      "description": "You learn two eldritch invocations, fragments of forbidden knowledge granting abiding magical abilities; you learn more as you gain warlock levels and can swap one when you level."
+    },
+    {
+      "level": 11,
+      "name": "Mystic Arcanum (6th level)",
+      "description": "Choose one 6th-level warlock spell as an arcanum: cast it once without a spell slot, regained on a long rest."
+    },
+    {
+      "level": 13,
+      "name": "Mystic Arcanum (7th level)",
+      "description": "Choose one 7th-level warlock spell as an arcanum: cast it once without a spell slot, regained on a long rest."
+    },
+    {
+      "level": 15,
+      "name": "Mystic Arcanum (8th level)",
+      "description": "Choose one 8th-level warlock spell as an arcanum: cast it once without a spell slot, regained on a long rest."
+    },
+    {
+      "level": 17,
+      "name": "Mystic Arcanum (9th level)",
+      "description": "Choose one 9th-level warlock spell as an arcanum: cast it once without a spell slot, regained on a long rest."
+    },
+    {
+      "level": 20,
+      "name": "Eldritch Master",
+      "description": "Spend 1 minute entreating your patron to regain all expended Pact Magic spell slots. Once used, you must finish a long rest before using it again."
     }
   ],
   "proficiencies": {
@@ -143,5 +188,18 @@
       "Simple weapons"
     ],
     "tools": []
-  }
+  },
+  "resources": [
+    {
+      "id": "eldritch-master",
+      "name": "Eldritch Master",
+      "per": "long-rest",
+      "levels": [
+        {
+          "level": 20,
+          "uses": 1
+        }
+      ]
+    }
+  ]
 }

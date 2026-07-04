@@ -115,12 +115,32 @@
         {
           "level": 2,
           "name": "Bonus Cantrip",
-          "description": "Learn one extra druid cantrip."
+          "description": "You learn one additional druid cantrip of your choice."
         },
         {
           "level": 2,
           "name": "Natural Recovery",
-          "description": "Recover spell slots during a short rest once per day."
+          "description": "During a short rest, recover expended spell slots with a combined level up to half your druid level (rounded up), none 6th level or higher. Once per long rest."
+        },
+        {
+          "level": 3,
+          "name": "Circle Spells",
+          "description": "Your bond to the land (arctic, coast, desert, forest, grassland, mountain, swamp) grants always-prepared circle spells at 3rd, 5th, 7th, and 9th level."
+        },
+        {
+          "level": 6,
+          "name": "Land's Stride",
+          "description": "Moving through nonmagical difficult terrain costs no extra movement, and you can pass through nonmagical plants without being slowed or harmed. You have advantage on saves against magically created or manipulated plants."
+        },
+        {
+          "level": 10,
+          "name": "Nature's Ward",
+          "description": "You can't be charmed or frightened by elementals or fey, and you are immune to poison and disease."
+        },
+        {
+          "level": 14,
+          "name": "Nature's Sanctuary",
+          "description": "Beasts and plant creatures must succeed on a Wisdom save to attack you; on a failure the creature must choose a different target or the attack misses."
         }
       ]
     }
@@ -129,12 +149,47 @@
     {
       "level": 1,
       "name": "Druidic",
-      "description": "Know the secret language of druids."
+      "description": "You know Druidic, the secret language of druids, and can leave hidden messages others need magic (or a DC 15 Wisdom (Perception) check) to spot."
     },
     {
       "level": 1,
       "name": "Spellcasting",
-      "description": "Cast druid spells using Wisdom; prepare from the full druid list."
+      "description": "You cast druid spells using Wisdom, drawing from the whole druid list; you prepare Wisdom modifier + druid level spells each day."
+    },
+    {
+      "level": 2,
+      "name": "Wild Shape",
+      "description": "As an action, magically assume the shape of a beast you have seen (max CR 1/4, no flying or swimming speed). Twice per short or long rest; the form lasts half your druid level in hours."
+    },
+    {
+      "level": 4,
+      "name": "Wild Shape",
+      "description": "Wild Shape improves: max CR 1/2, no flying speed (swimming allowed)."
+    },
+    {
+      "level": 8,
+      "name": "Wild Shape",
+      "description": "Wild Shape improves: max CR 1, no movement restrictions."
+    },
+    {
+      "level": 2,
+      "name": "Druid Circle",
+      "description": "Your circle (chosen at 2nd level) grants features at 2nd, 6th, 10th, and 14th level."
+    },
+    {
+      "level": 18,
+      "name": "Timeless Body",
+      "description": "You age more slowly: for every 10 years that pass, your body ages only 1 year."
+    },
+    {
+      "level": 18,
+      "name": "Beast Spells",
+      "description": "You can cast many of your druid spells in any beast shape from Wild Shape (no material components)."
+    },
+    {
+      "level": 20,
+      "name": "Archdruid",
+      "description": "You can use Wild Shape an unlimited number of times, and you ignore verbal/somatic components and costless material components of your druid spells."
     }
   ],
   "proficiencies": {
@@ -158,5 +213,22 @@
     "tools": [
       "Herbalism kit"
     ]
-  }
+  },
+  "resources": [
+    {
+      "id": "wild-shape",
+      "name": "Wild Shape",
+      "per": "short-rest",
+      "levels": [
+        {
+          "level": 2,
+          "uses": 2
+        },
+        {
+          "level": 20,
+          "uses": "unlimited"
+        }
+      ]
+    }
+  ]
 }

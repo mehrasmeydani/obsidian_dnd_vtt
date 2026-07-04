@@ -71,7 +71,22 @@
         {
           "level": 3,
           "name": "Open Hand Technique",
-          "description": "Flurry of Blows can knock prone, push 15 ft, or block reactions."
+          "description": "When you hit a creature with a Flurry of Blows attack, you can impose one effect: it must succeed on a Dexterity save or be knocked prone; it must succeed on a Strength save or be pushed 15 feet away; or it can't take reactions until the end of your next turn."
+        },
+        {
+          "level": 6,
+          "name": "Wholeness of Body",
+          "description": "Use your action to regain hit points equal to three times your monk level. Once used, you must finish a long rest before using it again."
+        },
+        {
+          "level": 11,
+          "name": "Tranquility",
+          "description": "At the end of a long rest, you gain the effect of a sanctuary spell (save DC = 8 + proficiency bonus + Wisdom modifier) that lasts until your next rest or until you attack or cast a hostile spell."
+        },
+        {
+          "level": 17,
+          "name": "Quivering Palm",
+          "description": "When you hit a creature with an unarmed strike, spend 3 ki points to start imperceptible vibrations that last for days equal to your monk level. As an action you can end them: the target must make a Constitution save or drop to 0 hit points (10d10 necrotic damage on a success)."
         }
       ]
     }
@@ -80,7 +95,7 @@
     {
       "level": 1,
       "name": "Unarmored Defense",
-      "description": "Without armor, AC = 10 + DEX mod + WIS mod.",
+      "description": "While you wear no armor and don't wield a shield, your Armor Class equals 10 + your Dexterity modifier + your Wisdom modifier.",
       "effects": [
         {
           "kind": "unarmored-defense",
@@ -92,7 +107,152 @@
     {
       "level": 1,
       "name": "Martial Arts",
-      "description": "Use DEX for unarmed strikes/monk weapons; bonus-action unarmed strike."
+      "description": "While unarmed or wielding only monk weapons and wearing no armor or shield: use Dexterity for attack and damage rolls, roll a d4 in place of normal damage, and make one unarmed strike as a bonus action after attacking with an unarmed strike or monk weapon."
+    },
+    {
+      "level": 5,
+      "name": "Martial Arts",
+      "description": "Your Martial Arts die is a d6 (Dexterity for attacks, bonus-action unarmed strike)."
+    },
+    {
+      "level": 11,
+      "name": "Martial Arts",
+      "description": "Your Martial Arts die is a d8 (Dexterity for attacks, bonus-action unarmed strike)."
+    },
+    {
+      "level": 17,
+      "name": "Martial Arts",
+      "description": "Your Martial Arts die is a d10 (Dexterity for attacks, bonus-action unarmed strike)."
+    },
+    {
+      "level": 2,
+      "name": "Ki",
+      "description": "Spend ki points (equal to your monk level, regained on rest) to fuel Flurry of Blows (1 ki: two bonus-action unarmed strikes after attacking), Patient Defense (1 ki: bonus-action Dodge), and Step of the Wind (1 ki: bonus-action Disengage or Dash, jump distance doubled). Ki save DC = 8 + proficiency bonus + Wisdom modifier."
+    },
+    {
+      "level": 2,
+      "name": "Unarmored Movement",
+      "description": "Your speed increases by 10 feet while you wear no armor and wield no shield.",
+      "effects": [
+        {
+          "kind": "speed-bonus",
+          "amount": 10
+        }
+      ]
+    },
+    {
+      "level": 6,
+      "name": "Unarmored Movement",
+      "description": "Your speed increases by 15 feet while unarmored.",
+      "effects": [
+        {
+          "kind": "speed-bonus",
+          "amount": 15
+        }
+      ]
+    },
+    {
+      "level": 9,
+      "name": "Unarmored Movement Improvement",
+      "description": "You can move along vertical surfaces and across liquids on your turn without falling during the move."
+    },
+    {
+      "level": 10,
+      "name": "Unarmored Movement",
+      "description": "Your speed increases by 20 feet while unarmored.",
+      "effects": [
+        {
+          "kind": "speed-bonus",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "level": 14,
+      "name": "Unarmored Movement",
+      "description": "Your speed increases by 25 feet while unarmored.",
+      "effects": [
+        {
+          "kind": "speed-bonus",
+          "amount": 25
+        }
+      ]
+    },
+    {
+      "level": 18,
+      "name": "Unarmored Movement",
+      "description": "Your speed increases by 30 feet while unarmored.",
+      "effects": [
+        {
+          "kind": "speed-bonus",
+          "amount": 30
+        }
+      ]
+    },
+    {
+      "level": 3,
+      "name": "Deflect Missiles",
+      "description": "Use your reaction to deflect or catch a ranged weapon attack that hits you, reducing the damage by 1d10 + your Dexterity modifier + your monk level. If reduced to 0, you can catch the missile and spend 1 ki point to throw it back."
+    },
+    {
+      "level": 4,
+      "name": "Slow Fall",
+      "description": "Use your reaction when you fall to reduce falling damage by five times your monk level."
+    },
+    {
+      "level": 5,
+      "name": "Extra Attack",
+      "description": "You can attack twice, instead of once, whenever you take the Attack action on your turn."
+    },
+    {
+      "level": 5,
+      "name": "Stunning Strike",
+      "description": "When you hit a creature with a melee weapon attack, spend 1 ki point to attempt a stunning strike: the target must succeed on a Constitution saving throw or be stunned until the end of your next turn."
+    },
+    {
+      "level": 6,
+      "name": "Ki-Empowered Strikes",
+      "description": "Your unarmed strikes count as magical for overcoming resistance and immunity to nonmagical attacks and damage."
+    },
+    {
+      "level": 7,
+      "name": "Evasion",
+      "description": "When subjected to an effect that allows a Dexterity saving throw for half damage, you take no damage on a success and only half on a failure."
+    },
+    {
+      "level": 7,
+      "name": "Stillness of Mind",
+      "description": "Use your action to end one effect on yourself that is causing you to be charmed or frightened."
+    },
+    {
+      "level": 10,
+      "name": "Purity of Body",
+      "description": "You are immune to disease and poison."
+    },
+    {
+      "level": 13,
+      "name": "Tongue of the Sun and Moon",
+      "description": "You understand all spoken languages, and any creature that can understand a language understands what you say."
+    },
+    {
+      "level": 14,
+      "name": "Diamond Soul",
+      "description": "You gain proficiency in all saving throws. When you fail a saving throw, you can spend 1 ki point to reroll it and take the second result."
+    },
+    {
+      "level": 15,
+      "name": "Timeless Body",
+      "description": "Your ki sustains you: you suffer none of the frailty of old age and can't be aged magically. You no longer need food or water."
+    },
+    {
+      "level": 18,
+      "name": "Empty Body",
+      "description": "Spend 4 ki points to become invisible for 1 minute (with resistance to all damage but force), or 8 ki points to cast astral projection on yourself."
+    },
+    {
+      "level": 20,
+      "name": "Perfect Self",
+      "description": "When you roll for initiative and have no ki points remaining, you regain 4 ki points."
     }
   ],
   "proficiencies": {
@@ -104,5 +264,90 @@
     "tools": [
       "One type of artisan's tools or one musical instrument"
     ]
-  }
+  },
+  "resources": [
+    {
+      "id": "ki",
+      "name": "Ki",
+      "per": "short-rest",
+      "levels": [
+        {
+          "level": 2,
+          "uses": 2
+        },
+        {
+          "level": 3,
+          "uses": 3
+        },
+        {
+          "level": 4,
+          "uses": 4
+        },
+        {
+          "level": 5,
+          "uses": 5
+        },
+        {
+          "level": 6,
+          "uses": 6
+        },
+        {
+          "level": 7,
+          "uses": 7
+        },
+        {
+          "level": 8,
+          "uses": 8
+        },
+        {
+          "level": 9,
+          "uses": 9
+        },
+        {
+          "level": 10,
+          "uses": 10
+        },
+        {
+          "level": 11,
+          "uses": 11
+        },
+        {
+          "level": 12,
+          "uses": 12
+        },
+        {
+          "level": 13,
+          "uses": 13
+        },
+        {
+          "level": 14,
+          "uses": 14
+        },
+        {
+          "level": 15,
+          "uses": 15
+        },
+        {
+          "level": 16,
+          "uses": 16
+        },
+        {
+          "level": 17,
+          "uses": 17
+        },
+        {
+          "level": 18,
+          "uses": 18
+        },
+        {
+          "level": 19,
+          "uses": 19
+        },
+        {
+          "level": 20,
+          "uses": 20
+        }
+      ]
+    }
+  ]
 }

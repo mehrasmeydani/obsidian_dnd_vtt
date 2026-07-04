@@ -85,12 +85,27 @@
         {
           "level": 2,
           "name": "Evocation Savant",
-          "description": "Copy evocation spells into your spellbook at half cost and time."
+          "description": "The gold and time you must spend to copy an evocation spell into your spellbook is halved."
         },
         {
           "level": 2,
           "name": "Sculpt Spells",
-          "description": "Protect allies from your own evocation spells."
+          "description": "When you cast an evocation spell affecting creatures you can see, choose up to 1 + the spell's level of them: they automatically succeed on their saving throws and take no damage if they would normally take half."
+        },
+        {
+          "level": 6,
+          "name": "Potent Cantrip",
+          "description": "When a creature succeeds on a saving throw against your cantrip, it still takes half the cantrip's damage (but no additional effect)."
+        },
+        {
+          "level": 10,
+          "name": "Empowered Evocation",
+          "description": "Add your Intelligence modifier to one damage roll of any wizard evocation spell you cast."
+        },
+        {
+          "level": 14,
+          "name": "Overchannel",
+          "description": "When you cast a wizard spell of 1st-5th level that deals damage, deal maximum damage. The first use is safe; each use again before a long rest deals you escalating necrotic damage that can't be reduced."
         }
       ]
     }
@@ -99,12 +114,27 @@
     {
       "level": 1,
       "name": "Spellcasting",
-      "description": "Cast wizard spells using Intelligence; learn spells in a spellbook."
+      "description": "You cast wizard spells using Intelligence from your spellbook; you prepare Intelligence modifier + wizard level spells each day and add new spells to the book as you level or copy them."
     },
     {
       "level": 1,
       "name": "Arcane Recovery",
-      "description": "Recover spell slots (half wizard level) on a short rest, once per day."
+      "description": "Once per day when you finish a short rest, recover expended spell slots with a combined level up to half your wizard level (rounded up), none 6th level or higher."
+    },
+    {
+      "level": 2,
+      "name": "Arcane Tradition",
+      "description": "Your school of magic (chosen at 2nd level) grants features at 2nd, 6th, 10th, and 14th level."
+    },
+    {
+      "level": 18,
+      "name": "Spell Mastery",
+      "description": "Choose a 1st-level and a 2nd-level wizard spell in your spellbook: you can cast them at their lowest level without expending a spell slot while prepared."
+    },
+    {
+      "level": 20,
+      "name": "Signature Spells",
+      "description": "Choose two 3rd-level wizard spells as signature spells: always prepared, and you can cast each once at 3rd level without expending a spell slot per short or long rest."
     }
   ],
   "proficiencies": {
@@ -117,5 +147,18 @@
       "Light crossbows"
     ],
     "tools": []
-  }
+  },
+  "resources": [
+    {
+      "id": "arcane-recovery",
+      "name": "Arcane Recovery",
+      "per": "long-rest",
+      "levels": [
+        {
+          "level": 1,
+          "uses": 1
+        }
+      ]
+    }
+  ]
 }

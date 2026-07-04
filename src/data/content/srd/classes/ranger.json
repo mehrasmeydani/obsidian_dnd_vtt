@@ -116,7 +116,22 @@
         {
           "level": 3,
           "name": "Hunter's Prey",
-          "description": "Choose Colossus Slayer, Giant Killer, or Horde Breaker."
+          "description": "Choose one: Colossus Slayer (once per turn, +1d8 damage to a creature below its hit point maximum), Giant Killer (reaction attack against a Large+ creature that hits or misses you within 5 feet), or Horde Breaker (once per turn, a second attack against a different creature within 5 feet of the original target)."
+        },
+        {
+          "level": 7,
+          "name": "Defensive Tactics",
+          "description": "Choose one: Escape the Horde (opportunity attacks against you have disadvantage), Multiattack Defense (+4 AC against subsequent attacks from a creature that hits you), or Steel Will (advantage on saves against being frightened)."
+        },
+        {
+          "level": 11,
+          "name": "Multiattack",
+          "description": "Choose one: Volley (ranged attack against any number of creatures within 10 feet of a point in range) or Whirlwind Attack (melee attack against any number of creatures within 5 feet of you)."
+        },
+        {
+          "level": 15,
+          "name": "Superior Hunter's Defense",
+          "description": "Choose one: Evasion, Stand Against the Tide (redirect a missed melee attack to another creature), or Uncanny Dodge (reaction to halve an attack's damage)."
         }
       ]
     }
@@ -239,12 +254,62 @@
     {
       "level": 1,
       "name": "Favored Enemy",
-      "description": "Advantage on tracking and recalling lore about a chosen enemy type."
+      "description": "Choose a favored enemy type: advantage on Wisdom (Survival) checks to track them and on Intelligence checks to recall information about them; you also learn one language they speak. You choose an additional favored enemy at 6th and 14th level."
     },
     {
       "level": 1,
       "name": "Natural Explorer",
-      "description": "Expert navigator and tracker in a chosen terrain."
+      "description": "Choose a favored terrain: doubled proficiency on related Intelligence and Wisdom checks, and while traveling there your group isn't slowed by difficult terrain, can't get lost except by magic, and you forage/track more effectively. Additional terrains at 6th and 10th level."
+    },
+    {
+      "level": 2,
+      "name": "Fighting Style",
+      "description": "Choose a combat style (archery, defense, dueling, or two-weapon fighting)."
+    },
+    {
+      "level": 2,
+      "name": "Spellcasting",
+      "description": "You cast ranger spells using Wisdom from a fixed list of spells known."
+    },
+    {
+      "level": 3,
+      "name": "Ranger Archetype",
+      "description": "Your archetype (chosen at 3rd level) grants features at 3rd, 7th, 11th, and 15th level."
+    },
+    {
+      "level": 3,
+      "name": "Primeval Awareness",
+      "description": "Expend a spell slot to sense (for 1 minute per slot level) whether aberrations, celestials, dragons, elementals, fey, fiends, or undead are present within 1 mile (6 miles in favored terrain)."
+    },
+    {
+      "level": 5,
+      "name": "Extra Attack",
+      "description": "You can attack twice, instead of once, whenever you take the Attack action on your turn."
+    },
+    {
+      "level": 8,
+      "name": "Land's Stride",
+      "description": "Moving through nonmagical difficult terrain costs no extra movement, and you can pass through nonmagical plants without being slowed or harmed. You have advantage on saves against magically created or manipulated plants."
+    },
+    {
+      "level": 10,
+      "name": "Hide in Plain Sight",
+      "description": "Spend 1 minute creating camouflage: while pressed against a solid surface and staying still, gain +10 to Dexterity (Stealth) checks."
+    },
+    {
+      "level": 14,
+      "name": "Vanish",
+      "description": "You can Hide as a bonus action, and you can't be tracked by nonmagical means unless you choose to leave a trail."
+    },
+    {
+      "level": 18,
+      "name": "Feral Senses",
+      "description": "You can attack invisible creatures you can't see without disadvantage, and you are aware of any invisible creature within 30 feet (if not hidden and you aren't blinded or deafened)."
+    },
+    {
+      "level": 20,
+      "name": "Foe Slayer",
+      "description": "Once on each of your turns, add your Wisdom modifier to the attack roll or the damage roll of an attack against one of your favored enemies."
     }
   ],
   "proficiencies": {
@@ -258,5 +323,6 @@
       "Martial weapons"
     ],
     "tools": []
-  }
+  },
+  "resources": []
 }

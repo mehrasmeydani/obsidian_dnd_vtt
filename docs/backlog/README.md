@@ -31,7 +31,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-17](T-17-2024-edition-content.md) | 2024 (5.5e) edition content | P2 | M | 1–2 | — | in-progress |
 | [T-19](T-19-leveled-class-features.md) | Leveled class features (Barbarian first) | P1 | L | 1 | T-18 | done |
 | [T-20](T-20-armor-weapon-proficiencies.md) | Armor & weapon proficiencies as data | P2 | S | 1 | — | done |
-| [T-21](T-21-leveled-features-remaining-classes.md) | Leveled features: remaining classes | P2 | L | 1 | T-19 | todo |
+| [T-21](T-21-leveled-features-remaining-classes.md) | Leveled features: remaining classes | P2 | L | 1 | T-19 | done |
 | [T-22](T-22-equip-toggle-play-control.md) | Equip toggle as a play control | P2 | S | 1 | T-01, T-06 | done |
 | [T-23](T-23-two-way-markdown-data.md) | Two-way Markdown data (frontmatter projection) | P2 | M | 1–2 | T-01 | done |
 | [T-24](T-24-campaign-folder-structure.md) | Campaign folder structure managed by the plugin | P2 | M | 1–2 | — | done |
