@@ -52,6 +52,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-37](T-37-stale-expertise-release.md) | Expertise pick survives losing its proficiency | P1 | S | 1 | — | needs-check |
 | [T-38](T-38-equipment-slots.md) | Equipment slots: hands, body, accessories | P1 | M | 1 | T-36 | todo |
 | [T-39](T-39-action-economy-panel.md) | Action economy panel | P2 | L | 1–2 | T-01, T-38 | todo |
+| [T-40](T-40-draggable-sheet-layout.md) | Dynamic sheet layout (drag & drop, show/hide) | P3 | L | 2+ | T-01, T-32 | todo |
 
 ## Suggested order
 
