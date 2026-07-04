@@ -9,16 +9,16 @@ feats, backgrounds, spells, items) is available in the wizard and browser
 without hand-transcription.
 
 ## Acceptance criteria
-- [ ] Command "Import 5etools data": pick file(s) from the vault (or a
+- [x] Command "Import 5etools data": pick file(s) from the vault (or a
       configured folder), convert to content-bundle JSON, validate via
       `parseContentBundle`, write into the content store.
-- [ ] Mapping covers races (incl. ability bonuses, options), classes
+- [x] Mapping covers races (incl. ability bonuses, options), classes
       (subclasses, ASI levels, equipment where present), backgrounds, feats,
       spells; unmappable entries are reported by name, not silently dropped.
-- [ ] Import is repeatable (re-import replaces that bundle).
-- [ ] Converter is pure and tested against fixture snippets of the 5etools
+- [x] Import is repeatable (re-import replaces that bundle).
+- [x] Converter is pure and tested against fixture snippets of the 5etools
       format.
-- [ ] **Licensing:** importer ships, data does not — user supplies their own
+- [x] **Licensing:** importer ships, data does not — user supplies their own
       files; docs state only SRD content may be redistributed with the plugin.
 
 ## Technical notes

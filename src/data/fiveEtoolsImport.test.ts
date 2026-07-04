@@ -1,0 +1,414 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  backgroundFromFiveEtools,
+  classesFromFiveEtools,
+  featFromFiveEtools,
+  importFiveEtools,
+  raceFromFiveEtools,
+  renderEntries,
+  spellFromFiveEtools,
+  stripTags,
+} from "./fiveEtoolsImport";
+import { parseContentBundle } from "./contentSchema";
+
+/**
+ * T-13 tests: the converter is pure and runs against fixture snippets of
+ * the 5etools format (plus the checked-in reference files as an
+ * integration sweep — reference data never ships). Unmappable records are
+ * reported by name, never silently dropped.
+ */
+
+// --- Markup ------------------------------------------------------------
+
+describe("stripTags", () => {
+  it("prefers display text and falls back to the name", () => {
+    expect(stripTags("a {@item battleaxe|phb} and {@skill History}")).toBe(
+      "a battleaxe and History",
+    );
+    expect(stripTags("{@item arrows (20)|phb|20 arrows}")).toBe("20 arrows");
+    expect(stripTags("{@dice 5d4 × 10|5d4 × 10|Starting Gold}")).toBe(
+      "Starting Gold",
+    );
+  });
+});
+
+describe("renderEntries", () => {
+  it("flattens nested entries, lists, and items", () => {
+    const text = renderEntries([
+      "You gain the following benefits:",
+      {
+        type: "list",
+        items: [
+          "Advantage on grapples.",
+          { type: "item", name: "Pin:", entry: "Make another {@skill Athletics} check." },
+        ],
+      },
+      { type: "entries", name: "Detail", entries: ["More text."] },
+    ]);
+    expect(text).toContain("You gain the following benefits:");
+    expect(text).toContain("Advantage on grapples.");
+    expect(text).toContain("Pin: Make another Athletics check.");
+    expect(text).toContain("Detail. More text.");
+  });
+});
+
+// --- Races --------------------------------------------------------------
+
+const DWARF = {
+  name: "Dwarf",
+  source: "PHB",
+  speed: 25,
+  ability: [{ con: 2 }],
+  entries: [
+    { name: "Darkvision", type: "entries", entries: ["You can see in the dark."] },
+    { name: "Dwarven Resilience", type: "entries", entries: ["Poison resistance."] },
+  ],
+};
+
+const HALF_ELF = {
+  name: "Half-Elf",
+  source: "PHB",
+  speed: 30,
+  ability: [{ cha: 2, choose: { from: ["str", "dex", "con", "int", "wis"], count: 2 } }],
+  skillProficiencies: [{ any: 2 }],
+  entries: [],
+};
+
+describe("raceFromFiveEtools", () => {
+  it("maps fixed bonuses, speed, and traits", () => {
+    const race = raceFromFiveEtools(DWARF);
+    expect(race).toMatchObject({
+      id: "5etools-race-dwarf-phb",
+      name: "Dwarf",
+      speed: 25,
+      fixedBonuses: { con: 2 },
+    });
+    expect(race.traits.map((t) => t.name)).toEqual([
+      "Darkvision",
+      "Dwarven Resilience",
+    ]);
+  });
+
+  it("maps choose-N ability bonuses and any-skill choices", () => {
+    const race = raceFromFiveEtools(HALF_ELF);
+    expect(race.bonusChoice).toEqual({ count: 2, amount: 1 });
+    expect(race.skillChoice).toEqual({ count: 2, from: "any" });
+  });
+
+  it("rejects _copy variants with a reason", () => {
+    expect(() =>
+      raceFromFiveEtools({ name: "Variant", _copy: { name: "Dwarf" } }),
+    ).toThrow(/_copy/);
+  });
+});
+
+// --- Classes --------------------------------------------------------------
+
+const FIGHTER_FILE = {
+  class: [
+    {
+      name: "Fighter",
+      source: "PHB",
+      hd: { number: 1, faces: 10 },
+      proficiency: ["str", "con"],
+      startingProficiencies: {
+        armor: ["light", "medium", "heavy", "shield"],
+        weapons: ["simple", "martial"],
+        skills: [{ choose: { from: ["acrobatics", "athletics", "history"], count: 2 } }],
+      },
+      startingEquipment: {
+        defaultData: [
+          { a: ["chain mail|phb"], b: ["leather armor|phb", "longbow|phb"] },
+          { a: [{ equipmentType: "weaponMartial" }, "shield|phb"], b: [{ equipmentType: "weaponMartial", quantity: 2 }] },
+          { _: ["dungeoneer's pack|phb"] },
+        ],
+      },
+      classFeatures: [
+        "Fighting Style|Fighter||1",
+        "Second Wind|Fighter||1",
+        "Action Surge|Fighter||2",
+        { classFeature: "Martial Archetype|Fighter||3", gainSubclassFeature: true },
+        "Ability Score Improvement|Fighter||4",
+        "Extra Attack|Fighter||5",
+        "Ability Score Improvement|Fighter||6",
+      ],
+    },
+  ],
+  subclass: [
+    {
+      name: "Champion",
+      shortName: "Champion",
+      source: "PHB",
+      className: "Fighter",
+      classSource: "PHB",
+      subclassFeatures: [
+        "Champion|Fighter||Champion||3",
+        "Improved Critical|Fighter||Champion||3",
+        "Remarkable Athlete|Fighter||Champion||7",
+      ],
+    },
+  ],
+  classFeature: [
+    {
+      name: "Second Wind",
+      className: "Fighter",
+      level: 1,
+      source: "PHB",
+      entries: ["You have a limited well of stamina: regain {@dice 1d10} + your fighter level."],
+    },
+  ],
+  subclassFeature: [
+    {
+      name: "Improved Critical",
+      className: "Fighter",
+      subclassShortName: "Champion",
+      level: 3,
+      source: "PHB",
+      entries: ["Your weapon attacks score a critical hit on a roll of 19 or 20."],
+    },
+  ],
+};
+
+describe("classesFromFiveEtools", () => {
+  const { classes, skipped } = classesFromFiveEtools(FIGHTER_FILE);
+  const fighter = classes[0];
+
+  it("maps the class core (hit die, saves, skills, proficiencies)", () => {
+    expect(skipped).toEqual([]);
+    expect(fighter).toMatchObject({
+      id: "5etools-class-fighter-phb",
+      name: "Fighter",
+      edition: "2014",
+      hitDie: 10,
+      savingThrows: ["str", "con"],
+      skillChoice: { count: 2, from: ["acrobatics", "athletics", "history"] },
+    });
+    expect(fighter.proficiencies.armor).toContain("Heavy armor");
+    expect(fighter.proficiencies.weapons).toEqual([
+      "Simple weapons",
+      "Martial weapons",
+    ]);
+  });
+
+  it("derives ASI levels and the subclass level from feature refs", () => {
+    expect(fighter.asiLevels).toEqual([4, 6]);
+    expect(fighter.subclassLevel).toBe(3);
+    expect(fighter.features.map((f) => f.name)).not.toContain(
+      "Ability Score Improvement",
+    );
+  });
+
+  it("attaches feature descriptions from the lookup table", () => {
+    const secondWind = fighter.features.find((f) => f.name === "Second Wind");
+    expect(secondWind?.level).toBe(1);
+    expect(secondWind?.description).toContain("1d10 + your fighter level");
+  });
+
+  it("maps subclasses with their leveled features", () => {
+    expect(fighter.subclasses).toHaveLength(1);
+    const champion = fighter.subclasses[0];
+    expect(champion.name).toBe("Champion");
+    const improvedCritical = champion.features.find(
+      (f) => f.name === "Improved Critical",
+    );
+    expect(improvedCritical?.level).toBe(3);
+    expect(improvedCritical?.description).toContain("19 or 20");
+  });
+
+  it("maps starting equipment fixed items and pick-one choices", () => {
+    expect(fighter.equipment.fixed).toEqual([{ name: "dungeoneer's pack" }]);
+    expect(fighter.equipment.choices).toHaveLength(2);
+    expect(fighter.equipment.choices[0].options[0]).toEqual([
+      { name: "chain mail" },
+    ]);
+    expect(fighter.equipment.choices[1].options[1]).toEqual([
+      { name: "Any martial weapon", quantity: 2 },
+    ]);
+  });
+
+  it("reports classes it cannot map by name", () => {
+    const { classes: none, skipped: reasons } = classesFromFiveEtools({
+      class: [{ name: "Sidekick", source: "TCE" }],
+    });
+    expect(none).toEqual([]);
+    expect(reasons[0]).toContain("Sidekick");
+  });
+});
+
+// --- Backgrounds / feats ---------------------------------------------------
+
+describe("backgroundFromFiveEtools", () => {
+  const ACOLYTE = {
+    name: "Acolyte",
+    source: "PHB",
+    skillProficiencies: [{ insight: true, religion: true }],
+    startingEquipment: [
+      {
+        _: [
+          { item: "holy symbol|phb", displayName: "holy symbol (a gift)" },
+          { special: "sticks of incense", quantity: 5 },
+          "common clothes|phb",
+        ],
+      },
+      { a: [{ item: "book|phb", displayName: "prayer book" }], b: [{ special: "prayer wheel" }] },
+    ],
+    entries: [
+      {
+        type: "list",
+        items: [
+          { type: "item", name: "Skill Proficiencies:", entry: "{@skill Insight}, {@skill Religion}" },
+        ],
+      },
+      {
+        name: "Feature: Shelter of the Faithful",
+        type: "entries",
+        entries: ["You command the respect of those who share your faith."],
+        data: { isFeature: true },
+      },
+    ],
+  };
+
+  it("maps skills, equipment, and the background feature", () => {
+    const background = backgroundFromFiveEtools(ACOLYTE);
+    expect(background.grantedSkills.sort()).toEqual(["insight", "religion"]);
+    expect(background.equipment).toEqual([
+      { name: "holy symbol (a gift)" },
+      { name: "sticks of incense", quantity: 5 },
+      { name: "common clothes" },
+      { name: "prayer book" },
+    ]);
+    expect(background.traits).toEqual([
+      {
+        name: "Shelter of the Faithful",
+        description: "You command the respect of those who share your faith.",
+      },
+    ]);
+    expect(background.description).toContain("Insight, Religion");
+  });
+});
+
+describe("featFromFiveEtools", () => {
+  it("maps name and rendered description", () => {
+    const feat = featFromFiveEtools({
+      name: "Grappler",
+      source: "PHB",
+      entries: ["You've developed grappling skills.", { type: "list", items: ["Advantage on grapples."] }],
+    });
+    expect(feat.id).toBe("5etools-feat-grappler-phb");
+    expect(feat.description).toContain("Advantage on grapples.");
+  });
+});
+
+// --- Spells ------------------------------------------------------------
+
+describe("spellFromFiveEtools", () => {
+  const FIREBALL = {
+    name: "Fireball",
+    source: "PHB",
+    level: 3,
+    school: "V",
+    time: [{ number: 1, unit: "action" }],
+    range: { type: "point", distance: { type: "feet", amount: 150 } },
+    components: { v: true, s: true, m: "a tiny ball of bat guano and sulfur" },
+    duration: [{ type: "instant" }],
+    entries: ["A bright streak flashes from your pointing finger."],
+    entriesHigherLevel: [
+      { type: "entries", name: "At Higher Levels", entries: ["+1d6 per slot level above 3rd."] },
+    ],
+    classes: { fromClassList: [{ name: "Sorcerer", source: "PHB" }, { name: "Wizard", source: "PHB" }] },
+  };
+
+  it("maps a leveled spell", () => {
+    const spell = spellFromFiveEtools(FIREBALL);
+    expect(spell).toMatchObject({
+      id: "5etools-spell-fireball-phb",
+      name: "Fireball",
+      level: 3,
+      school: "Evocation",
+      castingTime: "1 action",
+      range: "150 feet",
+      components: "V, S, M (a tiny ball of bat guano and sulfur)",
+      duration: "Instantaneous",
+      concentration: false,
+      ritual: false,
+      classes: ["sorcerer", "wizard"],
+    });
+    expect(spell.higherLevels).toContain("+1d6");
+  });
+
+  it("maps concentration durations and ritual meta", () => {
+    const spell = spellFromFiveEtools({
+      name: "Detect Magic",
+      level: 1,
+      school: "D",
+      time: [{ number: 1, unit: "action" }],
+      range: { type: "point", distance: { type: "self" } },
+      components: { v: true, s: true },
+      duration: [
+        { type: "timed", duration: { type: "minute", amount: 10 }, concentration: true },
+      ],
+      meta: { ritual: true },
+      entries: ["You sense magic within 30 feet."],
+    });
+    expect(spell.duration).toBe("Concentration, up to 10 minutes");
+    expect(spell.concentration).toBe(true);
+    expect(spell.ritual).toBe(true);
+    expect(spell.range).toBe("Self");
+  });
+});
+
+// --- Whole files ------------------------------------------------------------
+
+describe("importFiveEtools", () => {
+  it("aggregates several files into one valid bundle and reports skips", () => {
+    const { bundle, skipped } = importFiveEtools([
+      { name: "races.json", json: { race: [DWARF, { name: "Broken" }] } },
+      { name: "class-fighter.json", json: FIGHTER_FILE },
+      { name: "weird.json", json: { monster: [], deity: [] } },
+    ]);
+
+    expect(bundle.races.map((r) => r.name)).toEqual(["Dwarf"]);
+    expect(bundle.classes.map((c) => c.name)).toEqual(["Fighter"]);
+    expect(skipped.some((line) => line.includes("Broken"))).toBe(true);
+    expect(skipped.some((line) => line.includes("weird.json"))).toBe(true);
+
+    expect(() =>
+      parseContentBundle(JSON.parse(JSON.stringify(bundle))),
+    ).not.toThrow();
+  });
+
+  it("converts the real 5etools reference files into a valid bundle", () => {
+    const reference = (file: string): unknown =>
+      JSON.parse(
+        readFileSync(join(__dirname, "../../docs/reference/5etools", file), "utf8"),
+      );
+    const { bundle, skipped } = importFiveEtools([
+      { name: "races.json", json: reference("races.json") },
+      { name: "backgrounds.json", json: reference("backgrounds.json") },
+      { name: "feats.json", json: reference("feats.json") },
+      { name: "class-fighter.json", json: reference("class-fighter.json") },
+      { name: "class-wizard.json", json: reference("class-wizard.json") },
+    ]);
+
+    expect(bundle.races.length).toBeGreaterThan(20);
+    expect(bundle.backgrounds.length).toBeGreaterThan(10);
+    expect(bundle.feats.length).toBeGreaterThan(20);
+    expect(bundle.classes.map((c) => c.name)).toContain("Fighter");
+    expect(bundle.classes.map((c) => c.name)).toContain("Wizard");
+
+    const fighter = bundle.classes.find(
+      (c) => c.id === "5etools-class-fighter-phb",
+    );
+    expect(fighter?.asiLevels).toContain(4);
+    expect(fighter?.subclassLevel).toBe(3);
+    expect(fighter?.subclasses.length).toBeGreaterThan(0);
+
+    // Nothing silently dropped: whatever failed is named in the report.
+    for (const line of skipped) expect(typeof line).toBe("string");
+    expect(() =>
+      parseContentBundle(JSON.parse(JSON.stringify(bundle))),
+    ).not.toThrow();
+  });
+});

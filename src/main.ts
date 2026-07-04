@@ -23,6 +23,7 @@ import {
 import { createSessionNote } from "./persistence/sessionStore";
 import { newSessionNote } from "./persistence/sessionNote";
 import { refreshOpen5eContent } from "./data/open5e";
+import { importFiveEtools } from "./data/fiveEtoolsImport";
 import { ContentStore } from "./data/contentStore";
 import { parseContentBundle } from "./data/contentSchema";
 import type { TFile } from "obsidian";
@@ -34,6 +35,8 @@ interface DndVttSettings {
   charactersFolder: string;
   /** Vault folder where new session notes are created. */
   sessionsFolder: string;
+  /** Vault folder scanned for user-supplied 5etools JSON files. */
+  fiveEtoolsFolder: string;
   /** File names of content bundles the user switched off. */
   disabledBundles: string[];
 }
@@ -41,6 +44,7 @@ interface DndVttSettings {
 const DEFAULT_SETTINGS: DndVttSettings = {
   charactersFolder: "Characters",
   sessionsFolder: "Sessions",
+  fiveEtoolsFolder: "5etools",
   disabledBundles: [],
 };
 
@@ -121,6 +125,13 @@ export default class DndVttPlugin extends Plugin {
       name: "Refresh 5e content from Open5e",
       callback: () => {
         void this.refreshOpen5eContent();
+      },
+    });
+    this.addCommand({
+      id: "import-5etools-data",
+      name: "Import 5etools data",
+      callback: () => {
+        void this.importFiveEtoolsData();
       },
     });
   }
@@ -223,6 +234,88 @@ export default class DndVttPlugin extends Plugin {
         "Open5e refresh failed. See the developer console for details.",
       );
       setTimeout(() => progress.hide(), 8000);
+    }
+  }
+
+  /**
+   * Convert user-supplied 5etools JSON files (from the configured vault
+   * folder) into a content bundle (T-13). Re-running replaces the bundle.
+   * The importer ships, the data does not: imported content stays in the
+   * user's plugin folder and must never be redistributed — only SRD
+   * content may ship with the plugin.
+   */
+  private async importFiveEtoolsData(): Promise<void> {
+    const folder = this.settings.fiveEtoolsFolder;
+    const adapter = this.app.vault.adapter;
+    try {
+      if (!(await adapter.exists(folder))) {
+        new Notice(
+          `5etools import folder "${folder}" not found. Create it, drop your 5etools JSON files in, and re-run (folder is configurable in settings).`,
+        );
+        return;
+      }
+      const listing = await adapter.list(folder);
+      const jsonPaths = listing.files.filter((f) => f.endsWith(".json")).sort();
+      if (jsonPaths.length === 0) {
+        new Notice(`No .json files found in "${folder}".`);
+        return;
+      }
+
+      const files: { name: string; json: unknown }[] = [];
+      for (const path of jsonPaths) {
+        const name = path.split("/").pop() ?? path;
+        try {
+          files.push({ name, json: JSON.parse(await adapter.read(path)) });
+        } catch {
+          new Notice(`Skipping "${name}" — not valid JSON.`);
+        }
+      }
+
+      const { bundle, skipped } = importFiveEtools(files);
+      // Round-trip through the bundle validator like any other source.
+      const validated = parseContentBundle(JSON.parse(JSON.stringify(bundle)));
+
+      const fileName = "5etools-import.json";
+      const dir = `${this.manifest.dir}/data/content`;
+      for (const segment of ["data", "data/content"]) {
+        const path = `${this.manifest.dir}/${segment}`;
+        if (!(await adapter.exists(path))) await adapter.mkdir(path);
+      }
+      await adapter.write(`${dir}/${fileName}`, JSON.stringify(validated, null, 2));
+      this.content.addBundle(
+        fileName,
+        validated,
+        !this.settings.disabledBundles.includes(fileName),
+      );
+
+      const counts = [
+        [validated.races.length, "races"],
+        [validated.classes.length, "classes"],
+        [validated.backgrounds.length, "backgrounds"],
+        [validated.feats.length, "feats"],
+        [validated.spells.length, "spells"],
+      ]
+        .filter(([count]) => (count as number) > 0)
+        .map(([count, label]) => `${count} ${label}`)
+        .join(" · ");
+      if (skipped.length > 0) {
+        console.warn(
+          `D&D VTT: ${skipped.length} 5etools records could not be mapped`,
+          skipped,
+        );
+      }
+      new Notice(
+        `5etools import done: ${counts || "nothing recognized"}.` +
+          (skipped.length > 0
+            ? ` ${skipped.length} records skipped — see console.`
+            : ""),
+        8000,
+      );
+    } catch (error) {
+      console.error("D&D VTT: 5etools import failed", error);
+      new Notice(
+        `5etools import failed — ${bundleProblem(error)}`,
+      );
     }
   }
 
@@ -393,6 +486,22 @@ class DndVttSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.sessionsFolder =
               value.trim() || DEFAULT_SETTINGS.sessionsFolder;
+            await this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(this.containerEl)
+      .setName("5etools import folder")
+      .setDesc(
+        'Vault folder scanned by the "Import 5etools data" command for your own 5etools JSON files. Imported content stays local — only SRD content may be redistributed.',
+      )
+      .addText((text) =>
+        text
+          .setPlaceholder(DEFAULT_SETTINGS.fiveEtoolsFolder)
+          .setValue(this.plugin.settings.fiveEtoolsFolder)
+          .onChange(async (value) => {
+            this.plugin.settings.fiveEtoolsFolder =
+              value.trim() || DEFAULT_SETTINGS.fiveEtoolsFolder;
             await this.plugin.saveSettings();
           }),
       );
