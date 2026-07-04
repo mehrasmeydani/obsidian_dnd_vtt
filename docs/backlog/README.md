@@ -53,6 +53,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-38](T-38-equipment-slots.md) | Equipment slots: hands, body, accessories | P1 | M | 1 | T-36 | todo |
 | [T-39](T-39-action-economy-panel.md) | Action economy panel | P2 | L | 1–2 | T-01, T-38 | todo |
 | [T-40](T-40-draggable-sheet-layout.md) | Dynamic sheet layout (drag & drop, show/hide) | P3 | L | 2+ | T-01, T-32 | todo |
+| [T-41](T-41-rules-glossary.md) | Rules glossary: mechanics as content | P2 | M | 2 | T-11 | todo |
 
 ## Suggested order
 
