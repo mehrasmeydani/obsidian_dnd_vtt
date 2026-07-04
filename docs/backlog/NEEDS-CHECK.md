@@ -48,4 +48,9 @@ wrong.
   "Take a short/long rest? Confirm / Cancel" pair; nothing happens until
   Confirm.
 
+- **T-36 Wearing vs bags** — read-mode inventory splits into "Wearing"
+  and "In bags"; only armor-linked items get the equip toggle (read
+  mode) and the Equipped checkbox (edit mode) — gold and gear are plain
+  chips.
+
 <!-- appended as each fix lands -->

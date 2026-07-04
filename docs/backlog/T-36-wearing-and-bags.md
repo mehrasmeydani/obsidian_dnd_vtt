@@ -7,8 +7,8 @@ As a **player**, gold shouldn't have an "equipped" state — only wearable
 items should — and the inventory should read as "Wearing" and "In bags".
 
 ## Acceptance criteria
-- [ ] Only armor-linked (wearable) items show the equip toggle (read mode)
+- [x] Only armor-linked (wearable) items show the equip toggle (read mode)
       and the Equipped checkbox (edit mode).
-- [ ] Read mode splits inventory into "Wearing" (equipped) and "In bags";
+- [x] Read mode splits inventory into "Wearing" (equipped) and "In bags";
       wearables move between them when toggled.
-- [ ] jsdom tests updated.
+- [x] jsdom tests updated.

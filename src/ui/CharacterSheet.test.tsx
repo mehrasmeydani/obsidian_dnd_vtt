@@ -287,13 +287,27 @@ describe("equip toggle (T-22, always live)", () => {
 
   const ac = () => screen.getByText("AC").nextElementSibling?.textContent;
 
-  it("renders read-mode chips as toggle buttons with pressed state", () => {
+  it("renders wearables as toggle buttons; other items as plain chips (T-36)", () => {
     renderSheet(armoredCharacter());
     const leather = screen.getByRole("button", { name: /Leather armor/ });
-    const rope = screen.getByRole("button", { name: "Rope" });
     expect(leather.getAttribute("aria-pressed")).toBe("true");
     expect(leather.classList.contains("is-equipped")).toBe(true);
-    expect(rope.getAttribute("aria-pressed")).toBe("false");
+    // Non-wearables (rope) are not equippable — no button, just a chip.
+    expect(screen.queryByRole("button", { name: "Rope" })).toBeNull();
+    expect(screen.getByText("Rope")).toBeTruthy();
+  });
+
+  it("splits read mode into Wearing and In bags (T-36)", () => {
+    renderSheet(armoredCharacter());
+    const group = (label: string) =>
+      screen.getByText(label).parentElement as HTMLElement;
+    expect(group("Wearing").textContent).toContain("Leather armor");
+    expect(group("In bags").textContent).toContain("Scale mail");
+    expect(group("In bags").textContent).toContain("Rope");
+
+    // Equipping the shield moves it from bags to wearing.
+    fireEvent.click(screen.getByRole("button", { name: "Shield" }));
+    expect(group("Wearing").textContent).toContain("Shield");
   });
 
   it("equipping a shield in read mode updates derived AC live", () => {
@@ -318,14 +332,12 @@ describe("equip toggle (T-22, always live)", () => {
     expect(last().inventory.find((i) => i.id === "leather")?.equipped).toBe(false);
   });
 
-  it("shield plus body armor stack fine and non-armor items are unaffected", () => {
+  it("shield plus body armor stack fine", () => {
     const { last } = renderSheet(armoredCharacter());
     fireEvent.click(screen.getByRole("button", { name: "Shield" }));
-    fireEvent.click(screen.getByRole("button", { name: "Rope" }));
     const inventory = last().inventory;
     expect(inventory.find((i) => i.id === "leather")?.equipped).toBe(true);
     expect(inventory.find((i) => i.id === "shield")?.equipped).toBe(true);
-    expect(inventory.find((i) => i.id === "rope")?.equipped).toBe(true);
     expect(ac()).toBe("16");
   });
 
@@ -335,6 +347,14 @@ describe("equip toggle (T-22, always live)", () => {
     fireEvent.click(screen.getByLabelText("Item 2 equipped")); // scale mail
     expect(last().inventory.find((i) => i.id === "scale")?.equipped).toBe(true);
     expect(last().inventory.find((i) => i.id === "leather")?.equipped).toBe(false);
+  });
+
+  it("edit mode offers the Equipped checkbox only for wearables (T-36)", () => {
+    renderSheet(armoredCharacter());
+    enterEditMode();
+    expect(screen.getByLabelText("Item 1 equipped")).toBeTruthy(); // leather
+    expect(screen.getByLabelText("Item 3 equipped")).toBeTruthy(); // shield
+    expect(screen.queryByLabelText("Item 4 equipped")).toBeNull(); // rope
   });
 });
 
@@ -451,11 +471,12 @@ describe("edit mode", () => {
     fireEvent.change(screen.getByLabelText("Item 3 quantity"), {
       target: { value: "2" },
     });
-    fireEvent.click(screen.getByLabelText("Item 3 equipped"));
+    // Non-wearable items have no Equipped checkbox (T-36).
+    expect(screen.queryByLabelText("Item 3 equipped")).toBeNull();
     expect(last().inventory[2]).toMatchObject({
       name: "Grappling hook",
       quantity: 2,
-      equipped: true,
+      equipped: false,
     });
 
     fireEvent.click(screen.getByLabelText("Remove item 1"));

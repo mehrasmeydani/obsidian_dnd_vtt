@@ -603,6 +603,9 @@ function InventoryTile({
         i === index ? { ...item, ...patch } : item,
       ),
     });
+  /** Wearables are armor-linked items — the only things that equip (T-36). */
+  const isWearable = (item: Character["inventory"][number]) =>
+    item.armorId !== undefined && ARMOR_BY_ID.has(item.armorId);
   /** Body armor (not shields) can only be worn one at a time. */
   const isBodyArmor = (item: Character["inventory"][number]) =>
     item.armorId !== undefined &&
@@ -660,15 +663,17 @@ function InventoryTile({
                 value={item.quantity}
                 onCommit={(quantity) => update(index, { quantity })}
               />
-              <label className="dvtt-inv__equipped">
-                <input
-                  type="checkbox"
-                  aria-label={`Item ${index + 1} equipped`}
-                  checked={item.equipped}
-                  onChange={() => toggleEquipped(index)}
-                />
-                Equipped
-              </label>
+              {isWearable(item) && (
+                <label className="dvtt-inv__equipped">
+                  <input
+                    type="checkbox"
+                    aria-label={`Item ${index + 1} equipped`}
+                    checked={item.equipped}
+                    onChange={() => toggleEquipped(index)}
+                  />
+                  Equipped
+                </label>
+              )}
               <button
                 aria-label={`Remove item ${index + 1}`}
                 onClick={() => remove(index)}
@@ -682,23 +687,74 @@ function InventoryTile({
           </button>
         </div>
       ) : (
-        <div className="dvtt-chips">
-          {character.inventory.map((item, index) => (
-            <button
-              type="button"
-              className={`dvtt-chip dvtt-chip--toggle${item.equipped ? " is-equipped" : ""}`}
-              key={item.id}
-              aria-pressed={item.equipped}
-              title={item.equipped ? "Equipped — click to unequip" : "Click to equip"}
-              onClick={() => toggleEquipped(index)}
-            >
-              {item.quantity > 1 ? `${item.name} ×${item.quantity}` : item.name}
-              {item.equipped ? " ●" : ""}
-            </button>
-          ))}
-        </div>
+        <InventoryChips
+          inventory={character.inventory}
+          isWearable={isWearable}
+          toggleEquipped={toggleEquipped}
+        />
       )}
     </section>
+  );
+}
+
+/**
+ * Read-mode inventory (T-36): split into "Wearing" (equipped) and "In
+ * bags". Only wearables (armor-linked items) get the equip toggle; gold
+ * and gear render as plain chips.
+ */
+function InventoryChips({
+  inventory,
+  isWearable,
+  toggleEquipped,
+}: {
+  inventory: Character["inventory"];
+  isWearable: (item: Character["inventory"][number]) => boolean;
+  toggleEquipped: (index: number) => void;
+}) {
+  const groups = [
+    { label: "Wearing", items: inventory.filter((i) => i.equipped) },
+    { label: "In bags", items: inventory.filter((i) => !i.equipped) },
+  ].filter((group) => group.items.length > 0);
+
+  return (
+    <>
+      {groups.map((group) => (
+        <div className="dvtt-inv-group" key={group.label}>
+          <div className="dvtt-inv-group__label">{group.label}</div>
+          <div className="dvtt-chips">
+            {group.items.map((item) => {
+              const index = inventory.indexOf(item);
+              const label =
+                item.quantity > 1 ? `${item.name} ×${item.quantity}` : item.name;
+              if (!isWearable(item)) {
+                return (
+                  <span className="dvtt-chip" key={item.id}>
+                    {label}
+                  </span>
+                );
+              }
+              return (
+                <button
+                  type="button"
+                  className={`dvtt-chip dvtt-chip--toggle${item.equipped ? " is-equipped" : ""}`}
+                  key={item.id}
+                  aria-pressed={item.equipped}
+                  title={
+                    item.equipped
+                      ? "Equipped — click to take off"
+                      : "Click to equip"
+                  }
+                  onClick={() => toggleEquipped(index)}
+                >
+                  {label}
+                  {item.equipped ? " ●" : ""}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </>
   );
 }
 
