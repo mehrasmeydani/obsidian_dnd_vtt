@@ -7,9 +7,9 @@ As a **player**, I don't want features, traits, spells, and inventory in
 one endless page — sections should collapse/expand for easier reading.
 
 ## Acceptance criteria
-- [ ] Features, Spells, Inventory, Proficiencies & languages, and Notes
+- [x] Features, Spells, Inventory, Proficiencies & languages, and Notes
       tiles are collapsible (chevron in the tile title); state persists per
       view while open.
-- [ ] Play-critical tiles (HP/combat/abilities) stay always visible.
-- [ ] jsdom tests: collapse hides content, expand restores, controls keep
+- [x] Play-critical tiles (HP/combat/abilities) stay always visible.
+- [x] jsdom tests: collapse hides content, expand restores, controls keep
       working after toggling.

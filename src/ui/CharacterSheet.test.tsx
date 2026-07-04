@@ -358,6 +358,42 @@ describe("equip toggle (T-22, always live)", () => {
   });
 });
 
+describe("collapsible sections (T-32)", () => {
+  it("collapses and expands the inventory tile; controls keep working", () => {
+    const { last } = renderSheet();
+    expect(screen.getByText("Dagger ×2")).toBeTruthy();
+
+    const toggle = screen.getByRole("button", { name: /Inventory/ });
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText("Dagger ×2")).toBeNull();
+
+    fireEvent.click(toggle);
+    expect(screen.getByText("Dagger ×2")).toBeTruthy();
+    // Play controls still live after a collapse/expand cycle.
+    fireEvent.change(screen.getByLabelText("HP amount"), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Damage" }));
+    expect(last().tempHp).toBe(3); // 5 temp - 2
+  });
+
+  it("features, spells, proficiencies, and notes tiles are collapsible; HP/combat are not", () => {
+    renderSheet({
+      ...sampleCharacter(),
+      features: [{ id: "f", name: "Trait", source: "Halfling" }],
+    });
+    for (const name of [/Spells/, /Features & Traits/, /Proficiencies & languages/, /Notes/]) {
+      const toggle = screen.getByRole("button", { name });
+      expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    }
+    // Always-visible tiles offer no toggle.
+    expect(screen.queryByRole("button", { name: "Combat" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Hit Points" })).toBeNull();
+  });
+});
+
 describe("features grouped by origin (T-33)", () => {
   it("groups race/class/background/feats, class sorted by level with feats inline", () => {
     const character = CharacterSchema.parse({

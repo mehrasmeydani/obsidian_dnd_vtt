@@ -816,6 +816,31 @@
   margin-top: auto;
 }
 
+/* Collapsible tiles (T-32): the title doubles as the toggle. */
+button.dvtt-tile__title--toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-2);
+  width: 100%;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  height: auto;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.dvtt-tile__chevron {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.dvtt-tile.is-collapsed {
+  padding-bottom: var(--size-4-2);
+}
+
 /* Feature origin groups (T-33) */
 .dvtt-feature-group + .dvtt-feature-group {
   margin-top: var(--size-4-2);

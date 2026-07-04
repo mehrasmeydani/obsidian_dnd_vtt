@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   ABILITIES,
   CharacterSchema,
@@ -213,6 +213,42 @@ export function CharacterSheet({
       <ProficienciesTile character={character} />
       <NotesTile character={character} apply={apply} editing={editing} />
     </div>
+  );
+}
+
+/**
+ * A sheet tile whose body collapses behind its title (T-32): features,
+ * spells, inventory, proficiencies, and notes fold away for easier
+ * reading. Play-critical tiles (HP, combat, abilities, rests) don't use
+ * this — they stay always visible.
+ */
+function CollapsibleTile({
+  title,
+  className,
+  children,
+}: {
+  title: ReactNode;
+  className: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(true);
+  return (
+    <section
+      className={`dvtt-tile ${className}${open ? "" : " is-collapsed"}`}
+    >
+      <button
+        type="button"
+        className="dvtt-tile__title dvtt-tile__title--toggle"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      >
+        <span className="dvtt-tile__chevron" aria-hidden="true">
+          {open ? "▾" : "▸"}
+        </span>
+        {title}
+      </button>
+      {open && children}
+    </section>
   );
 }
 
@@ -614,8 +650,7 @@ function InventoryTile({
     });
 
   return (
-    <section className="dvtt-tile dvtt-tile--inventory">
-      <div className="dvtt-tile__title">Inventory</div>
+    <CollapsibleTile title="Inventory" className="dvtt-tile--inventory">
       {character.inventory.length === 0 && (
         <p className="dvtt-note">Empty.</p>
       )}
@@ -665,7 +700,7 @@ function InventoryTile({
           toggleEquipped={toggleEquipped}
         />
       )}
-    </section>
+    </CollapsibleTile>
   );
 }
 
@@ -751,8 +786,7 @@ function SpellsTile({
     });
 
   return (
-    <section className="dvtt-tile dvtt-tile--spells">
-      <div className="dvtt-tile__title">Spells</div>
+    <CollapsibleTile title="Spells" className="dvtt-tile--spells">
       {character.spells.length === 0 && (
         <p className="dvtt-note">No spells recorded.</p>
       )}
@@ -819,7 +853,7 @@ function SpellsTile({
           Add spell
         </button>
       )}
-    </section>
+    </CollapsibleTile>
   );
 }
 
@@ -863,8 +897,10 @@ function FeaturesTile({ character }: { character: Character }) {
   ].filter((group) => group.items.length > 0);
 
   return (
-    <section className="dvtt-tile dvtt-tile--features">
-      <div className="dvtt-tile__title">Features &amp; Traits</div>
+    <CollapsibleTile
+      title={<>Features &amp; Traits</>}
+      className="dvtt-tile--features"
+    >
       {groups.map((group) => (
         <div className="dvtt-feature-group" key={group.label}>
           <div className="dvtt-feature-group__label">{group.label}</div>
@@ -894,7 +930,7 @@ function FeaturesTile({ character }: { character: Character }) {
           </ul>
         </div>
       ))}
-    </section>
+    </CollapsibleTile>
   );
 }
 
@@ -911,15 +947,17 @@ function ProficienciesTile({ character }: { character: Character }) {
   if (groups.length === 0) return null;
 
   return (
-    <section className="dvtt-tile dvtt-tile--proficiencies">
-      <div className="dvtt-tile__title">Proficiencies &amp; languages</div>
+    <CollapsibleTile
+      title={<>Proficiencies &amp; languages</>}
+      className="dvtt-tile--proficiencies"
+    >
       {groups.map(([label, list]) => (
         <div className="dvtt-prof-group" key={label}>
           <span className="dvtt-prof-group__label">{label}</span>
           <span className="dvtt-prof-group__list">{list.join(", ")}</span>
         </div>
       ))}
-    </section>
+    </CollapsibleTile>
   );
 }
 
@@ -934,8 +972,7 @@ function NotesTile({
 }) {
   if (!editing && !character.notes) return null;
   return (
-    <section className="dvtt-tile dvtt-tile--notes">
-      <div className="dvtt-tile__title">Notes</div>
+    <CollapsibleTile title="Notes" className="dvtt-tile--notes">
       {editing ? (
         <textarea
           aria-label="Character notes"
@@ -946,7 +983,7 @@ function NotesTile({
       ) : (
         <p className="dvtt-sheet__notes">{character.notes}</p>
       )}
-    </section>
+    </CollapsibleTile>
   );
 }
 

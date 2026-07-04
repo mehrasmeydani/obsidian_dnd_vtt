@@ -57,4 +57,8 @@ wrong.
   race, class (level-sorted, subclass + leveled feats inline),
   background, feats (leveled feats appear in both class and feats).
 
+- **T-32 Collapsible sections** — Inventory, Spells, Features & Traits,
+  Proficiencies & languages, and Notes fold behind their titles
+  (chevron); HP/Combat/Abilities stay always visible.
+
 <!-- appended as each fix lands -->
