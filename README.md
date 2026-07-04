@@ -29,6 +29,10 @@ redistributed by the plugin, and is **your responsibility**: only import
 material you legally own, and don't share the resulting bundle files.
 The plugin authors take no responsibility for content users import.
 
+Full details — code license (MIT), the required SRD CC-BY-4.0
+attribution, and the imported-content policy — live in
+[LICENSING.md](LICENSING.md).
+
 ## Developing
 
 You can build with a local Node toolchain **or** with Docker (no local Node
