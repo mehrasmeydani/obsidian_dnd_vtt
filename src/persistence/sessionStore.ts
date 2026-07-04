@@ -7,6 +7,7 @@ import {
   serializeSessionNote,
   type NoteParseResult,
 } from "./sessionNote";
+import { stampFrontmatterValue } from "./frontmatter";
 
 /**
  * Vault-facing side of session-note persistence (T-10). Format knowledge
@@ -22,17 +23,20 @@ export async function createSessionNote(
   app: App,
   note: Note,
   folderPath: string,
+  campaign?: string,
 ): Promise<TFile> {
   await ensureFolder(app, folderPath);
   const folder = normalizePath(folderPath);
   const base = characterFileName(note.title);
+  let content = serializeSessionNote(note);
+  if (campaign) content = stampFrontmatterValue(content, "campaign", campaign);
 
   for (let suffix = 1; ; suffix++) {
     const path = normalizePath(
       `${folder ? `${folder}/` : ""}${base}${suffix > 1 ? ` ${suffix}` : ""}.md`,
     );
     if (!app.vault.getAbstractFileByPath(path)) {
-      return app.vault.create(path, serializeSessionNote(note));
+      return app.vault.create(path, content);
     }
   }
 }

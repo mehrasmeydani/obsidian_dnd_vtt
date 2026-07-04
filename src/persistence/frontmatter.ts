@@ -68,6 +68,24 @@ export function withFrontmatterValue(
   return [...lines, `${key}: ${value}`];
 }
 
+/**
+ * Stamp a frontmatter key only when it is absent (T-24: the `campaign`
+ * key). The key is user-owned — the user's Templater template writes it
+ * and hand edits win — so an existing value is never overwritten.
+ */
+export function stampFrontmatterValue(
+  content: string,
+  key: string,
+  value: string,
+): string {
+  const { frontmatter, body } = splitFrontmatter(content);
+  if (!frontmatter) {
+    return joinFrontmatter([`${key}: ${value}`], `\n${content}`);
+  }
+  if (frontmatterValue(frontmatter, key) !== undefined) return content;
+  return joinFrontmatter(withFrontmatterValue(frontmatter, key, value), body);
+}
+
 /** One projected field of an entity. */
 export interface ProjectionField<T> {
   /** Frontmatter key, e.g. "hp". */

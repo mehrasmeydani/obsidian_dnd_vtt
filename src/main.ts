@@ -1,9 +1,11 @@
 import {
+  Modal,
   Notice,
   Plugin,
   PluginSettingTab,
   requestUrl,
   Setting,
+  TFolder,
   type App,
   type WorkspaceLeaf,
 } from "obsidian";
@@ -17,11 +19,21 @@ import {
   VIEW_TYPE_CHARACTER_CREATION,
 } from "./ui/CharacterCreationView";
 import {
+  ensureFolder,
   loadCharacterNote,
   saveCharacterNote,
 } from "./persistence/characterStore";
 import { createSessionNote } from "./persistence/sessionStore";
 import { newSessionNote } from "./persistence/sessionNote";
+import {
+  campaignRoot,
+  detectCampaigns,
+  resolveEntityFolder,
+  scaffoldPaths,
+  DEFAULT_CAMPAIGN_TEMPLATE,
+  type Campaign,
+  type CampaignEntityKind,
+} from "./persistence/campaigns";
 import { refreshOpen5eContent } from "./data/open5e";
 import { importFiveEtools } from "./data/fiveEtoolsImport";
 import { ContentStore } from "./data/contentStore";
@@ -39,6 +51,12 @@ interface DndVttSettings {
   fiveEtoolsFolder: string;
   /** File names of content bundles the user switched off. */
   disabledBundles: string[];
+  /** Known campaigns (name + root folder), T-24. */
+  campaigns: Campaign[];
+  /** Name of the active campaign; "" = none (flat folders above apply). */
+  activeCampaign: string;
+  /** Subfolders "Create campaign" scaffolds, comma-separated in settings. */
+  campaignTemplate: string[];
 }
 
 const DEFAULT_SETTINGS: DndVttSettings = {
@@ -46,6 +64,9 @@ const DEFAULT_SETTINGS: DndVttSettings = {
   sessionsFolder: "Sessions",
   fiveEtoolsFolder: "5etools",
   disabledBundles: [],
+  campaigns: [],
+  activeCampaign: "",
+  campaignTemplate: DEFAULT_CAMPAIGN_TEMPLATE,
 };
 
 /**
@@ -134,6 +155,71 @@ export default class DndVttPlugin extends Plugin {
         void this.importFiveEtoolsData();
       },
     });
+    this.addCommand({
+      id: "create-campaign",
+      name: "Create campaign",
+      callback: () => {
+        new CampaignNameModal(this.app, (name) => {
+          void this.createCampaign(name);
+        }).open();
+      },
+    });
+  }
+
+  /** The active campaign, or null when none is configured. */
+  activeCampaign(): Campaign | null {
+    return (
+      this.settings.campaigns.find(
+        (campaign) => campaign.name === this.settings.activeCampaign,
+      ) ?? null
+    );
+  }
+
+  /** Target folder for a new entity: active campaign subfolder or fallback. */
+  private entityFolder(kind: CampaignEntityKind): string {
+    const fallback =
+      kind === "character"
+        ? this.settings.charactersFolder
+        : this.settings.sessionsFolder;
+    return resolveEntityFolder(this.activeCampaign(), kind, fallback);
+  }
+
+  /**
+   * Scaffold a campaign's folder structure (T-24). Existing folders are
+   * never touched; re-running is a no-op. The new campaign becomes active.
+   */
+  async createCampaign(name: string): Promise<void> {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      new Notice("Campaign name cannot be empty.");
+      return;
+    }
+    try {
+      const existing = this.settings.campaigns.find((c) => c.name === trimmed);
+      const root = existing?.root ?? campaignRoot(trimmed);
+      for (const path of scaffoldPaths(root, this.settings.campaignTemplate)) {
+        await ensureFolder(this.app, path);
+      }
+      if (!existing) {
+        this.settings.campaigns.push({ name: trimmed, root });
+      }
+      this.settings.activeCampaign = trimmed;
+      await this.saveSettings();
+      new Notice(`Campaign "${trimmed}" ready at ${root}/ (now active).`);
+    } catch (error) {
+      console.error("D&D VTT: failed to create campaign", error);
+      new Notice("Failed to create the campaign folders. See the developer console.");
+    }
+  }
+
+  /** `<Name> dnd/` folders at the vault root not yet registered. */
+  detectNewCampaigns(): Campaign[] {
+    const rootFolders = this.app.vault
+      .getRoot()
+      .children.filter((child): child is TFolder => child instanceof TFolder)
+      .map((folder) => folder.name);
+    const known = new Set(this.settings.campaigns.map((c) => c.root));
+    return detectCampaigns(rootFolders).filter((c) => !known.has(c.root));
   }
 
   async onunload(): Promise<void> {
@@ -376,7 +462,8 @@ export default class DndVttPlugin extends Plugin {
       file = await saveCharacterNote(
         this.app,
         character,
-        this.settings.charactersFolder,
+        this.entityFolder("character"),
+        this.activeCampaign()?.name,
       );
       new Notice(`Character saved to ${file.path}`);
     } catch (error) {
@@ -407,7 +494,8 @@ export default class DndVttPlugin extends Plugin {
       const file = await createSessionNote(
         this.app,
         note,
-        this.settings.sessionsFolder,
+        this.entityFolder("session"),
+        this.activeCampaign()?.name,
       );
       await this.app.workspace.getLeaf(true).openFile(file);
       new Notice(`Session note created at ${file.path}`);
@@ -445,6 +533,45 @@ function bundleProblem(error: unknown): string {
   }
   if (error instanceof SyntaxError) return "not valid JSON.";
   return error instanceof Error ? error.message : String(error);
+}
+
+/** A one-field prompt for the new campaign's name. */
+class CampaignNameModal extends Modal {
+  private name = "";
+
+  constructor(
+    app: App,
+    private onSubmit: (name: string) => void,
+  ) {
+    super(app);
+  }
+
+  onOpen(): void {
+    this.titleEl.setText("Create campaign");
+    const submit = () => {
+      if (!this.name.trim()) return;
+      this.close();
+      this.onSubmit(this.name);
+    };
+    new Setting(this.contentEl)
+      .setName("Campaign name")
+      .setDesc('Scaffolds "<name> dnd/" with the configured subfolders.')
+      .addText((text) => {
+        text.setPlaceholder("Hell").onChange((value) => {
+          this.name = value;
+        });
+        text.inputEl.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") submit();
+        });
+      });
+    new Setting(this.contentEl).addButton((button) =>
+      button.setButtonText("Create").setCta().onClick(submit),
+    );
+  }
+
+  onClose(): void {
+    this.contentEl.empty();
+  }
 }
 
 class DndVttSettingTab extends PluginSettingTab {
@@ -490,6 +617,8 @@ class DndVttSettingTab extends PluginSettingTab {
           }),
       );
 
+    this.displayCampaigns();
+
     new Setting(this.containerEl)
       .setName("5etools import folder")
       .setDesc(
@@ -515,6 +644,98 @@ class DndVttSettingTab extends PluginSettingTab {
       )
       .setHeading();
 
+    this.displayBundles();
+  }
+
+  /** Campaigns (T-24): active picker, per-campaign rows, detect + template. */
+  private displayCampaigns(): void {
+    new Setting(this.containerEl)
+      .setName("Campaigns")
+      .setDesc(
+        "New characters land in the active campaign's Pc/ folder, session " +
+          "notes in Sessions/. With no active campaign the flat folders " +
+          "above apply. Use the \"Create campaign\" command to scaffold one.",
+      )
+      .setHeading();
+
+    new Setting(this.containerEl)
+      .setName("Active campaign")
+      .addDropdown((dropdown) => {
+        dropdown.addOption("", "None (use the folders above)");
+        for (const campaign of this.plugin.settings.campaigns) {
+          dropdown.addOption(campaign.name, campaign.name);
+        }
+        dropdown
+          .setValue(this.plugin.settings.activeCampaign)
+          .onChange(async (value) => {
+            this.plugin.settings.activeCampaign = value;
+            await this.plugin.saveSettings();
+          });
+      });
+
+    for (const campaign of this.plugin.settings.campaigns) {
+      new Setting(this.containerEl)
+        .setName(campaign.name)
+        .setDesc("Root folder")
+        .addText((text) =>
+          text.setValue(campaign.root).onChange(async (value) => {
+            campaign.root = value.trim() || campaignRoot(campaign.name);
+            await this.plugin.saveSettings();
+          }),
+        )
+        .addExtraButton((button) =>
+          button
+            .setIcon("trash")
+            .setTooltip("Forget this campaign (folders are not deleted)")
+            .onClick(async () => {
+              this.plugin.settings.campaigns =
+                this.plugin.settings.campaigns.filter((c) => c !== campaign);
+              if (this.plugin.settings.activeCampaign === campaign.name) {
+                this.plugin.settings.activeCampaign = "";
+              }
+              await this.plugin.saveSettings();
+              this.display();
+            }),
+        );
+    }
+
+    const detected = this.plugin.detectNewCampaigns();
+    if (detected.length > 0) {
+      new Setting(this.containerEl)
+        .setName("Detected campaign folders")
+        .setDesc(
+          `Found in your vault: ${detected.map((c) => c.root).join(", ")}`,
+        )
+        .addButton((button) =>
+          button.setButtonText("Add all").onClick(async () => {
+            this.plugin.settings.campaigns.push(...detected);
+            await this.plugin.saveSettings();
+            this.display();
+          }),
+        );
+    }
+
+    new Setting(this.containerEl)
+      .setName("Campaign folder template")
+      .setDesc(
+        'Subfolders "Create campaign" scaffolds, comma-separated. Existing folders are never touched.',
+      )
+      .addText((text) =>
+        text
+          .setValue(this.plugin.settings.campaignTemplate.join(", "))
+          .onChange(async (value) => {
+            const parsed = value
+              .split(",")
+              .map((sub) => sub.trim())
+              .filter(Boolean);
+            this.plugin.settings.campaignTemplate =
+              parsed.length > 0 ? parsed : DEFAULT_CAMPAIGN_TEMPLATE;
+            await this.plugin.saveSettings();
+          }),
+      );
+  }
+
+  private displayBundles(): void {
     for (const entry of this.plugin.content.list()) {
       const counts = (
         [

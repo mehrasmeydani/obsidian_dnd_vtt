@@ -9,21 +9,21 @@ etc. — so that characters, session notes, and future content land in the
 right campaign automatically instead of one flat "Characters" folder.
 
 ## Acceptance criteria
-- [ ] A campaign concept in settings: list of campaigns, each mapping to
+- [x] A campaign concept in settings: list of campaigns, each mapping to
       a root folder (auto-detected from existing `<Name> dnd/` folders,
       editable), with one active campaign.
-- [ ] "Create campaign" command scaffolds the folder structure
+- [x] "Create campaign" command scaffolds the folder structure
       (configurable template: `Pc/`, `Sessions/`, `Npc/`, `Handouts/`…)
       without touching folders that already exist.
-- [ ] New characters save into the active campaign's `Pc/` folder; the
+- [x] New characters save into the active campaign's `Pc/` folder; the
       wizard/save path falls back to the current single-folder setting
       when no campaign is configured (no breaking change).
-- [ ] Session notes (T-10) and future entity types declare which
+- [x] Session notes (T-10) and future entity types declare which
       subfolder they belong to; creation commands honor it.
-- [ ] Character notes get a `campaign` frontmatter key matching the
+- [x] Character notes get a `campaign` frontmatter key matching the
       campaign (consistent with the user's Templater template); loading
       can filter by campaign.
-- [ ] Tests: folder resolution, scaffold idempotency, fallback behavior.
+- [x] Tests: folder resolution, scaffold idempotency, fallback behavior.
 
 ## Technical notes
 - Extend `persistence/characterStore.ts`'s `ensureFolder` into a small

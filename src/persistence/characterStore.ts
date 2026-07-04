@@ -6,6 +6,7 @@ import {
   serializeCharacterNote,
   type ParseResult,
 } from "./characterNote";
+import { stampFrontmatterValue } from "./frontmatter";
 
 /**
  * Vault-facing side of character persistence: where notes live and how they
@@ -32,12 +33,15 @@ export async function ensureFolder(app: App, folderPath: string): Promise<void> 
  * Save a character as a vault note in `folderPath`. If a note for this
  * character (matched by id) already exists at the target name, it is updated
  * in place, preserving the user's prose; a different character with the same
- * name gets a numbered file instead.
+ * name gets a numbered file instead. When `campaign` is given, a `campaign`
+ * frontmatter key is stamped — but only when absent, since the user's own
+ * templates write that key too (T-24).
  */
 export async function saveCharacterNote(
   app: App,
   character: Character,
   folderPath: string,
+  campaign?: string,
 ): Promise<TFile> {
   await ensureFolder(app, folderPath);
   const folder = normalizePath(folderPath);
@@ -46,19 +50,21 @@ export async function saveCharacterNote(
     normalizePath(
       `${folder ? `${folder}/` : ""}${base}${suffix > 1 ? ` ${suffix}` : ""}.md`,
     );
+  const withCampaign = (content: string): string =>
+    campaign ? stampFrontmatterValue(content, "campaign", campaign) : content;
 
   for (let suffix = 1; ; suffix++) {
     const path = pathFor(suffix);
     const existing = app.vault.getAbstractFileByPath(path);
     if (!(existing instanceof TFile)) {
-      return app.vault.create(path, serializeCharacterNote(character));
+      return app.vault.create(path, withCampaign(serializeCharacterNote(character)));
     }
     const content = await app.vault.read(existing);
     const parsed = parseCharacterNote(content);
     if (parsed.ok && parsed.character.id === character.id) {
       await app.vault.modify(
         existing,
-        serializeCharacterNote(character, content),
+        withCampaign(serializeCharacterNote(character, content)),
       );
       return existing;
     }

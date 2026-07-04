@@ -34,7 +34,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-21](T-21-leveled-features-remaining-classes.md) | Leveled features: remaining classes | P2 | L | 1 | T-19 | todo |
 | [T-22](T-22-equip-toggle-play-control.md) | Equip toggle as a play control | P2 | S | 1 | T-01, T-06 | done |
 | [T-23](T-23-two-way-markdown-data.md) | Two-way Markdown data (frontmatter projection) | P2 | M | 1–2 | T-01 | done |
-| [T-24](T-24-campaign-folder-structure.md) | Campaign folder structure managed by the plugin | P2 | M | 1–2 | — | todo |
+| [T-24](T-24-campaign-folder-structure.md) | Campaign folder structure managed by the plugin | P2 | M | 1–2 | — | done |
 
 ## Suggested order
 
