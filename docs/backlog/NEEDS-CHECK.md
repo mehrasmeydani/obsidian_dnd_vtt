@@ -40,4 +40,8 @@ wrong.
 - **T-26 ASI labels** — ability rows now say "+2 racial" and "+1 ASI"
   separately instead of calling everything racial.
 
+- **T-28 Skill cross-filtering** — a skill chosen in any pick list (class,
+  additional, feature choice) disappears from all the others, both
+  directions; unchecking brings it back; granted skills never listed.
+
 <!-- appended as each fix lands -->

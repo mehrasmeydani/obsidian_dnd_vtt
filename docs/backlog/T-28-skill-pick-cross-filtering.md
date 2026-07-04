@@ -9,7 +9,7 @@ directions — so I can't build an invalid selection the validator then
 scolds me about.
 
 ## Acceptance criteria
-- [ ] Choosing a skill anywhere disables (with a hint) that skill in every
+- [x] Choosing a skill anywhere disables (with a hint) that skill in every
       other pick list on the Skills step; unchecking re-enables it.
-- [ ] Works in reverse (later list first, then earlier list).
-- [ ] jsdom tests for cross-list disabling both ways.
+- [x] Works in reverse (later list first, then earlier list).
+- [x] jsdom tests for cross-list disabling both ways.

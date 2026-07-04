@@ -961,23 +961,23 @@ function SkillPickGrid({
   );
   return (
     <div className="dvtt-checkboxes">
-      {pool.map((skill) => {
-        const checked = picks.includes(skill);
-        return (
-          <label key={skill}>
-            <input
-              type="checkbox"
-              checked={checked}
-              disabled={
-                !checked &&
-                (takenElsewhere.has(skill) || picks.length >= choice.count)
-              }
-              onChange={() => toggle(skill)}
-            />
-            {humanizeSkill(skill)}
-          </label>
-        );
-      })}
+      {pool
+        // Taken in another list → removed here (T-28), symmetric across grids.
+        .filter((skill) => !takenElsewhere.has(skill))
+        .map((skill) => {
+          const checked = picks.includes(skill);
+          return (
+            <label key={skill}>
+              <input
+                type="checkbox"
+                checked={checked}
+                disabled={!checked && picks.length >= choice.count}
+                onChange={() => toggle(skill)}
+              />
+              {humanizeSkill(skill)}
+            </label>
+          );
+        })}
     </div>
   );
 }
@@ -1574,25 +1574,34 @@ function SkillsStep({
             {classChoice.count})
           </h4>
           <div className="dvtt-checkboxes">
-            {classOptions.map((skill) => {
-              const checked = draft.classSkills.includes(skill);
-              return (
-                <label key={skill}>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={
-                      !checked &&
-                      (taken.has(skill) ||
-                        draft.classSkills.length >= classChoice.count)
-                    }
-                    onChange={() => toggleIn("classSkills", skill)}
-                  />
-                  {humanizeSkill(skill)}
-                </label>
-              );
-            })}
+            {classOptions
+              // A skill taken in any other list is removed here (T-28) —
+              // and vice versa, since every grid filters on the same set.
+              .filter(
+                (skill) =>
+                  draft.classSkills.includes(skill) || !taken.has(skill),
+              )
+              .map((skill) => {
+                const checked = draft.classSkills.includes(skill);
+                return (
+                  <label key={skill}>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      disabled={
+                        !checked &&
+                        draft.classSkills.length >= classChoice.count
+                      }
+                      onChange={() => toggleIn("classSkills", skill)}
+                    />
+                    {humanizeSkill(skill)}
+                  </label>
+                );
+              })}
           </div>
+          <p className="dvtt-note">
+            Skills granted or chosen elsewhere are not listed.
+          </p>
         </div>
       )}
 
@@ -1602,25 +1611,31 @@ function SkillsStep({
             Additional skills — any ({draft.bonusSkills.length}/{bonusNeeded})
           </h4>
           <div className="dvtt-checkboxes">
-            {(Object.keys(SKILLS) as Skill[]).map((skill) => {
-              const checked = draft.bonusSkills.includes(skill);
-              return (
-                <label key={skill}>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={
-                      !checked &&
-                      (taken.has(skill) ||
-                        draft.bonusSkills.length >= bonusNeeded)
-                    }
-                    onChange={() => toggleIn("bonusSkills", skill)}
-                  />
-                  {humanizeSkill(skill)}
-                </label>
-              );
-            })}
+            {(Object.keys(SKILLS) as Skill[])
+              .filter(
+                (skill) =>
+                  draft.bonusSkills.includes(skill) || !taken.has(skill),
+              )
+              .map((skill) => {
+                const checked = draft.bonusSkills.includes(skill);
+                return (
+                  <label key={skill}>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      disabled={
+                        !checked && draft.bonusSkills.length >= bonusNeeded
+                      }
+                      onChange={() => toggleIn("bonusSkills", skill)}
+                    />
+                    {humanizeSkill(skill)}
+                  </label>
+                );
+              })}
           </div>
+          <p className="dvtt-note">
+            Skills granted or chosen elsewhere are not listed.
+          </p>
         </div>
       )}
 

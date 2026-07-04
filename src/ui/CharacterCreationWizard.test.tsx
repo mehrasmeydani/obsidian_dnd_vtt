@@ -290,6 +290,58 @@ describe("CharacterCreationWizard", () => {
     expect(row("Constitution").textContent).not.toContain("ASI");
   });
 
+  it("removes a skill picked in one list from the other lists, both ways (T-28)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+    // Half-elf (choose any 2) bard (choose any 3): two grids sharing skills.
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Lyra" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Half-Elf/ }));
+    fireEvent.change(screen.getByLabelText("Extra language"), {
+      target: { value: "giant" },
+    });
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /^Bard/ }));
+    fireEvent.click(nextButton());
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.change(screen.getByLabelText("Extra language (1)"), {
+      target: { value: "abyssal" },
+    });
+    fireEvent.change(screen.getByLabelText("Extra language (2)"), {
+      target: { value: "celestial" },
+    });
+    fireEvent.click(nextButton());
+    const selects = screen.getAllByRole("combobox");
+    [15, 13, 14, 8, 12, 10].forEach((value, i) => {
+      fireEvent.change(selects[i], { target: { value: String(value) } });
+    });
+    const racialGroup = choiceGroup(/Half-Elf: \+1 to 2 abilities/);
+    fireEvent.click(racialGroup.getByLabelText("Dexterity"));
+    fireEvent.click(racialGroup.getByLabelText("Constitution"));
+    fireEvent.click(nextButton());
+
+    const classGroup = () => choiceGroup(/Bard skills/);
+    const bonusGroup = () => choiceGroup(/Additional skills/);
+
+    // Forward: pick in the class list → gone from the additional list.
+    fireEvent.click(classGroup().getByLabelText("Animal Handling"));
+    expect(bonusGroup().queryByLabelText("Animal Handling")).toBeNull();
+    // Unchecking brings it back.
+    fireEvent.click(classGroup().getByLabelText("Animal Handling"));
+    expect(bonusGroup().getByLabelText("Animal Handling")).toBeTruthy();
+
+    // Reverse: pick in the additional list → gone from the class list.
+    fireEvent.click(bonusGroup().getByLabelText("Animal Handling"));
+    expect(classGroup().queryByLabelText("Animal Handling")).toBeNull();
+
+    // Granted skills (acolyte insight/religion) never appear in either.
+    expect(classGroup().queryByLabelText("Insight")).toBeNull();
+    expect(bonusGroup().queryByLabelText("Religion")).toBeNull();
+  });
+
   it("allows jumping between steps via the header once they are reachable", () => {
     render(
       <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
