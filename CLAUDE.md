@@ -5,7 +5,36 @@ Architecture and phased plan: `docs/ROADMAP.md`. The actionable work queue
 is `docs/backlog/README.md` — a board of T-XX ticket files (user story +
 acceptance criteria); pick from the top, update statuses as you go.
 
-## Status (as of 2026-07-04)
+## Status (as of 2026-07-04, end of the big backlog round)
+
+**Verification flow:** work the user hasn't confirmed in Obsidian sits at
+status `needs-check` on the board, itemized in
+`docs/backlog/NEEDS-CHECK.md` — the user flips items to `done` after
+testing. The user's raw testing notes arrive in the repo-root `todo`
+file; turn each into a T-XX ticket before fixing.
+
+**Shipped this round (all needs-check):** T-10 session notes ·
+T-12 Open5e refresh (spells/monsters/items schemas + store categories) ·
+T-13 5etools importer (`data/fiveEtoolsImport.ts`, import folder setting) ·
+T-21 full 1–20 progressions for all 12 remaining 2014 classes + resources ·
+T-22 equip toggle · T-23 frontmatter projection (`persistence/frontmatter.ts`,
+hp/hp_max/race two-way; ac/level/class write-only) · T-24 campaigns
+(`persistence/campaigns.ts`, Create-campaign command, active campaign
+routes new notes, `campaign` key stamped only when absent) · T-07 rolled
+HP + starting gold (`rules/dice.ts`, `startingGold` on classes) ·
+T-08 languages/tools (`grants` on optionChoices; `Character.languages`) ·
+from user testing: T-25 level field, T-26 ASI labels, T-28 skill
+cross-filtering (taken skills are *hidden* in other lists), T-32
+collapsible sheet tiles (`CollapsibleTile`), T-33 features grouped by
+origin, T-34 rest confirm, T-36 wearing/bags + equip only wearables.
+
+**Open next:** T-30 free wizard navigation + T-31 live preview (both
+change wizard gating — expect test churn in the walkthroughs), T-27 dice
+roll animation (CSS-only approach planned), T-35 defenses/conditions,
+then T-09 flavor fields, T-17 finish (2024 classes/species/backgrounds —
+big content grind), T-14 browser, T-15 spells, T-16 level-up.
+
+## Status (older detail, still accurate)
 
 Phase 0 done; Phase 1 mostly done:
 - Creation wizard: name/race → class (+ starting level 1–20) → class options
@@ -31,8 +60,7 @@ Phase 0 done; Phase 1 mostly done:
   vault note (wizard finish, "Load character from active note", or the
   active note on open), debounces saves 800 ms through the prose-preserving
   serializer, and refreshes on external edits (self-writes skipped via a
-  counter). **Next big items: T-12/T-13 content importers; T-10 player
-  notes; the small P3 creator tickets (T-07/T-08/T-09).**
+  counter).
 - Feats (T-04): each earned ASI level is its own "+2 points or a feat" choice
   on the Abilities step (draft `asiFeats`, level → FeatData|null); chosen
   feats become features with source "Feat". Bundles validate top-level
