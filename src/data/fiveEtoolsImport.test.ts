@@ -230,10 +230,36 @@ describe("classesFromFiveEtools", () => {
 
   it("reports classes it cannot map by name", () => {
     const { classes: none, skipped: reasons } = classesFromFiveEtools({
-      class: [{ name: "Sidekick", source: "TCE" }],
+      class: [{ name: "Broken Class", source: "HB" }],
     });
     expect(none).toEqual([]);
-    expect(reasons[0]).toContain("Sidekick");
+    expect(reasons[0]).toContain("Broken Class");
+  });
+
+  it("ignores sidekick pseudo-classes by design", () => {
+    const { classes: none, skipped: reasons } = classesFromFiveEtools({
+      class: [{ name: "Expert Sidekick", source: "TCE" }],
+    });
+    expect(none).toEqual([]);
+    expect(reasons[0]).toContain("ignored — sidekick classes are not supported");
+  });
+
+  it("maps 5etools editions: 'one' → 2024, 'classic'/absent → 2014", () => {
+    const base = FIGHTER_FILE.class[0];
+    const { classes } = classesFromFiveEtools({
+      class: [
+        { ...base, name: "Artificer", source: "EFA", edition: "one" },
+        { ...base, name: "Artificer", source: "TCE", edition: "classic" },
+        { ...base, name: "Mystic", source: "UATheMysticClass", edition: "classic" },
+        { ...base, name: "Fighter", source: "XPHB" }, // legacy files: no field
+      ],
+    });
+    expect(classes.map((c) => [c.name, c.edition])).toEqual([
+      ["Artificer", "2024"],
+      ["Artificer", "2014"],
+      ["Mystic", "2014"],
+      ["Fighter", "2024"],
+    ]);
   });
 });
 

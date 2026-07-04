@@ -400,6 +400,11 @@ export function classesFromFiveEtools(file: FiveEtoolsClassFile): {
     const cls = raw as Record<string, unknown>;
     try {
       if (typeof cls.name !== "string") throw new Error("no name");
+      // Sidekick pseudo-classes (TCE) aren't player classes; ignore by design.
+      if (/sidekick$/i.test(cls.name)) {
+        skipped.push(skipLine("class", raw, "ignored — sidekick classes are not supported"));
+        continue;
+      }
       const hd = cls.hd as { faces?: unknown } | undefined;
       if (!hd || typeof hd.faces !== "number") throw new Error("no hit die");
       const saves = Array.isArray(cls.proficiency)
@@ -517,7 +522,10 @@ export function classesFromFiveEtools(file: FiveEtoolsClassFile): {
       classes.push({
         id: importId("class", cls.name, cls.source as string | undefined),
         name: cls.name,
-        edition: cls.source === "XPHB" ? "2024" : "2014",
+        // 5etools marks rules editions as "classic" (2014) / "one" (2024);
+        // fall back to the XPHB source for files that predate the field.
+        edition:
+          cls.edition === "one" || cls.source === "XPHB" ? "2024" : "2014",
         hitDie: hd.faces,
         savingThrows: [saves[0], saves[1]],
         skillChoice,
