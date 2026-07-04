@@ -19,6 +19,10 @@ import {
   totalLevel,
 } from "../rules/abilityMath";
 import { armorClass } from "../rules/armorClass";
+import { ARMOR } from "../data/srd";
+
+/** Armor lookup for the equip toggle (same source `armorClass` defaults to). */
+const ARMOR_BY_ID = new Map(ARMOR.map((armor) => [armor.id, armor]));
 
 const ABILITY_LABELS: Record<Ability, string> = {
   str: "Strength",
@@ -576,6 +580,29 @@ function InventoryTile({
         i === index ? { ...item, ...patch } : item,
       ),
     });
+  /** Body armor (not shields) can only be worn one at a time. */
+  const isBodyArmor = (item: Character["inventory"][number]) =>
+    item.armorId !== undefined &&
+    ARMOR_BY_ID.get(item.armorId) !== undefined &&
+    ARMOR_BY_ID.get(item.armorId)?.type !== "shield";
+  /**
+   * The equip play control (T-22): always live, like HP and rests. AC is
+   * derived from equipped gear, so equipping new body armor doffs the old
+   * one — stacked body armor can never happen from the UI.
+   */
+  const toggleEquipped = (index: number) => {
+    const target = character.inventory[index];
+    const equipping = !target.equipped;
+    apply({
+      inventory: character.inventory.map((item, i) => {
+        if (i === index) return { ...item, equipped: equipping };
+        if (equipping && item.equipped && isBodyArmor(target) && isBodyArmor(item)) {
+          return { ...item, equipped: false };
+        }
+        return item;
+      }),
+    });
+  };
   const remove = (index: number) =>
     apply({
       inventory: character.inventory.filter((_, i) => i !== index),
@@ -615,7 +642,7 @@ function InventoryTile({
                   type="checkbox"
                   aria-label={`Item ${index + 1} equipped`}
                   checked={item.equipped}
-                  onChange={() => update(index, { equipped: !item.equipped })}
+                  onChange={() => toggleEquipped(index)}
                 />
                 Equipped
               </label>
@@ -633,14 +660,18 @@ function InventoryTile({
         </div>
       ) : (
         <div className="dvtt-chips">
-          {character.inventory.map((item) => (
-            <span
-              className={`dvtt-chip${item.equipped ? " is-equipped" : ""}`}
+          {character.inventory.map((item, index) => (
+            <button
+              type="button"
+              className={`dvtt-chip dvtt-chip--toggle${item.equipped ? " is-equipped" : ""}`}
               key={item.id}
+              aria-pressed={item.equipped}
+              title={item.equipped ? "Equipped — click to unequip" : "Click to equip"}
+              onClick={() => toggleEquipped(index)}
             >
               {item.quantity > 1 ? `${item.name} ×${item.quantity}` : item.name}
               {item.equipped ? " ●" : ""}
-            </span>
+            </button>
           ))}
         </div>
       )}

@@ -878,6 +878,24 @@
   border: 1px solid var(--text-accent);
 }
 
+/* Read-mode equip toggle (T-22): a chip that is also a button. */
+button.dvtt-chip--toggle {
+  border: 1px solid transparent;
+  box-shadow: none;
+  height: auto;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+button.dvtt-chip--toggle:hover {
+  background: var(--background-modifier-active-hover);
+}
+
+button.dvtt-chip--toggle.is-equipped {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
 .dvtt-spell-list {
   display: flex;
   flex-direction: column;

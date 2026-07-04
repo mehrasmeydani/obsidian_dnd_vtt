@@ -231,6 +231,92 @@ describe("play controls (always live)", () => {
   });
 });
 
+describe("equip toggle (T-22, always live)", () => {
+  /** DEX 16 (+3), no override: leather 11+3 = 14 AC as rendered. */
+  function armoredCharacter(): Character {
+    return CharacterSchema.parse({
+      ...sampleCharacter(),
+      armorClassOverride: undefined,
+      inventory: [
+        {
+          id: "leather",
+          name: "Leather armor",
+          quantity: 1,
+          equipped: true,
+          armorId: "leather-armor",
+        },
+        {
+          id: "scale",
+          name: "Scale mail",
+          quantity: 1,
+          equipped: false,
+          armorId: "scale-mail",
+        },
+        {
+          id: "shield",
+          name: "Shield",
+          quantity: 1,
+          equipped: false,
+          armorId: "shield",
+        },
+        { id: "rope", name: "Rope", quantity: 1, equipped: false },
+      ],
+    });
+  }
+
+  const ac = () => screen.getByText("AC").nextElementSibling?.textContent;
+
+  it("renders read-mode chips as toggle buttons with pressed state", () => {
+    renderSheet(armoredCharacter());
+    const leather = screen.getByRole("button", { name: /Leather armor/ });
+    const rope = screen.getByRole("button", { name: "Rope" });
+    expect(leather.getAttribute("aria-pressed")).toBe("true");
+    expect(leather.classList.contains("is-equipped")).toBe(true);
+    expect(rope.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("equipping a shield in read mode updates derived AC live", () => {
+    const { last } = renderSheet(armoredCharacter());
+    expect(ac()).toBe("14"); // leather 11 + DEX 3
+    fireEvent.click(screen.getByRole("button", { name: "Shield" }));
+    expect(ac()).toBe("16"); // + shield 2
+    expect(last().inventory.find((i) => i.id === "shield")?.equipped).toBe(true);
+  });
+
+  it("unequips in read mode and recomputes AC", () => {
+    renderSheet(armoredCharacter());
+    fireEvent.click(screen.getByRole("button", { name: /Leather armor/ }));
+    expect(ac()).toBe("13"); // unarmored 10 + DEX 3
+  });
+
+  it("equipping a second body armor doffs the first (no stacking)", () => {
+    const { last } = renderSheet(armoredCharacter());
+    fireEvent.click(screen.getByRole("button", { name: "Scale mail" }));
+    expect(ac()).toBe("16"); // scale 14 + DEX capped at 2
+    expect(last().inventory.find((i) => i.id === "scale")?.equipped).toBe(true);
+    expect(last().inventory.find((i) => i.id === "leather")?.equipped).toBe(false);
+  });
+
+  it("shield plus body armor stack fine and non-armor items are unaffected", () => {
+    const { last } = renderSheet(armoredCharacter());
+    fireEvent.click(screen.getByRole("button", { name: "Shield" }));
+    fireEvent.click(screen.getByRole("button", { name: "Rope" }));
+    const inventory = last().inventory;
+    expect(inventory.find((i) => i.id === "leather")?.equipped).toBe(true);
+    expect(inventory.find((i) => i.id === "shield")?.equipped).toBe(true);
+    expect(inventory.find((i) => i.id === "rope")?.equipped).toBe(true);
+    expect(ac()).toBe("16");
+  });
+
+  it("applies the single-body-armor rule to the edit-mode checkbox too", () => {
+    const { last } = renderSheet(armoredCharacter());
+    enterEditMode();
+    fireEvent.click(screen.getByLabelText("Item 2 equipped")); // scale mail
+    expect(last().inventory.find((i) => i.id === "scale")?.equipped).toBe(true);
+    expect(last().inventory.find((i) => i.id === "leather")?.equipped).toBe(false);
+  });
+});
+
 describe("edit mode", () => {
   it("recalculates derived values live when a score changes, and never offers them as inputs", () => {
     const { container } = renderSheet();
