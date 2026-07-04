@@ -4,6 +4,12 @@ import {
   type Note,
   type NoteVisibility,
 } from "../model/schema";
+import {
+  frontmatterValue,
+  joinFrontmatter,
+  splitFrontmatter,
+  withFrontmatterValue,
+} from "./frontmatter";
 
 /**
  * Session/campaign-note format (T-10): an ordinary Markdown note whose
@@ -26,47 +32,6 @@ const VISIBILITY_KEY = "visibility";
 export type NoteParseResult =
   | { ok: true; note: Note }
   | { ok: false; error: string };
-
-/** Split `content` into its frontmatter lines (if any) and the body. */
-function splitFrontmatter(content: string): {
-  frontmatter: string[] | null;
-  body: string;
-} {
-  if (!content.startsWith("---\n")) return { frontmatter: null, body: content };
-  const end = content.indexOf("\n---", 4);
-  if (end === -1) return { frontmatter: null, body: content };
-  const afterClose = content.indexOf("\n", end + 1);
-  return {
-    frontmatter: content.slice(4, end).split("\n"),
-    body: afterClose === -1 ? "" : content.slice(afterClose + 1),
-  };
-}
-
-/** Read a simple scalar `key: value` from frontmatter lines. */
-function frontmatterValue(lines: string[], key: string): string | undefined {
-  const re = new RegExp(`^${key}:\\s*(.*)$`);
-  for (const line of lines) {
-    const match = line.match(re);
-    if (match) return match[1].trim().replace(/^["']|["']$/g, "");
-  }
-  return undefined;
-}
-
-/** Set (or insert after the marker) a scalar `key: value` line. */
-function withFrontmatterValue(
-  lines: string[],
-  key: string,
-  value: string,
-): string[] {
-  const re = new RegExp(`^${key}:`);
-  const index = lines.findIndex((line) => re.test(line));
-  if (index !== -1) {
-    const next = [...lines];
-    next[index] = `${key}: ${value}`;
-    return next;
-  }
-  return [...lines, `${key}: ${value}`];
-}
 
 /**
  * Render note content. Fresh notes get a skeleton (frontmatter + title +
@@ -96,8 +61,7 @@ export function serializeSessionNote(note: Note, existing?: string): string {
   lines = withFrontmatterValue(lines, MARKER_KEY, MARKER_VALUE);
   lines = withFrontmatterValue(lines, ID_KEY, note.id);
   lines = withFrontmatterValue(lines, VISIBILITY_KEY, note.visibility);
-  const rest = frontmatter ? body : existing;
-  return `---\n${lines.join("\n")}\n---\n${rest.startsWith("\n") || rest === "" ? "" : "\n"}${rest}`;
+  return joinFrontmatter(lines, frontmatter ? body : `\n${existing}`);
 }
 
 /**

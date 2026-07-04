@@ -4,6 +4,13 @@ import {
   SCHEMA_VERSION,
   type Character,
 } from "../model/schema";
+import { totalLevel } from "../rules/abilityMath";
+import { armorClass } from "../rules/armorClass";
+import {
+  readProjection,
+  writeProjection,
+  type ProjectionField,
+} from "./frontmatter";
 
 /**
  * Character-note format: a normal Markdown note whose frontmatter carries a
@@ -24,6 +31,69 @@ const MARKER_KEY = "dnd-vtt";
 export type ParseResult =
   | { ok: true; character: Character }
   | { ok: false; error: string };
+
+/** A validated single-field patch, or undefined to reject the hand edit. */
+function patched(
+  character: Character,
+  patch: Partial<Character>,
+): Character | undefined {
+  const next = CharacterSchema.safeParse({ ...character, ...patch });
+  return next.success ? next.data : undefined;
+}
+
+function intOr(raw: string): number | undefined {
+  const value = Number(raw);
+  return Number.isInteger(value) ? value : undefined;
+}
+
+/**
+ * The frontmatter projection (T-23): key data mirrored as plain Markdown
+ * so Dataview/Meta Bind/Templater keep working. `two-way` fields accept
+ * hand edits (validated; bad values are rewritten on next save);
+ * `write-only` fields are derived and always rewritten. The JSON envelope
+ * stays the single source of truth — see `frontmatter.ts` for the
+ * conflict rule.
+ */
+export const CHARACTER_PROJECTION: ProjectionField<Character>[] = [
+  {
+    key: "hp",
+    direction: "two-way",
+    get: (c) => c.currentHp,
+    set: (c, raw) => {
+      const currentHp = intOr(raw);
+      return currentHp === undefined ? undefined : patched(c, { currentHp });
+    },
+  },
+  {
+    key: "hp_max",
+    direction: "two-way",
+    get: (c) => c.maxHp,
+    set: (c, raw) => {
+      const maxHp = intOr(raw);
+      return maxHp === undefined ? undefined : patched(c, { maxHp });
+    },
+  },
+  {
+    key: "race",
+    direction: "two-way",
+    get: (c) => c.race,
+    set: (c, raw) => patched(c, { race: raw }),
+  },
+  { key: "ac", direction: "write-only", get: (c) => armorClass(c) },
+  { key: "level", direction: "write-only", get: (c) => totalLevel(c) },
+  {
+    key: "class",
+    direction: "write-only",
+    get: (c) =>
+      c.classes
+        .map((cls) =>
+          cls.subclass
+            ? `${cls.name} (${cls.subclass}) ${cls.level}`
+            : `${cls.name} ${cls.level}`,
+        )
+        .join(" / "),
+  },
+];
 
 function characterBlock(character: Character): string {
   const envelope = {
@@ -46,9 +116,10 @@ export function serializeCharacterNote(
   const block = characterBlock(character);
 
   if (!existing || !existing.trim()) {
-    return [
+    const skeleton = [
       "---",
       `${MARKER_KEY}: character`,
+      "# hp, hp_max, race sync both ways; ac, level, class are derived and rewritten.",
       "---",
       "",
       `# ${character.name}`,
@@ -56,13 +127,14 @@ export function serializeCharacterNote(
       block,
       "",
     ].join("\n");
+    return writeProjection(skeleton, character, CHARACTER_PROJECTION);
   }
 
   let content = existing;
   content = FENCE_RE.test(content)
     ? content.replace(FENCE_RE, () => block)
     : `${content.trimEnd()}\n\n${block}\n`;
-  return ensureMarker(content);
+  return writeProjection(ensureMarker(content), character, CHARACTER_PROJECTION);
 }
 
 /** Make sure the frontmatter contains `dnd-vtt: character`. */
@@ -140,7 +212,14 @@ export function parseCharacterNote(content: string): ParseResult {
     };
   }
 
-  return { ok: true, character: character.data };
+  // Fold hand-edited two-way frontmatter back in (T-23): the serializer
+  // writes envelope and frontmatter in sync, so a difference here is a
+  // newer hand edit and wins; invalid edits are ignored (and rewritten on
+  // the next save).
+  return {
+    ok: true,
+    character: readProjection(content, character.data, CHARACTER_PROJECTION),
+  };
 }
 
 /** A vault-safe file basename for a character (no extension). */

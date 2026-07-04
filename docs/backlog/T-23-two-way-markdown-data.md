@@ -10,21 +10,21 @@ that my existing queries, dashboards, and templates keep working, and an
 edit from either side (sheet or Markdown) flows to the other.
 
 ## Acceptance criteria
-- [ ] A defined **projection** of character data into note frontmatter
+- [x] A defined **projection** of character data into note frontmatter
       (e.g. `hp`, `hp_max`, `ac`, `level`, `class`, `race`, plus the
       user's existing `campaign`/`player`/`type` keys untouched) written
       on every save; the JSON envelope stays the single source of truth.
-- [ ] Hand-edits to projected frontmatter fields flow back into the
+- [x] Hand-edits to projected frontmatter fields flow back into the
       character on load/refresh (the sheet's modify-watcher already
       reloads; parsing must diff frontmatter against the envelope and
       prefer the newer hand-edit).
-- [ ] Fields that are derived (AC when not overridden, modifiers) are
+- [x] Fields that are derived (AC when not overridden, modifiers) are
       projected read-only: a hand-edit to them is ignored and rewritten,
       documented in the note skeleton.
-- [ ] Round-trip tests: sheet edit → frontmatter updated; frontmatter
+- [x] Round-trip tests: sheet edit → frontmatter updated; frontmatter
       edit → character updated; user prose and foreign keys preserved;
       conflicting edits resolve deterministically (envelope wins ties).
-- [ ] Same mechanism designed to extend to future entities (session
+- [x] Same mechanism designed to extend to future entities (session
       notes T-10, NPCs) without new serializers per type.
 
 ## Technical notes

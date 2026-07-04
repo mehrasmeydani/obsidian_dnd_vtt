@@ -109,7 +109,127 @@ describe("preserving the user's note", () => {
 
   it("adds frontmatter to a note that has none", () => {
     const note = serializeCharacterNote(sampleCharacter(), "Plain text.");
-    expect(note.startsWith("---\ndnd-vtt: character\n---\n")).toBe(true);
+    expect(note.startsWith("---\ndnd-vtt: character\n")).toBe(true);
+    expect(note).toContain("Plain text.");
+    expect(note.match(/^---$/gm)?.length).toBe(2);
+  });
+});
+
+describe("frontmatter projection (T-23)", () => {
+  it("projects key data into frontmatter on every save", () => {
+    const character = {
+      ...sampleCharacter(),
+      race: "Dwarf",
+      classes: [{ name: "Fighter", level: 3, subclass: "Champion" }],
+    };
+    const note = serializeCharacterNote(character);
+    const frontmatter = note.split("---")[1];
+
+    expect(frontmatter).toContain("hp: 21");
+    expect(frontmatter).toContain("hp_max: 28");
+    expect(frontmatter).toContain("race: Dwarf");
+    expect(frontmatter).toContain("level: 3");
+    expect(frontmatter).toContain("class: Fighter (Champion) 3");
+    expect(frontmatter).toMatch(/ac: \d+/);
+  });
+
+  it("updates projected values in place without duplicating keys", () => {
+    const character = sampleCharacter();
+    let note = serializeCharacterNote(character);
+    note = serializeCharacterNote({ ...character, currentHp: 9 }, note);
+
+    expect(note.match(/^hp: /gm)).toHaveLength(1);
+    expect(note).toContain("hp: 9");
+  });
+
+  it("keeps the user's own frontmatter keys while projecting", () => {
+    const existing = [
+      "---",
+      "campaign: Hell",
+      "player: Mehras",
+      "---",
+      "",
+      "# Borin",
+    ].join("\n");
+    const note = serializeCharacterNote(sampleCharacter(), existing);
+    expect(note).toContain("campaign: Hell");
+    expect(note).toContain("player: Mehras");
+    expect(note).toContain("hp: 21");
+    expect(note.match(/^---$/gm)?.length).toBe(2);
+  });
+
+  it("folds a hand-edited two-way field back into the character", () => {
+    const note = serializeCharacterNote(sampleCharacter());
+    const edited = note
+      .replace(/^hp: 21$/m, "hp: 5")
+      .replace(/^hp_max: 28$/m, "hp_max: 30")
+      .replace(/^race: $/m, "race: Mountain Dwarf");
+
+    const result = parseCharacterNote(edited);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.character.currentHp).toBe(5);
+      expect(result.character.maxHp).toBe(30);
+      expect(result.character.race).toBe("Mountain Dwarf");
+    }
+  });
+
+  it("hand edit then save: the edit round-trips into the envelope", () => {
+    const note = serializeCharacterNote(sampleCharacter());
+    const edited = note.replace(/^hp: 21$/m, "hp: 5");
+
+    const parsed = parseCharacterNote(edited);
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const saved = serializeCharacterNote(parsed.character, edited);
+    const again = parseCharacterNote(saved);
+    expect(again.ok).toBe(true);
+    if (again.ok) expect(again.character.currentHp).toBe(5);
+    // The envelope now carries the value too, not just the frontmatter.
+    expect(saved).toContain('"currentHp": 5');
+  });
+
+  it("ignores hand edits to derived write-only fields", () => {
+    const note = serializeCharacterNote(sampleCharacter());
+    const edited = note
+      .replace(/^ac: \d+$/m, "ac: 99")
+      .replace(/^level: \d+$/m, "level: 20")
+      .replace(/^class: .*$/m, "class: God-Emperor 20");
+
+    const result = parseCharacterNote(edited);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.character.classes).toEqual([{ name: "Fighter", level: 3 }]);
+      expect(result.character.armorClassOverride).toBeUndefined();
+    }
+    // And the next save rewrites them.
+    if (result.ok) {
+      const saved = serializeCharacterNote(result.character, edited);
+      expect(saved).not.toContain("ac: 99");
+      expect(saved).toContain("level: 3");
+    }
+  });
+
+  it("ignores invalid hand edits (rewritten on next save)", () => {
+    const note = serializeCharacterNote(sampleCharacter());
+    const edited = note
+      .replace(/^hp: 21$/m, "hp: banana")
+      .replace(/^hp_max: 28$/m, "hp_max: -4");
+
+    const result = parseCharacterNote(edited);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.character.currentHp).toBe(21);
+      expect(result.character.maxHp).toBe(28);
+    }
+  });
+
+  it("envelope wins ties: matching values change nothing", () => {
+    const character = sampleCharacter();
+    const note = serializeCharacterNote(character);
+    const result = parseCharacterNote(note);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.character).toEqual(character);
   });
 });
 
