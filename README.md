@@ -31,7 +31,7 @@ The plugin authors take no responsibility for content users import.
 
 Full details — code license (MIT), the required SRD CC-BY-4.0
 attribution, and the imported-content policy — live in
-[LICENSING.md](LICENSING.md).
+[LICENSE.md](LICENSE.md).
 
 ## Developing
 
