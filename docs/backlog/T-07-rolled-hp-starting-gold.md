@@ -8,14 +8,14 @@ starting gold instead of the equipment package, so that the wizard supports
 the way my table actually plays.
 
 ## Acceptance criteria
-- [ ] Abilities/Class step offers HP mode: average (default) or rolled;
+- [x] Abilities/Class step offers HP mode: average (default) or rolled;
       rolled mode rolls per level with visible results and a reroll button,
       minimum 1 per level, CON applied.
-- [ ] Equipment step offers "take starting gold instead": class-specific
+- [x] Equipment step offers "take starting gold instead": class-specific
       gold roll (e.g. fighter 5d4×10) replaces package + choices.
-- [ ] Gold lands in inventory as a currency item until a proper currency
+- [x] Gold lands in inventory as a currency item until a proper currency
       field exists.
-- [ ] Draft validation and tests cover both modes.
+- [x] Draft validation and tests cover both modes.
 
 ## Technical notes
 - Dice helper must be injectable/seedable for deterministic tests.

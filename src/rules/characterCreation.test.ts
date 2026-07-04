@@ -742,6 +742,92 @@ describe("leveled class features (T-19) and proficiencies (T-20)", () => {
     ).toEqual(expect.arrayContaining(["Quivering Palm", "Empty Body"]));
   });
 
+  it("supports rolled HP: per-level rolls, CON applied, minimum 1 (T-07)", () => {
+    // Human barbarian level 3, con 15+1=16 → +3... use draft's own scores.
+    const draft: CharacterDraft = {
+      ...barbarianDraft(3),
+      hpMode: "rolled",
+      hpRolls: [1, 12],
+    };
+    expect(validateDraft(draft)).toEqual([]);
+    const character = assembleCharacter(draft, "id");
+    const con = Math.floor((character.abilityScores.con - 10) / 2);
+    // Level 1: 12+con; level 2: max(1, 1+con); level 3: max(1, 12+con).
+    expect(character.maxHp).toBe(
+      Math.max(1, 12 + con) + Math.max(1, 1 + con) + Math.max(1, 12 + con),
+    );
+  });
+
+  it("validates rolled HP: count and range (T-07)", () => {
+    const missing: CharacterDraft = {
+      ...barbarianDraft(3),
+      hpMode: "rolled",
+      hpRolls: [7],
+    };
+    expect(validateDraft(missing)).toContain(
+      "Roll your hit points (2 rolls needed).",
+    );
+
+    const outOfRange: CharacterDraft = {
+      ...barbarianDraft(3),
+      hpMode: "rolled",
+      hpRolls: [13, 0],
+    };
+    expect(validateDraft(outOfRange)).toContain(
+      "Hit point rolls must be between 1 and 12.",
+    );
+
+    const stale: CharacterDraft = {
+      ...barbarianDraft(3),
+      hpMode: "average",
+      hpRolls: [7, 7],
+    };
+    expect(validateDraft(stale)).toContain(
+      "Hit point rolls are set but the HP mode is average.",
+    );
+  });
+
+  it("supports starting gold instead of the equipment package (T-07)", () => {
+    const draft: CharacterDraft = {
+      ...barbarianDraft(1),
+      equipmentMode: "gold",
+      goldRoll: 60, // barbarian 2d4 × 10: 20..80
+      equipmentChoices: [], // no picks needed in gold mode
+    };
+    expect(validateDraft(draft)).toEqual([]);
+    const character = assembleCharacter(draft, "id");
+    expect(character.inventory).toEqual([
+      {
+        id: "gold-gp",
+        name: "Gold (gp)",
+        quantity: 60,
+        equipped: false,
+      },
+    ]);
+  });
+
+  it("validates starting gold: roll required and within the formula's range (T-07)", () => {
+    const unrolled: CharacterDraft = {
+      ...barbarianDraft(1),
+      equipmentMode: "gold",
+      goldRoll: null,
+    };
+    expect(validateDraft(unrolled)).toContain("Roll your starting gold.");
+
+    const impossible: CharacterDraft = {
+      ...barbarianDraft(1),
+      equipmentMode: "gold",
+      goldRoll: 999, // barbarian max is 80
+    };
+    expect(validateDraft(impossible)).toContain("Roll your starting gold.");
+  });
+
+  it("every 2014 class carries a startingGold formula (T-07)", () => {
+    for (const cls of CLASSES.filter((c) => c.edition === "2014")) {
+      expect(cls.startingGold, cls.id).toBeDefined();
+    }
+  });
+
   it("gives level-1 characters only level-1 features and the level-1 rage pool", () => {
     const character = assembleCharacter(barbarianDraft(1), "test-id");
     const classFeatures = character.features.filter(

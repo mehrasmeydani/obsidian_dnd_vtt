@@ -237,5 +237,10 @@
       "Three musical instruments of your choice"
     ]
   },
-  "resources": []
+  "resources": [],
+  "startingGold": {
+    "count": 5,
+    "sides": 4,
+    "multiplier": 10
+  }
 }

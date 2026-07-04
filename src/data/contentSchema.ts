@@ -226,6 +226,17 @@ export const ClassDataSchema = z.object({
   /** Levels at which this class gains an Ability Score Improvement. */
   asiLevels: z.array(z.number().int().min(2).max(20)),
   equipment: StartingEquipmentSchema,
+  /**
+   * Starting-gold roll offered instead of the equipment package (T-07),
+   * e.g. fighter 5d4 × 10 gp: { count: 5, sides: 4, multiplier: 10 }.
+   */
+  startingGold: z
+    .object({
+      count: z.number().int().positive(),
+      sides: z.number().int().positive(),
+      multiplier: z.number().int().positive(),
+    })
+    .optional(),
   /** Level the subclass is chosen at; required when `subclasses` is set. */
   subclassLevel: z.number().int().min(1).max(20).optional(),
   subclasses: z.array(SubclassDataSchema).default([]),

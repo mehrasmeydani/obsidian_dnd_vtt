@@ -40,13 +40,18 @@ import {
   featureSkillPicks,
   finalAbilityScores,
   grantedClassFeatures,
+  goldProblems,
   grantedSkills,
+  hpProblems,
+  hpRollsNeeded,
   optionChoiceProblems,
   pointBuyTotal,
+  startingHp,
   subclassRequired,
   validateDraft,
   type CharacterDraft,
 } from "../rules/characterCreation";
+import { goldRollLabel, rollDice, rollGold } from "../rules/dice";
 import {
   abilityModifier,
   formatModifier,
@@ -311,6 +316,7 @@ function stepBlockers(
         );
       }
       blockers.push(...featProblems(draft));
+      blockers.push(...hpProblems(draft));
       if (method === "standard") {
         const left = ABILITIES.filter((a) => assignments[a] === null).length;
         if (left > 0) {
@@ -346,6 +352,10 @@ function stepBlockers(
       break;
     }
     case 6: {
+      if (draft.equipmentMode === "gold") {
+        blockers.push(...goldProblems(draft));
+        break;
+      }
       const choices = draft.charClass?.equipment.choices ?? [];
       const valid =
         draft.equipmentChoices.length === choices.length &&
@@ -1171,6 +1181,93 @@ function AbilitiesStep({
         earnedAsiLevels(draft.charClass, draft.level).length > 0 && (
           <AsiPicker draft={draft} update={update} feats={feats} />
         )}
+
+      {draft.charClass && <HpModePicker draft={draft} update={update} />}
+    </div>
+  );
+}
+
+/**
+ * Hit-point mode (T-07): the fixed average (default) or dice rolled per
+ * level above 1st, with visible results and a reroll button. Level 1 is
+ * always the full hit die; CON applies each level (minimum 1 per level).
+ */
+function HpModePicker({
+  draft,
+  update,
+}: {
+  draft: CharacterDraft;
+  update: (p: Partial<CharacterDraft>) => void;
+}) {
+  const charClass = draft.charClass;
+  if (!charClass) return null;
+  const conMod = abilityModifier(finalAbilityScores(draft).con);
+  const needed = hpRollsNeeded(draft.level);
+  const rollsValid =
+    draft.hpRolls.length === needed &&
+    draft.hpRolls.every((r) => r >= 1 && r <= charClass.hitDie);
+  const total =
+    draft.hpMode === "rolled"
+      ? rollsValid
+        ? startingHp(charClass.hitDie, conMod, draft.level, draft.hpRolls)
+        : null
+      : startingHp(charClass.hitDie, conMod, draft.level);
+
+  const reroll = () =>
+    update({ hpRolls: rollDice(needed, charClass.hitDie) });
+
+  return (
+    <div className="dvtt-choice-group">
+      <h4>Hit points</h4>
+      <div className="dvtt-method-picker">
+        <label>
+          <input
+            type="radio"
+            name="dvtt-hp-mode"
+            checked={draft.hpMode === "average"}
+            onChange={() => update({ hpMode: "average", hpRolls: [] })}
+          />
+          Average ({Math.floor(charClass.hitDie / 2) + 1} per level after 1st)
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="dvtt-hp-mode"
+            checked={draft.hpMode === "rolled"}
+            onChange={() =>
+              update({
+                hpMode: "rolled",
+                hpRolls: rollDice(needed, charClass.hitDie),
+              })
+            }
+          />
+          Rolled (d{charClass.hitDie} per level after 1st)
+        </label>
+      </div>
+      {draft.hpMode === "rolled" && (
+        <div className="dvtt-hp-rolls">
+          <span className="dvtt-chips">
+            <span className="dvtt-chip">
+              Level 1: {charClass.hitDie} (max)
+            </span>
+            {draft.hpRolls.map((roll, i) => (
+              <span className="dvtt-chip" key={i}>
+                Level {i + 2}: {roll}
+              </span>
+            ))}
+          </span>
+          {needed > 0 && (
+            <button type="button" onClick={reroll}>
+              Reroll
+            </button>
+          )}
+        </div>
+      )}
+      <p className="dvtt-note">
+        {total !== null
+          ? `Max HP at level ${draft.level}: ${total} (CON ${formatModifier(conMod)} per level, minimum 1).`
+          : "Roll your hit points."}
+      </p>
     </div>
   );
 }
@@ -1494,11 +1591,60 @@ function EquipmentStep({
     update({ equipmentChoices: next });
   };
 
+  const goldFormula = charClass?.startingGold;
+
   return (
     <div>
       <h3>Starting equipment</h3>
 
-      {granted.length > 0 && (
+      {goldFormula && (
+        <div className="dvtt-method-picker">
+          <label>
+            <input
+              type="radio"
+              name="dvtt-equipment-mode"
+              checked={draft.equipmentMode === "package"}
+              onChange={() =>
+                update({ equipmentMode: "package", goldRoll: null })
+              }
+            />
+            Equipment package
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="dvtt-equipment-mode"
+              checked={draft.equipmentMode === "gold"}
+              onChange={() =>
+                update({
+                  equipmentMode: "gold",
+                  goldRoll: rollGold(goldFormula),
+                })
+              }
+            />
+            Take starting gold instead ({goldRollLabel(goldFormula)})
+          </label>
+        </div>
+      )}
+
+      {draft.equipmentMode === "gold" && goldFormula && (
+        <div className="dvtt-choice-group">
+          <h4>Starting gold</h4>
+          <p>
+            You rolled <strong>{draft.goldRoll ?? "—"} gp</strong> — it lands
+            in your inventory as "Gold (gp)"; buy gear during play. This
+            replaces the class package, its choices, and the background gear.
+          </p>
+          <button
+            type="button"
+            onClick={() => update({ goldRoll: rollGold(goldFormula) })}
+          >
+            Reroll
+          </button>
+        </div>
+      )}
+
+      {draft.equipmentMode === "package" && granted.length > 0 && (
         <div className="dvtt-choice-group">
           <h4>Granted by class & background</h4>
           <div className="dvtt-chips">
@@ -1511,7 +1657,8 @@ function EquipmentStep({
         </div>
       )}
 
-      {charClass?.equipment.choices.map((choice, choiceIndex) => (
+      {draft.equipmentMode === "package" &&
+        charClass?.equipment.choices.map((choice, choiceIndex) => (
         <div className="dvtt-choice-group" key={choiceIndex}>
           <h4>Choice {choiceIndex + 1}</h4>
           <div className="dvtt-checkboxes">

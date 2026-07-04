@@ -102,6 +102,21 @@ export interface CharacterDraft {
   bonusSkills: Skill[];
   /** Chosen option index for each of the class's equipment choices. */
   equipmentChoices: number[];
+  /**
+   * How max HP is determined (T-07): the fixed average (default) or dice
+   * rolled per level above 1st (level 1 is always the full hit die).
+   */
+  hpMode: "average" | "rolled";
+  /** Hit-die results for levels 2..level when `hpMode` is "rolled". */
+  hpRolls: number[];
+  /**
+   * Class equipment package (default) or the class's starting-gold roll
+   * instead (T-07) — gold replaces the class package, its choices, and the
+   * background gear, matching the "buy your own gear" rule.
+   */
+  equipmentMode: "package" | "gold";
+  /** The rolled gold total when `equipmentMode` is "gold". */
+  goldRoll: number | null;
   /** Chosen subclass, once `level >= charClass.subclassLevel`. */
   subclass: SubclassData | null;
   /**
@@ -128,6 +143,10 @@ export function emptyDraft(): CharacterDraft {
     classSkills: [],
     bonusSkills: [],
     equipmentChoices: [],
+    hpMode: "average",
+    hpRolls: [],
+    equipmentMode: "package",
+    goldRoll: null,
     subclass: null,
     featurePicks: {},
   };
@@ -240,16 +259,78 @@ export function asiPointsSpent(draft: CharacterDraft): number {
 }
 
 /**
- * Max HP at `level`: full hit die at level 1, average (die/2 + 1) per level
- * after, CON modifier each level, minimum 1 per level. Rolled HP is a future
- * option (see roadmap backlog).
+ * Max HP at `level`: full hit die at level 1 always; levels after add the
+ * average (die/2 + 1) — or, when `rolls` is given (T-07 rolled mode), the
+ * rolled die result per level. CON modifier applies each level, minimum 1
+ * per level.
  */
-export function startingHp(hitDie: number, conMod: number, level: number): number {
+export function startingHp(
+  hitDie: number,
+  conMod: number,
+  level: number,
+  rolls?: number[],
+): number {
   let hp = Math.max(1, hitDie + conMod);
   for (let l = 2; l <= level; l++) {
-    hp += Math.max(1, Math.floor(hitDie / 2) + 1 + conMod);
+    const die = rolls ? rolls[l - 2] : Math.floor(hitDie / 2) + 1;
+    hp += Math.max(1, die + conMod);
   }
   return hp;
+}
+
+/** The number of hit-die rolls a rolled-HP draft owes (levels 2..level). */
+export function hpRollsNeeded(level: number): number {
+  return Math.max(0, level - 1);
+}
+
+/**
+ * Everything wrong with the draft's HP mode (T-07), shared by
+ * `validateDraft` and the Abilities step's gating.
+ */
+export function hpProblems(draft: CharacterDraft): string[] {
+  if (draft.hpMode !== "rolled") {
+    return draft.hpRolls.length > 0
+      ? ["Hit point rolls are set but the HP mode is average."]
+      : [];
+  }
+  if (!draft.charClass) return ["Choose a class before rolling hit points."];
+  const needed = hpRollsNeeded(draft.level);
+  if (draft.hpRolls.length !== needed) {
+    return [`Roll your hit points (${needed} roll${needed === 1 ? "" : "s"} needed).`];
+  }
+  const hitDie = draft.charClass.hitDie;
+  if (
+    draft.hpRolls.some(
+      (roll) => !Number.isInteger(roll) || roll < 1 || roll > hitDie,
+    )
+  ) {
+    return [`Hit point rolls must be between 1 and ${hitDie}.`];
+  }
+  return [];
+}
+
+/**
+ * Everything wrong with the draft's equipment mode (T-07), shared by
+ * `validateDraft` and the Equipment step's gating.
+ */
+export function goldProblems(draft: CharacterDraft): string[] {
+  if (draft.equipmentMode !== "gold") return [];
+  if (!draft.charClass) return ["Choose a class before taking starting gold."];
+  const formula = draft.charClass.startingGold;
+  if (!formula) {
+    return [`${draft.charClass.name} has no starting-gold option.`];
+  }
+  const min = formula.count * formula.multiplier;
+  const max = formula.count * formula.sides * formula.multiplier;
+  if (
+    draft.goldRoll === null ||
+    !Number.isInteger(draft.goldRoll) ||
+    draft.goldRoll < min ||
+    draft.goldRoll > max
+  ) {
+    return ["Roll your starting gold."];
+  }
+  return [];
 }
 
 /** Base scores plus racial bonuses (fixed and chosen) plus ASI points. */
@@ -359,7 +440,7 @@ export function validateDraft(draft: CharacterDraft): string[] {
 
   errors.push(...featProblems(draft));
 
-  if (draft.charClass) {
+  if (draft.charClass && draft.equipmentMode === "package") {
     const choices = draft.charClass.equipment.choices;
     const valid =
       draft.equipmentChoices.length === choices.length &&
@@ -369,6 +450,8 @@ export function validateDraft(draft: CharacterDraft): string[] {
       );
     if (!valid) errors.push("Choose your starting equipment.");
   }
+  errors.push(...hpProblems(draft));
+  errors.push(...goldProblems(draft));
 
   // Subclass: owed once the class's subclass level is reached; never earlier.
   if (subclassRequired(draft)) {
@@ -603,6 +686,7 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     charClass.hitDie,
     abilityModifier(abilityScores.con),
     draft.level,
+    draft.hpMode === "rolled" ? draft.hpRolls : undefined,
   );
 
   // Scaling resource pools (Rage): the highest table row at this level wins.
@@ -729,11 +813,22 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
       });
     }
   };
-  addGear(charClass.equipment.fixed);
-  charClass.equipment.choices.forEach((choice, i) => {
-    addGear(choice.options[draft.equipmentChoices[i]]);
-  });
-  addGear(background.equipment);
+  if (draft.equipmentMode === "gold") {
+    // Starting gold instead of gear (T-07): a currency item until a proper
+    // currency field exists.
+    inventory.push({
+      id: "gold-gp",
+      name: "Gold (gp)",
+      quantity: draft.goldRoll as number,
+      equipped: false,
+    });
+  } else {
+    addGear(charClass.equipment.fixed);
+    charClass.equipment.choices.forEach((choice, i) => {
+      addGear(choice.options[draft.equipmentChoices[i]]);
+    });
+    addGear(background.equipment);
+  }
 
   // Starting armor is worn when unambiguous: the only body armor (and the
   // only shield) start equipped.

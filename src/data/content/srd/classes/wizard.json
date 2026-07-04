@@ -160,5 +160,10 @@
         }
       ]
     }
-  ]
+  ],
+  "startingGold": {
+    "count": 4,
+    "sides": 4,
+    "multiplier": 10
+  }
 }
