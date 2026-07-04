@@ -72,4 +72,9 @@ wrong.
   characters — if a specific note still shows no Feats section, send it
   my way via the todo file.)
 
+- **T-35 Defenses & conditions** — new sheet tile: always-live condition
+  toggle chips (14 standard + Exhaustion, red when active) plus
+  resistances/immunities/vulnerabilities lists editable in edit mode
+  (comma-separated). Stored on the character, round-trips the note.
+
 <!-- appended as each fix lands -->

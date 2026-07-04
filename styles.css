@@ -816,6 +816,27 @@
   margin-top: auto;
 }
 
+/* Defenses & conditions (T-35) */
+.dvtt-conditions {
+  margin-top: var(--size-4-2);
+}
+
+.dvtt-conditions .dvtt-prof-group__label {
+  display: block;
+  margin-bottom: var(--size-2-1);
+}
+
+button.dvtt-chip--toggle.is-active {
+  border-color: var(--text-error);
+  color: var(--text-error);
+}
+
+.dvtt-defense-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2-2);
+}
+
 /* Dice roll tumble (T-27): chips/totals pop in when (re)rolled. */
 @keyframes dvtt-die-tumble {
   0% {

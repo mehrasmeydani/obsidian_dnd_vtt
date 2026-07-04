@@ -47,7 +47,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-32](T-32-sheet-sections-togglable.md) | Togglable sheet sections | P1 | M | 1 | T-01 | needs-check |
 | [T-33](T-33-features-grouped-by-source.md) | Features grouped by origin | P2 | S | 1 | T-01 | needs-check |
 | [T-34](T-34-rest-confirmation.md) | Rest buttons confirm | P2 | XS | 1 | T-01 | needs-check |
-| [T-35](T-35-defenses-conditions.md) | Resistances, immunities, conditions | P2 | M | 1 | T-01 | todo |
+| [T-35](T-35-defenses-conditions.md) | Resistances, immunities, conditions | P2 | M | 1 | T-01 | needs-check |
 | [T-36](T-36-wearing-and-bags.md) | Equip only wearables; Wearing vs Bags | P2 | S | 1 | T-22 | needs-check |
 | [T-37](T-37-stale-expertise-release.md) | Expertise pick survives losing its proficiency | P1 | S | 1 | — | needs-check |
 

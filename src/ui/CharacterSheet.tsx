@@ -257,12 +257,6 @@ function DefensesTile({
     ["Immunities", "immunities", character.immunities],
     ["Vulnerabilities", "vulnerabilities", character.vulnerabilities],
   ] as const;
-  const hasDefenses = lists.some(([, , list]) => list.length > 0);
-  if (!editing && !hasDefenses && character.conditions.length === 0) {
-    // Nothing recorded: keep the sheet tight, but stay reachable — the
-    // conditions row still renders so play toggles are one click away.
-  }
-
   const toggleCondition = (condition: string) =>
     apply({
       conditions: character.conditions.includes(condition)

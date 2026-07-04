@@ -8,9 +8,9 @@ active conditions on the sheet, so mid-combat questions ("am I poisoned?
 do I resist fire?") are answered at a glance.
 
 ## Acceptance criteria
-- [ ] Character schema gains resistances/immunities/vulnerabilities
+- [x] Character schema gains resistances/immunities/vulnerabilities
       (strings, edit-mode editable) and active conditions (additive).
-- [ ] Sheet Defenses tile: edit mode edits the lists; conditions are an
+- [x] Sheet Defenses tile: edit mode edits the lists; conditions are an
       always-live play control (toggle chips from the 14 standard 5e
       conditions + exhaustion).
-- [ ] Round-trip + jsdom tests.
+- [x] Round-trip + jsdom tests.

@@ -394,6 +394,68 @@ describe("collapsible sections (T-32)", () => {
   });
 });
 
+describe("defenses & conditions (T-35)", () => {
+  it("toggles conditions live in read mode", () => {
+    const { last } = renderSheet();
+    const poisoned = screen.getByRole("button", { name: "Poisoned" });
+    expect(poisoned.getAttribute("aria-pressed")).toBe("false");
+
+    fireEvent.click(poisoned);
+    expect(last().conditions).toEqual(["Poisoned"]);
+    fireEvent.click(screen.getByRole("button", { name: "Prone" }));
+    expect(last().conditions).toEqual(["Poisoned", "Prone"]);
+    fireEvent.click(screen.getByRole("button", { name: "Poisoned" }));
+    expect(last().conditions).toEqual(["Prone"]);
+  });
+
+  it("edits resistances/immunities/vulnerabilities as comma lists", () => {
+    const { last } = renderSheet();
+    enterEditMode();
+    fireEvent.blur(screen.getByLabelText("Resistances"), {
+      target: { value: "Poison,  Fire " },
+    });
+    fireEvent.blur(screen.getByLabelText("Immunities"), {
+      target: { value: "Disease" },
+    });
+    expect(last().resistances).toEqual(["Poison", "Fire"]);
+    expect(last().immunities).toEqual(["Disease"]);
+  });
+
+  it("shows recorded defenses as read-mode groups and round-trips the note", () => {
+    const character = CharacterSchema.parse({
+      ...sampleCharacter(),
+      resistances: ["Poison"],
+      conditions: ["Prone"],
+    });
+    renderSheet(character);
+    expect(screen.getByText("Resistances")).toBeTruthy();
+    expect(screen.getByText("Poison")).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Prone" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+
+    const note = serializeCharacterNote(character);
+    const parsed = parseCharacterNote(note);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.character.resistances).toEqual(["Poison"]);
+      expect(parsed.character.conditions).toEqual(["Prone"]);
+    }
+  });
+
+  it("parses pre-T-35 characters without the new fields (additive schema)", () => {
+    const legacy = { ...sampleCharacter() } as Record<string, unknown>;
+    delete legacy.resistances;
+    delete legacy.immunities;
+    delete legacy.vulnerabilities;
+    delete legacy.conditions;
+    delete legacy.languages;
+    const parsed = CharacterSchema.safeParse(legacy);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data.conditions).toEqual([]);
+  });
+});
+
 describe("features grouped by origin (T-33)", () => {
   it("groups race/class/background/feats, class sorted by level with feats inline", () => {
     const character = CharacterSchema.parse({
