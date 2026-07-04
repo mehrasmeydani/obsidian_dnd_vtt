@@ -51,7 +51,9 @@ wrong.
 - **T-36 Wearing vs bags** — read-mode inventory splits into "Wearing"
   and "In bags"; only armor-linked items get the equip toggle (read
   mode) and the Equipped checkbox (edit mode) — gold and gear are plain
-  chips.
+  chips. *Your round-2 feedback: too narrow (weapons/clothes/rings must
+  equip too, with hand/body/accessory limits) — ticketed as T-38, not
+  fixed yet.*
 
 - **T-33 Feature grouping** — Features & Traits now renders per origin:
   race, class (level-sorted, subclass + leveled feats inline),
