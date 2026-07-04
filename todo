@@ -1,0 +1,16 @@
+character creator: 
+when erasing the level in class instead of empty it shows 0 #minor
+increasing ability score from class says the score came from racial #mid
+rolling does not feel natural (add animation) #major
+choosing skill proficiency does not remove it from the later lists(choosing animal handling from ranger class should remove it from the additional skill from background...) should also be handled in reverse #mid
+a hovering information should be added to to skills abilities invenrory and so on this can be achieved by keeping a formated md of the item #major (future feature)
+character creator should allow you to move through different fields without filling all the data and only show a warning of incomplete fields and not allow you to export the charater until finished #major
+there should be a preview page in character creation #major
+
+
+features and traits spells inventory shouldn't all be in the same page they should be togglable for easier reading #major
+the features and traits should have separated fields for different abilities fom race class background and feats and feats from class should be both in feats section and the sorted by level class section #minor
+short reat and longrest should ask for are you sure #mid
+imunities and conditions and resistances field #major
+wearable items should have equipped property not gold and inventory should be seperated into  wearing and bags #mid
+
