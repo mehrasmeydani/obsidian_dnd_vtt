@@ -97,9 +97,37 @@ function completeDraft(
     }
   }
 
-  // First option for every race/background "pick one" (T-05).
-  const firstOptions = (choices: { id: string; options: { id: string }[] }[]) =>
-    Object.fromEntries(choices.map((c) => [c.id, c.options[0].id]));
+  // First *legal* option for every race/background "pick one" (T-05):
+  // language/tool choices (T-08) must not collide with grants or each other.
+  const usedLanguages = new Set(
+    [...race.languages, ...background.languages].map((l) => l.toLowerCase()),
+  );
+  const usedTools = new Set(
+    [...race.tools, ...background.tools].map((t) => t.toLowerCase()),
+  );
+  const firstOptions = (
+    choices: {
+      id: string;
+      grants: "feature" | "language" | "tool";
+      options: { id: string; name: string }[];
+    }[],
+  ) =>
+    Object.fromEntries(
+      choices.map((c) => {
+        const used =
+          c.grants === "language"
+            ? usedLanguages
+            : c.grants === "tool"
+              ? usedTools
+              : null;
+        const option = used
+          ? (c.options.find((o) => !used.has(o.name.toLowerCase())) ??
+            c.options[0])
+          : c.options[0];
+        used?.add(option.name.toLowerCase());
+        return [c.id, option.id];
+      }),
+    );
 
   return {
     ...emptyDraft(),
@@ -193,17 +221,33 @@ describe.each(BACKGROUNDS.map((bg) => [bg.id, bg] as const))(
       ]
         .filter((c) => c.kind === "options" && c.level <= 1)
         .reduce((sum, c) => sum + c.count, 0);
+      // Language/tool picks (T-08) don't become features.
+      const featureOptionChoices = (choices: { grants: string }[]) =>
+        choices.filter((c) => c.grants === "feature").length;
       expect(character.features).toHaveLength(
         race.traits.length +
           grantedClassFeatures(charClass, draft.subclass, 1).length +
           background.traits.length +
           optionPickCount +
-          race.optionChoices.length +
-          background.optionChoices.length,
+          featureOptionChoices(race.optionChoices) +
+          featureOptionChoices(background.optionChoices),
       );
 
-      // Class proficiencies land on the character (T-20).
-      expect(character.proficiencies).toEqual(charClass.proficiencies);
+      // Class proficiencies land on the character (T-20); race/background
+      // tool grants and picks extend the tool list (T-08).
+      expect(character.proficiencies.armor).toEqual(charClass.proficiencies.armor);
+      expect(character.proficiencies.weapons).toEqual(
+        charClass.proficiencies.weapons,
+      );
+      for (const tool of charClass.proficiencies.tools) {
+        expect(character.proficiencies.tools).toContain(tool);
+      }
+
+      // Languages (T-08): grants arrive, deduplicated.
+      for (const language of [...race.languages, ...background.languages]) {
+        expect(character.languages).toContain(language);
+      }
+      expect(new Set(character.languages).size).toBe(character.languages.length);
       const featureIds = character.features.map((f) => f.id);
       expect(new Set(featureIds).size).toBe(featureIds.length);
 

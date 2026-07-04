@@ -36,6 +36,12 @@ function validDraft(): CharacterDraft {
     classSkills: ["athletics", "perception"],
     equipmentChoices: [0, 0, 0, 0],
     featurePicks: { "fighting-style": ["Archery"] },
+    // Language/tool picks owed by hill dwarf + acolyte (T-08).
+    raceOptions: { "dwarf-tools": "smiths-tools" },
+    backgroundOptions: {
+      "acolyte-language-1": "abyssal",
+      "acolyte-language-2": "celestial",
+    },
   };
 }
 
@@ -86,6 +92,7 @@ describe("finalAbilityScores", () => {
       ...validDraft(),
       race: byId(RACES, "half-elf"), // +2 cha fixed, +1 to two chosen
       racialBonusAbilities: ["dex", "con"],
+      raceOptions: { "half-elf-language": "giant" },
     };
     const scores = finalAbilityScores(draft);
     expect(scores.cha).toBe(12);
@@ -123,6 +130,7 @@ describe("validateDraft", () => {
       ...validDraft(),
       race: byId(RACES, "half-elf"),
       bonusSkills: ["stealth", "deception"],
+      raceOptions: { "half-elf-language": "giant" },
     };
     expect(validateDraft(draft)).toContain(
       "Pick 2 abilities for the racial bonus.",
@@ -140,6 +148,8 @@ describe("validateDraft", () => {
       race: byId(RACES, "half-elf"), // Skill Versatility: choose any 2
       background: byId(BACKGROUNDS, "custom"), // choose any 2
       racialBonusAbilities: ["dex", "con"],
+      raceOptions: { "half-elf-language": "giant" },
+      backgroundOptions: {},
     };
     expect(bonusSkillCount(halfElf)).toBe(4);
     expect(validateDraft(halfElf)).toContain("Choose 4 additional skills.");
@@ -330,6 +340,7 @@ describe("assembleCharacter", () => {
       background: byId(BACKGROUNDS, "custom"),
       backgroundName: "Caravan Guard",
       bonusSkills: ["survival", "intimidation"],
+      backgroundOptions: {},
     };
     expect(assembleCharacter(draft, "test-id").background).toBe("Caravan Guard");
   });
@@ -338,6 +349,7 @@ describe("assembleCharacter", () => {
     const draft: CharacterDraft = {
       ...validDraft(),
       race: byId(RACES, "high-elf"), // no con bonus
+      raceOptions: { "elf-language": "giant" },
       charClass: byId(CLASSES, "wizard"),
       classSkills: ["arcana", "history"],
       baseScores: { str: 10, dex: 10, con: 1, int: 15, wis: 10, cha: 10 },
@@ -412,12 +424,43 @@ describe("2024 (5.5e) class variants", () => {
   });
 });
 
+describe("languages & tool proficiencies (T-08)", () => {
+  it("collects granted and chosen languages and tools, deduplicated", () => {
+    const character = assembleCharacter(validDraft(), "test-id");
+    expect(character.languages).toEqual([
+      "Common",
+      "Dwarvish",
+      "Abyssal",
+      "Celestial",
+    ]);
+    expect(character.proficiencies.tools).toEqual(["Smith's tools"]);
+    // Language/tool picks don't become features.
+    expect(
+      character.features.some((f) => f.name.includes("Extra language")),
+    ).toBe(false);
+  });
+
+  it("rejects a language picked twice or already granted", () => {
+    const draft: CharacterDraft = {
+      ...validDraft(),
+      backgroundOptions: {
+        "acolyte-language-1": "dwarvish", // hill dwarf already knows it
+        "acolyte-language-2": "celestial",
+      },
+    };
+    expect(validateDraft(draft)).toContain(
+      "Dwarvish is already known — pick a different language.",
+    );
+  });
+});
+
 describe("race & background option choices (T-05)", () => {
   /** A dragonborn draft that owes the Draconic Ancestry pick. */
   function dragonbornDraft(): CharacterDraft {
     return {
       ...validDraft(),
       race: byId(RACES, "dragonborn"),
+      raceOptions: {},
     };
   }
 
@@ -544,6 +587,7 @@ describe("leveled class features (T-19) and proficiencies (T-20)", () => {
     return {
       ...validDraft(),
       race: byId(RACES, "human"), // +1 all abilities, speed 30
+      raceOptions: { "human-language": "elvish" },
       charClass: barbarian(),
       level,
       subclass: level >= 3 ? berserker() : null,
@@ -677,7 +721,8 @@ describe("leveled class features (T-19) and proficiencies (T-20)", () => {
     expect(character.proficiencies).toEqual({
       armor: ["All armor", "Shields"],
       weapons: ["Simple weapons", "Martial weapons"],
-      tools: [],
+      // Class tools plus the hill dwarf's artisan-tool pick (T-08).
+      tools: ["Smith's tools"],
     });
   });
 
@@ -708,6 +753,7 @@ describe("leveled class features (T-19) and proficiencies (T-20)", () => {
     const draft = (level: number): CharacterDraft => ({
       ...validDraft(),
       race: byId(RACES, "human"), // speed 30
+      raceOptions: { "human-language": "elvish" },
       charClass: monk,
       level,
       subclass: level >= 3 ? monk.subclasses[0] : null,

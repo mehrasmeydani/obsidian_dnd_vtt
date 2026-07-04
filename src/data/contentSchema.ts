@@ -125,6 +125,13 @@ export const OptionChoiceSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   description: z.string().optional(),
+  /**
+   * What the pick grants (T-08): a feature (default, e.g. Draconic
+   * Ancestry), a known language, or a tool proficiency. Language/tool
+   * picks land in `Character.languages` / `proficiencies.tools` instead
+   * of becoming features; "choose N" slots are N pick-one choices.
+   */
+  grants: z.enum(["feature", "language", "tool"]).default("feature"),
   options: z
     .array(
       z.object({
@@ -155,6 +162,10 @@ export const RaceDataSchema = z.object({
   /** Skill proficiencies chosen freely (e.g. half-elf Skill Versatility). */
   skillChoice: SkillChoiceSchema.optional(),
   traits: z.array(TraitSchema),
+  /** Languages the race grants outright (T-08). */
+  languages: z.array(z.string().min(1)).default([]),
+  /** Tool proficiencies the race grants outright (T-08). */
+  tools: z.array(z.string().min(1)).default([]),
   /** "Pick one" choices the wizard owes (Draconic Ancestry…). */
   optionChoices: z.array(OptionChoiceSchema).default([]),
 });
@@ -279,6 +290,10 @@ export const BackgroundDataSchema = z.object({
   description: z.string(),
   traits: z.array(TraitSchema),
   equipment: z.array(EquipmentItemSchema),
+  /** Languages the background grants outright (T-08). */
+  languages: z.array(z.string().min(1)).default([]),
+  /** Tool proficiencies the background grants outright (T-08). */
+  tools: z.array(z.string().min(1)).default([]),
   /** "Pick one" choices the wizard owes. */
   optionChoices: z.array(OptionChoiceSchema).default([]),
 });

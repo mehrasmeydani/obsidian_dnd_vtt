@@ -23,5 +23,10 @@
       "name": "Naturally Stealthy",
       "description": "Hide even when obscured only by a larger creature."
     }
-  ]
+  ],
+  "languages": [
+    "Common",
+    "Halfling"
+  ],
+  "optionChoices": []
 }

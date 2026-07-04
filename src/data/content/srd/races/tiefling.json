@@ -19,5 +19,10 @@
       "name": "Infernal Legacy",
       "description": "Know the thaumaturgy cantrip; gain infernal spells at higher levels."
     }
-  ]
+  ],
+  "languages": [
+    "Common",
+    "Infernal"
+  ],
+  "optionChoices": []
 }

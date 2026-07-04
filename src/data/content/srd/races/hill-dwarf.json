@@ -19,5 +19,31 @@
       "name": "Dwarven Toughness",
       "description": "Hit point maximum increases by 1 per level."
     }
+  ],
+  "languages": [
+    "Common",
+    "Dwarvish"
+  ],
+  "optionChoices": [
+    {
+      "id": "dwarf-tools",
+      "name": "Tool proficiency",
+      "description": "Proficiency with one artisan tool of your choice.",
+      "grants": "tool",
+      "options": [
+        {
+          "id": "smiths-tools",
+          "name": "Smith's tools"
+        },
+        {
+          "id": "brewers-supplies",
+          "name": "Brewer's supplies"
+        },
+        {
+          "id": "masons-tools",
+          "name": "Mason's tools"
+        }
+      ]
+    }
   ]
 }

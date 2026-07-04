@@ -56,8 +56,13 @@ describe("CharacterCreationWizard", () => {
     expect(nextButton().disabled).toBe(true);
     expect(screen.getByText("Select a race.")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
-    expect(nextButton().disabled).toBe(false);
     expect(screen.queryByText("Select a race.")).toBeNull();
+    // The dwarf's artisan-tool pick (T-08) still gates the step.
+    expect(nextButton().disabled).toBe(true);
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
+    expect(nextButton().disabled).toBe(false);
     fireEvent.click(nextButton());
 
     // Step 2: class.
@@ -75,6 +80,12 @@ describe("CharacterCreationWizard", () => {
 
     // Step 4: background.
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.change(screen.getByLabelText("Extra language (1)"), {
+      target: { value: "abyssal" },
+    });
+    fireEvent.change(screen.getByLabelText("Extra language (2)"), {
+      target: { value: "celestial" },
+    });
     fireEvent.click(nextButton());
 
     // Step 5: abilities — assign the standard array (rows are STR..CHA).
@@ -141,6 +152,9 @@ describe("CharacterCreationWizard", () => {
       target: { value: "Borin" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
     fireEvent.click(nextButton());
 
     // Level 4 fighter: one ASI = two +1 points to assign.
@@ -157,6 +171,12 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.change(screen.getByLabelText("Extra language (1)"), {
+      target: { value: "abyssal" },
+    });
+    fireEvent.change(screen.getByLabelText("Extra language (2)"), {
+      target: { value: "celestial" },
+    });
     fireEvent.click(nextButton());
 
     const selects = screen.getAllByRole("combobox");
@@ -208,6 +228,9 @@ describe("CharacterCreationWizard", () => {
       target: { value: "Borin" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
 
     // Step 1 is complete: Class unlocks, but steps beyond it stay locked.
     expect(stepButton("Class").disabled).toBe(false);
@@ -239,6 +262,9 @@ describe("CharacterCreationWizard", () => {
       target: { value: "Merric" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
     fireEvent.click(nextButton());
 
     // Level 3 rogue, then the class-options step owes the Thief archetype.
@@ -252,6 +278,12 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.change(screen.getByLabelText("Extra language (1)"), {
+      target: { value: "abyssal" },
+    });
+    fireEvent.change(screen.getByLabelText("Extra language (2)"), {
+      target: { value: "celestial" },
+    });
     fireEvent.click(nextButton());
 
     const selects = screen.getAllByRole("combobox");
@@ -298,6 +330,9 @@ describe("CharacterCreationWizard", () => {
       target: { value: "Grok" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Human/ }));
+    fireEvent.change(screen.getByLabelText("Extra language"), {
+      target: { value: "elvish" },
+    });
     fireEvent.click(nextButton());
 
     // Level 20 Barbarian (2014 — the 2024 variant is a separate card).
@@ -359,9 +394,13 @@ describe("CharacterCreationWizard", () => {
     });
     expect(nextButton().disabled).toBe(false);
 
-    // Switching race clears the pick (hill dwarf owes nothing).
+    // Switching race clears the pick; the hill dwarf owes its own tool pick.
     fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
     expect(screen.queryByLabelText("Draconic Ancestry")).toBeNull();
+    expect(nextButton().disabled).toBe(true);
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
     expect(nextButton().disabled).toBe(false);
   });
 
@@ -375,6 +414,9 @@ describe("CharacterCreationWizard", () => {
       target: { value: "Lyra" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Half-Elf/ }));
+    fireEvent.change(screen.getByLabelText("Extra language"), {
+      target: { value: "giant" },
+    });
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: /^Bard/ }));
@@ -388,6 +430,12 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.change(screen.getByLabelText("Extra language (1)"), {
+      target: { value: "abyssal" },
+    });
+    fireEvent.change(screen.getByLabelText("Extra language (2)"), {
+      target: { value: "celestial" },
+    });
     fireEvent.click(nextButton());
 
     // Point buy: default all-8s is affordable, but the racial +1 picks still

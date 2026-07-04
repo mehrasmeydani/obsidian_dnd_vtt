@@ -161,6 +161,8 @@ export const CharacterSchema = z.object({
   /** Ability used for spellcasting DC/attack, if any. */
   spellcastingAbility: AbilitySchema.optional(),
   features: z.array(FeatureSchema).default([]),
+  /** Languages known, from race/background grants and picks (T-08). */
+  languages: z.array(z.string()).default([]),
   proficiencies: CharacterProficienciesSchema.default({}),
   resources: z.array(ResourceSchema).default([]),
   notes: z.string().default(""),

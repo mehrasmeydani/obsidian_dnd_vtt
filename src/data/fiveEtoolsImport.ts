@@ -221,6 +221,8 @@ export function raceFromFiveEtools(raw: unknown): RaceData {
     grantedSkills: grantedSkills.length > 0 ? grantedSkills : undefined,
     skillChoice,
     traits,
+    languages: [],
+    tools: [],
     optionChoices: [],
   };
 }
@@ -629,6 +631,8 @@ export function backgroundFromFiveEtools(raw: unknown): BackgroundData {
     description,
     traits,
     equipment,
+    languages: [],
+    tools: [],
     optionChoices: [],
   };
 }

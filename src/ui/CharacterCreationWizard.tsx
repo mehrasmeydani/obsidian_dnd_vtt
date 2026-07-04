@@ -43,6 +43,7 @@ import {
   goldProblems,
   grantedSkills,
   hpProblems,
+  languageToolProblems,
   hpRollsNeeded,
   optionChoiceProblems,
   pointBuyTotal,
@@ -273,6 +274,7 @@ function stepBlockers(
       if (!draft.name.trim()) blockers.push("Enter a character name.");
       if (!draft.race) blockers.push("Select a race.");
       blockers.push(...optionChoiceProblems(draft, "race"));
+      blockers.push(...languageToolProblems(draft));
       break;
     case 1:
       if (!draft.charClass) blockers.push("Select a class.");
@@ -295,6 +297,7 @@ function stepBlockers(
     case 3:
       if (!draft.background) blockers.push("Select a background.");
       blockers.push(...optionChoiceProblems(draft, "background"));
+      blockers.push(...languageToolProblems(draft));
       break;
     case 4: {
       // The racial bonus and ASI pickers live on this step, so they gate here.
@@ -425,6 +428,8 @@ function NameRaceStep({
         ))}
       </div>
 
+      {draft.race && <GrantedLanguagesTools entity={draft.race} />}
+
       {draft.race && (
         <OptionChoicePickers
           title={draft.race.name}
@@ -433,6 +438,32 @@ function NameRaceStep({
           setPicks={(raceOptions) => update({ raceOptions })}
         />
       )}
+    </div>
+  );
+}
+
+/** Languages/tools a race or background grants outright (T-08), as chips. */
+function GrantedLanguagesTools({
+  entity,
+}: {
+  entity: { languages: string[]; tools: string[] };
+}) {
+  if (entity.languages.length === 0 && entity.tools.length === 0) return null;
+  return (
+    <div className="dvtt-choice-group">
+      <h4>Languages &amp; tools</h4>
+      <div className="dvtt-chips">
+        {entity.languages.map((language) => (
+          <span className="dvtt-chip" key={`lang-${language}`}>
+            {language}
+          </span>
+        ))}
+        {entity.tools.map((tool) => (
+          <span className="dvtt-chip" key={`tool-${tool}`}>
+            {tool} (tool)
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1031,6 +1062,10 @@ function BackgroundStep({
             onChange={(e) => update({ backgroundName: e.target.value })}
           />
         </label>
+      )}
+
+      {draft.background && (
+        <GrantedLanguagesTools entity={draft.background} />
       )}
 
       {draft.background && (

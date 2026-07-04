@@ -772,20 +772,21 @@ function SpellsTile({
   );
 }
 
-/** Armor/weapon/tool proficiencies, when the character carries any. */
+/** Armor/weapon/tool proficiencies and languages (T-08), when any exist. */
 function ProficienciesTile({ character }: { character: Character }) {
   const groups = (
     [
       ["Armor", character.proficiencies.armor],
       ["Weapons", character.proficiencies.weapons],
       ["Tools", character.proficiencies.tools],
+      ["Languages", character.languages],
     ] as const
   ).filter(([, list]) => list.length > 0);
   if (groups.length === 0) return null;
 
   return (
     <section className="dvtt-tile dvtt-tile--proficiencies">
-      <div className="dvtt-tile__title">Proficiencies</div>
+      <div className="dvtt-tile__title">Proficiencies &amp; languages</div>
       {groups.map(([label, list]) => (
         <div className="dvtt-prof-group" key={label}>
           <span className="dvtt-prof-group__label">{label}</span>

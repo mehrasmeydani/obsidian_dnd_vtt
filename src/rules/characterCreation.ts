@@ -472,6 +472,7 @@ export function validateDraft(draft: CharacterDraft): string[] {
 
   errors.push(...featureChoiceProblems(draft));
   errors.push(...optionChoiceProblems(draft));
+  errors.push(...languageToolProblems(draft));
 
   const granted = new Set(grantedSkills(draft));
 
@@ -509,6 +510,57 @@ export function validateDraft(draft: CharacterDraft): string[] {
     errors.push("A chosen skill is already granted by race or background.");
   }
 
+  return errors;
+}
+
+/**
+ * Every language (or tool proficiency) the draft has from race/background
+ * grants plus language/tool option picks (T-08), duplicates included —
+ * validation flags those.
+ */
+export function draftLanguagesOrTools(
+  draft: CharacterDraft,
+  kind: "language" | "tool",
+): string[] {
+  const out: string[] = [];
+  const sides = [
+    [draft.race, draft.raceOptions] as const,
+    [draft.background, draft.backgroundOptions] as const,
+  ];
+  for (const [entity, picks] of sides) {
+    if (!entity) continue;
+    out.push(...(kind === "language" ? entity.languages : entity.tools));
+    for (const choice of entity.optionChoices) {
+      if (choice.grants !== kind) continue;
+      const option = choice.options.find((o) => o.id === picks[choice.id]);
+      if (option) out.push(option.name);
+    }
+  }
+  return out;
+}
+
+/**
+ * Duplicate languages/tool proficiencies across grants and picks (T-08):
+ * a language can never be learned twice. Shared by `validateDraft` and the
+ * race/background steps' gating.
+ */
+export function languageToolProblems(draft: CharacterDraft): string[] {
+  const errors: string[] = [];
+  for (const kind of ["language", "tool"] as const) {
+    const all = draftLanguagesOrTools(draft, kind);
+    const seen = new Set<string>();
+    for (const name of all) {
+      const key = name.toLowerCase();
+      if (seen.has(key)) {
+        errors.push(
+          kind === "language"
+            ? `${name} is already known — pick a different language.`
+            : `${name} is already a proficiency — pick a different tool.`,
+        );
+      }
+      seen.add(key);
+    }
+  }
   return errors;
 }
 
@@ -745,8 +797,11 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     })),
     ...traitsToFeatures(backgroundName, background.traits),
   ];
-  // Race/background "pick one" answers become features of their own
+  // Race/background "pick one" answers: language and tool picks (T-08) land
+  // on the language/tool lists; the rest become features of their own
   // ("Draconic Ancestry: Red (fire)"), sourced to who offered the choice.
+  const languages = [...race.languages, ...background.languages];
+  const extraTools = [...race.tools, ...background.tools];
   const optionSides = [
     { source: race.name, choices: race.optionChoices, picks: draft.raceOptions },
     {
@@ -759,6 +814,14 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     for (const choice of choices) {
       const option = choice.options.find((o) => o.id === picks[choice.id]);
       if (!option) continue; // validation guarantees this doesn't happen
+      if (choice.grants === "language") {
+        languages.push(option.name);
+        continue;
+      }
+      if (choice.grants === "tool") {
+        extraTools.push(option.name);
+        continue;
+      }
       features.push({
         id: `${slugify(source)}-${slugify(choice.name)}-${slugify(option.name)}`,
         name: `${choice.name}: ${option.name}`,
@@ -875,7 +938,11 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     speed,
     spellcastingAbility: charClass.spellcastingAbility,
     features,
-    proficiencies: charClass.proficiencies,
+    languages: [...new Set(languages)],
+    proficiencies: {
+      ...charClass.proficiencies,
+      tools: [...new Set([...charClass.proficiencies.tools, ...extraTools])],
+    },
     resources,
     inventory,
   });

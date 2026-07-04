@@ -22,5 +22,10 @@
       "name": "Savage Attacks",
       "description": "Roll one extra weapon damage die on a melee critical hit."
     }
-  ]
+  ],
+  "languages": [
+    "Common",
+    "Orc"
+  ],
+  "optionChoices": []
 }

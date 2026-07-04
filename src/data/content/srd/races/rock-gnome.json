@@ -23,5 +23,13 @@
       "name": "Tinker",
       "description": "Construct tiny clockwork devices with tinker's tools."
     }
-  ]
+  ],
+  "languages": [
+    "Common",
+    "Gnomish"
+  ],
+  "tools": [
+    "Tinker's tools"
+  ],
+  "optionChoices": []
 }
