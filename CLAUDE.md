@@ -28,11 +28,20 @@ cross-filtering (taken skills are *hidden* in other lists), T-32
 collapsible sheet tiles (`CollapsibleTile`), T-33 features grouped by
 origin, T-34 rest confirm, T-36 wearing/bags + equip only wearables.
 
-**Open next:** T-30 free wizard navigation + T-31 live preview (both
-change wizard gating — expect test churn in the walkthroughs), T-27 dice
-roll animation (CSS-only approach planned), T-35 defenses/conditions,
-then T-09 flavor fields, T-17 finish (2024 classes/species/backgrounds —
-big content grind), T-14 browser, T-15 spells, T-16 level-up.
+**Second round (all needs-check too):** T-27 dice tumble (CSS
+`dvtt-roll-pop`, per-roll seq key remounts), T-30 free step navigation
+(headers always clickable, Next never blocks, red "!" markers; Create
+gated by validateDraft — walkthrough tests assert the footer hint via
+`stepIncomplete()`, not `disabled`), T-31 live preview on Review for
+incomplete drafts, T-35 Defenses & Conditions tile (schema additive:
+resistances/immunities/vulnerabilities/conditions; conditions are live
+toggle chips), T-37 stale-expertise release (`pruneStaleExpertise` runs
+on every wizard update — user-reported bug: unchecking a proficient
+skill orphaned its expertise pick).
+
+**Open next:** T-09 flavor fields, T-17 finish (2024 classes/species/
+backgrounds — big content grind), T-14 browser, T-15 spells, T-16
+level-up, T-29 hover cards (future).
 
 ## Status (older detail, still accurate)
 
