@@ -8,8 +8,8 @@ stands — even while incomplete — so I can see the effect of my picks
 before the end.
 
 ## Acceptance criteria
-- [ ] The Review step becomes a live preview: with an incomplete draft it
+- [x] The Review step becomes a live preview: with an incomplete draft it
       shows a best-effort summary (name/race/class/level, scores with
       modifiers, picked skills) plus the warning list instead of refusing.
-- [ ] Valid drafts keep today's full assembled preview.
-- [ ] jsdom test: preview reachable and rendering with an incomplete draft.
+- [x] Valid drafts keep today's full assembled preview.
+- [x] jsdom test: preview reachable and rendering with an incomplete draft.

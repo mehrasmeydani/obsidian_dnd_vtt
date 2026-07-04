@@ -77,4 +77,12 @@ wrong.
   resistances/immunities/vulnerabilities lists editable in edit mode
   (comma-separated). Stored on the character, round-trips the note.
 
+- **T-30 Free navigation** — every step header is always clickable and
+  Next never blocks; incomplete steps carry a red "!" marker and the
+  footer hint still says what's missing. Only "Create character"
+  requires a complete draft.
+- **T-31 Live preview** — the Review step now previews an incomplete
+  draft (name/race/class line, ability scores with modifiers, HP so
+  far, picked skills) under a "Still missing" list instead of refusing.
+
 <!-- appended as each fix lands -->

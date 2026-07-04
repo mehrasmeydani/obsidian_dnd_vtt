@@ -8,9 +8,9 @@ everything in order — incomplete fields should warn, not block — and only
 the final "Create character" should require a complete draft.
 
 ## Acceptance criteria
-- [ ] All step headers are always clickable; Next never blocks.
-- [ ] Incomplete steps show a warning marker in the header and a hint list
+- [x] All step headers are always clickable; Next never blocks.
+- [x] Incomplete steps show a warning marker in the header and a hint list
       on the step; the messages match validateDraft.
-- [ ] "Create character" stays disabled until the draft validates, listing
+- [x] "Create character" stays disabled until the draft validates, listing
       what's missing.
-- [ ] jsdom tests updated: jump ahead freely, create gated.
+- [x] jsdom tests updated: jump ahead freely, create gated.

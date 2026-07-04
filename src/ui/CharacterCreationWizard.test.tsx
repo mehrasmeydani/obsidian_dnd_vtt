@@ -32,6 +32,11 @@ function nextButton(): HTMLButtonElement {
   return screen.getByRole("button", { name: "Next" }) as HTMLButtonElement;
 }
 
+/** T-30: Next never blocks; incompleteness shows as the footer hint. */
+function stepIncomplete(): boolean {
+  return document.querySelector(".dvtt-wizard__hint") !== null;
+}
+
 /** The .dvtt-choice-group whose heading matches, for scoped queries. */
 function choiceGroup(heading: RegExp) {
   const group = screen.getByText(heading).parentElement;
@@ -48,21 +53,21 @@ describe("CharacterCreationWizard", () => {
 
     // Step 1: name & race. Next stays disabled — with an explanation — until
     // both are set.
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText("Enter a character name.")).toBeTruthy();
     fireEvent.change(screen.getByPlaceholderText(/Borin/), {
       target: { value: "Borin" },
     });
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText("Select a race.")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
     expect(screen.queryByText("Select a race.")).toBeNull();
     // The dwarf's artisan-tool pick (T-08) still gates the step.
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     fireEvent.change(screen.getByLabelText("Tool proficiency"), {
       target: { value: "smiths-tools" },
     });
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     // Step 2: class.
@@ -72,10 +77,10 @@ describe("CharacterCreationWizard", () => {
     // Step 3: class options — subclass is still locked at level 1, but the
     // fighter owes a Fighting Style.
     expect(screen.getByText(/Unlocks at level 3/)).toBeTruthy();
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText(/Choose 1 option for Fighting Style/)).toBeTruthy();
     fireEvent.click(screen.getByLabelText("Defense"));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     // Step 4: background.
@@ -89,23 +94,23 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     // Step 5: abilities — assign the standard array (rows are STR..CHA).
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     const selects = screen.getAllByRole("combobox");
     expect(selects).toHaveLength(6);
     const assignment = [15, 13, 14, 8, 12, 10]; // str dex con int wis cha
     assignment.forEach((value, i) => {
       fireEvent.change(selects[i], { target: { value: String(value) } });
     });
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     // Step 6: skills — acolyte's granted skills show as chips, not choices.
     expect(choiceGroup(/Granted by race/).getByText("Insight")).toBeTruthy();
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     const classGroup = choiceGroup(/Fighter skills/);
     fireEvent.click(classGroup.getByLabelText("Athletics"));
     fireEvent.click(classGroup.getByLabelText("Perception"));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     // Step 7: equipment — defaults are pre-selected; swap one choice.
@@ -114,7 +119,7 @@ describe("CharacterCreationWizard", () => {
       (screen.getByLabelText("Chain mail") as HTMLInputElement).checked,
     ).toBe(true);
     fireEvent.click(screen.getByLabelText("Greatsword"));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     // Step 8: review shows derived stats, then create.
@@ -163,11 +168,11 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     // Class options: the level-3 subclass is now owed alongside the style.
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText(/Choose a Fighter subclass/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /^Champion/ }));
     fireEvent.click(screen.getByLabelText("Archery"));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
@@ -185,31 +190,31 @@ describe("CharacterCreationWizard", () => {
     });
 
     // Scores assigned but ASI points not: still blocked, with a hint.
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText(/Assign 2 more improvement points/)).toBeTruthy();
 
     const asiGroup = choiceGroup(/Ability score improvements/);
     const plusButtons = asiGroup.getAllByRole("button", { name: "+" });
     fireEvent.click(plusButtons[0]); // STR +1
     fireEvent.click(plusButtons[2]); // CON +1
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
 
     // Flip the level-4 improvement to a feat (T-04): the assigned points no
     // longer fit the shrunken pool and are dropped; a pick is now owed.
     const levelRow = asiGroup.getByText("Level 4").parentElement!;
     fireEvent.click(within(levelRow).getByLabelText("Feat"));
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(
       screen.getByText("Choose a feat for the level-4 improvement."),
     ).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Feat for level 4"), {
       target: { value: "grappler" },
     });
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
 
     // Flipping back to points re-opens the 2-point pool.
     fireEvent.click(within(levelRow).getByLabelText("+2 points"));
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText(/Assign 2 more improvement points/)).toBeTruthy();
   });
 
@@ -379,13 +384,13 @@ describe("CharacterCreationWizard", () => {
     const expertiseGroup = () => choiceGroup(/Expertise — level 1/);
     fireEvent.click(expertiseGroup().getByLabelText("Stealth"));
     fireEvent.click(expertiseGroup().getByLabelText("Insight"));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
 
     // …then remove the Stealth proficiency: the expertise pick must be
     // released — the step blocks with honest hints instead of jamming.
     fireEvent.click(classGroup().getByLabelText("Stealth"));
     expect(expertiseGroup().queryByLabelText("Stealth")).toBeNull();
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText(/Choose 1 more class skill/)).toBeTruthy();
     // The stale pick was released: the counter dropped from 2/2 to 1/2.
     expect(screen.getByText(/Expertise — level 1 \(1\/2\)/)).toBeTruthy();
@@ -393,20 +398,24 @@ describe("CharacterCreationWizard", () => {
     // Recovering: re-check Stealth and expertise is choosable again.
     fireEvent.click(classGroup().getByLabelText("Stealth"));
     fireEvent.click(expertiseGroup().getByLabelText("Stealth"));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
   });
 
-  it("allows jumping between steps via the header once they are reachable", () => {
+  it("moves freely between all steps; incomplete ones carry a warning marker (T-30)", () => {
     render(
       <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
     );
-    const stepButton = (name: string) =>
+    const stepButton = (name: RegExp) =>
       screen.getByRole("button", { name }) as HTMLButtonElement;
 
-    // Nothing filled in: later steps are locked.
-    expect(stepButton("Class").disabled).toBe(true);
-    expect(stepButton("Review").disabled).toBe(true);
+    // Nothing filled in: every step is still clickable, but marked.
+    expect(stepButton(/Class options/).disabled).toBe(false);
+    expect(stepButton(/^Name & Race/).querySelector(".dvtt-wizard__step-warning")).toBeTruthy();
+    fireEvent.click(stepButton(/Background/));
+    expect(screen.getByText("Background", { selector: "h3" })).toBeTruthy();
 
+    // Complete the first step: its marker clears, others stay.
+    fireEvent.click(stepButton(/^Name & Race/));
     fireEvent.change(screen.getByPlaceholderText(/Borin/), {
       target: { value: "Borin" },
     });
@@ -414,25 +423,43 @@ describe("CharacterCreationWizard", () => {
     fireEvent.change(screen.getByLabelText("Tool proficiency"), {
       target: { value: "smiths-tools" },
     });
+    expect(stepButton(/^Name & Race/).querySelector(".dvtt-wizard__step-warning")).toBeNull();
+    expect(stepButton(/^Abilities/).querySelector(".dvtt-wizard__step-warning")).toBeTruthy();
 
-    // Step 1 is complete: Class unlocks, but steps beyond it stay locked.
-    expect(stepButton("Class").disabled).toBe(false);
-    expect(stepButton("Background").disabled).toBe(true);
-
-    fireEvent.click(stepButton("Class"));
-    fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
-    // Class options unlocks, but Background waits on the fighting style.
-    expect(stepButton("Class options").disabled).toBe(false);
-    expect(stepButton("Background").disabled).toBe(true);
-    fireEvent.click(stepButton("Class options"));
-    fireEvent.click(screen.getByLabelText("Defense"));
-    expect(stepButton("Background").disabled).toBe(false);
-
-    // Jump straight back to the first step — state is preserved.
-    fireEvent.click(stepButton("Name & Race"));
+    // Jump straight back — state is preserved.
+    fireEvent.click(stepButton(/^Abilities/));
+    fireEvent.click(stepButton(/^Name & Race/));
     expect(
       (screen.getByPlaceholderText(/Borin/) as HTMLInputElement).value,
     ).toBe("Borin");
+  });
+
+  it("previews an incomplete draft on the review step; Create stays gated (T-31)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Borin" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
+
+    // Jump straight to Review with plenty missing.
+    fireEvent.click(screen.getByRole("button", { name: /Review/ }));
+    expect(screen.getByText(/Borin — preview/)).toBeTruthy();
+    expect(screen.getByText(/Hill Dwarf · Fighter 1/)).toBeTruthy();
+    expect(screen.getByText("Still missing")).toBeTruthy();
+    expect(screen.getByText("Choose a background.")).toBeTruthy();
+    // Constitution shows the racial +2 already: 10 + 2.
+    expect(screen.getByText(/HP so far/)).toBeTruthy();
+    const create = screen.getByRole("button", {
+      name: "Create character",
+    }) as HTMLButtonElement;
+    expect(create.disabled).toBe(true);
   });
 
   it("walks a level-3 rogue through subclass and expertise picks", () => {
@@ -454,10 +481,10 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Rogue/ }));
     fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "3" } });
     fireEvent.click(nextButton());
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText(/Choose a Rogue subclass/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /^Thief/ }));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
@@ -481,12 +508,12 @@ describe("CharacterCreationWizard", () => {
     for (const skill of ["Stealth", "Acrobatics", "Deception", "Perception"]) {
       fireEvent.click(classGroup.getByLabelText(skill));
     }
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText(/Choose 2 skills for Expertise/)).toBeTruthy();
     const expertiseGroup = choiceGroup(/Expertise — level 1/);
     fireEvent.click(expertiseGroup.getByLabelText("Stealth"));
     fireEvent.click(expertiseGroup.getByLabelText("Insight"));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     // Equipment defaults, review, create.
@@ -570,21 +597,21 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(screen.getByRole("button", { name: /Dragonborn/ }));
 
     // Name and race set, but the ancestry pick still blocks the step.
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     expect(screen.getByText("Choose a Draconic Ancestry.")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Draconic Ancestry"), {
       target: { value: "red" },
     });
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
 
     // Switching race clears the pick; the hill dwarf owes its own tool pick.
     fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
     expect(screen.queryByLabelText("Draconic Ancestry")).toBeNull();
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     fireEvent.change(screen.getByLabelText("Tool proficiency"), {
       target: { value: "smiths-tools" },
     });
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
   });
 
   it("supports races with bonus ability and skill choices (half-elf bard)", () => {
@@ -609,7 +636,7 @@ describe("CharacterCreationWizard", () => {
     // the college at 3 too).
     expect(screen.getByText(/Unlocks at level 3/)).toBeTruthy();
     expect(screen.getByText(/Nothing else to choose/)).toBeTruthy();
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
@@ -624,11 +651,11 @@ describe("CharacterCreationWizard", () => {
     // Point buy: default all-8s is affordable, but the racial +1 picks still
     // gate the step.
     fireEvent.click(screen.getByLabelText("Point buy"));
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     const racialGroup = choiceGroup(/Half-Elf: \+1 to 2 abilities/);
     fireEvent.click(racialGroup.getByLabelText("Dexterity"));
     fireEvent.click(racialGroup.getByLabelText("Constitution"));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     // Bard: 3 class skills from any list; half-elf: 2 more from any. The same
@@ -637,15 +664,15 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(classGroup.getByLabelText("Athletics"));
     fireEvent.click(classGroup.getByLabelText("Performance"));
     fireEvent.click(classGroup.getByLabelText("Persuasion"));
-    expect(nextButton().disabled).toBe(true);
+    expect(stepIncomplete()).toBe(true);
     const bonusGroup = choiceGroup(/Additional skills/);
     fireEvent.click(bonusGroup.getByLabelText("Stealth"));
     fireEvent.click(bonusGroup.getByLabelText("Deception"));
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     // Equipment: bard defaults are valid as-is.
-    expect(nextButton().disabled).toBe(false);
+    expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
     fireEvent.click(screen.getByRole("button", { name: "Create character" }));

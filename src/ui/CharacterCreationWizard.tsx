@@ -137,14 +137,18 @@ export function CharacterCreationWizard({
   );
   const stepValid = blockers.length === 0;
 
-  // Farthest step reachable via the header: the first incomplete step blocks
-  // everything after it (same gating as the Next button).
-  const maxStep = useMemo(() => {
-    for (let i = 0; i < STEPS.length - 1; i++) {
-      if (stepBlockers(i, draft, method, assignments).length > 0) return i;
-    }
-    return STEPS.length - 1;
-  }, [draft, method, assignments]);
+  // Free navigation (T-30): nothing blocks movement — incomplete steps get
+  // a warning marker in the header instead, and only "Create character"
+  // requires a complete draft.
+  const incomplete = useMemo(
+    () =>
+      STEPS.map(
+        (_, i) =>
+          i < STEPS.length - 1 &&
+          stepBlockers(i, draft, method, assignments).length > 0,
+      ),
+    [draft, method, assignments],
+  );
 
   const switchMethod = (next: AbilityMethod) => {
     setMethod(next);
@@ -184,11 +188,16 @@ export function CharacterCreationWizard({
               }
             >
               <button
-                className="dvtt-wizard__step"
-                disabled={i > maxStep}
+                className={`dvtt-wizard__step${incomplete[i] ? " is-incomplete" : ""}`}
+                title={incomplete[i] ? "This step has missing fields" : undefined}
                 onClick={() => setStep(i)}
               >
                 {label}
+                {incomplete[i] && (
+                  <span className="dvtt-wizard__step-warning" aria-label="incomplete">
+                    !
+                  </span>
+                )}
               </button>
             </li>
           ))}
@@ -236,11 +245,7 @@ export function CharacterCreationWizard({
             <button onClick={() => setStep(step - 1)}>Back</button>
           )}
           {step < STEPS.length - 1 && (
-            <button
-              className="mod-cta"
-              disabled={!stepValid}
-              onClick={() => setStep(step + 1)}
-            >
+            <button className="mod-cta" onClick={() => setStep(step + 1)}>
               Next
             </button>
           )}
@@ -1783,14 +1788,60 @@ function EquipmentStep({
 function ReviewStep({ draft }: { draft: CharacterDraft }) {
   const errors = validateDraft(draft);
   if (errors.length > 0) {
+    // Live preview (T-31): an incomplete draft still previews what exists,
+    // with the remaining work listed above it — never a dead end.
+    const scores = finalAbilityScores(draft);
+    const headline = [
+      draft.race?.name,
+      draft.charClass ? `${draft.charClass.name} ${draft.level}` : null,
+      draft.background?.name,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    const skills = [...new Set(draftProficientSkills(draft))];
     return (
       <div>
-        <h3>Almost there</h3>
-        <ul className="dvtt-errors">
-          {errors.map((e) => (
-            <li key={e}>{e}</li>
+        <h3>{draft.name.trim() || "Unnamed character"} — preview</h3>
+        <p className="dvtt-review__subtitle">
+          {headline || "Nothing chosen yet."}
+        </p>
+        <div className="dvtt-choice-group">
+          <h4>Still missing</h4>
+          <ul className="dvtt-errors">
+            {errors.map((e) => (
+              <li key={e}>{e}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="dvtt-review__grid">
+          {ABILITIES.map((a) => (
+            <div key={a} className="dvtt-ability">
+              <div className="dvtt-ability__name">{ABILITY_LABELS[a]}</div>
+              <div className="dvtt-ability__score">{scores[a]}</div>
+              <div className="dvtt-ability__mod">
+                {formatModifier(abilityModifier(scores[a]))}
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
+        {draft.charClass && (
+          <p>
+            <strong>HP so far:</strong>{" "}
+            {startingHp(
+              draft.charClass.hitDie,
+              abilityModifier(scores.con),
+              draft.level,
+              draft.hpMode === "rolled" && draft.hpRolls.length >= draft.level - 1
+                ? draft.hpRolls
+                : undefined,
+            )}{" "}
+            (d{draft.charClass.hitDie}, {draft.hpMode})
+          </p>
+        )}
+        <p>
+          <strong>Proficient skills:</strong>{" "}
+          {skills.map(humanizeSkill).join(", ") || "none yet"}
+        </p>
       </div>
     );
   }

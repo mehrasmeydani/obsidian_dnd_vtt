@@ -42,8 +42,8 @@ flip its status here and tick the roadmap item it maps to.
 | [T-27](T-27-dice-roll-animation.md) | Dice roll animation | P2 | S | 1 | T-07 | needs-check |
 | [T-28](T-28-skill-pick-cross-filtering.md) | Skill picks filter across lists | P2 | S | 1 | — | needs-check |
 | [T-29](T-29-hover-info-cards.md) | Hover info cards (future) | P3 | L | 2+ | T-14 | todo |
-| [T-30](T-30-free-wizard-navigation.md) | Free wizard navigation + warnings | P1 | M | 1 | — | todo |
-| [T-31](T-31-creator-preview.md) | Live preview in the creator | P2 | S | 1 | T-30 | todo |
+| [T-30](T-30-free-wizard-navigation.md) | Free wizard navigation + warnings | P1 | M | 1 | — | needs-check |
+| [T-31](T-31-creator-preview.md) | Live preview in the creator | P2 | S | 1 | T-30 | needs-check |
 | [T-32](T-32-sheet-sections-togglable.md) | Togglable sheet sections | P1 | M | 1 | T-01 | needs-check |
 | [T-33](T-33-features-grouped-by-source.md) | Features grouped by origin | P2 | S | 1 | T-01 | needs-check |
 | [T-34](T-34-rest-confirmation.md) | Rest buttons confirm | P2 | XS | 1 | T-01 | needs-check |
