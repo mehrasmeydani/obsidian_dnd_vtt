@@ -55,6 +55,17 @@ wrong.
   real 2024 rewrite exists (Assassin), it wins over the re-listed 2014
   version. The `_copy` skip log lines should be gone.
 
+- **T-44 fold depth precedence** — deeper data now wins the class fold:
+  with your 5etools import enabled, every 2024 class card gets the
+  import's full 1–20 class features (SRD effects like Unarmored Defense
+  re-attached; Weapon Mastery / Divine Order / Expertise pickers kept),
+  and a staged level-3-only SRD subclass loses its name tie to the
+  import's full version. Verify: 2024 Barbarian → Path of the Berserker
+  shows 3/6/10/14 features; a level-5 2024 Barbarian gets Extra Attack &
+  Fast Movement; a 2024 monk/barbarian's AC still uses Unarmored
+  Defense. 2014 cards are unchanged. (No re-import needed — the fix is
+  in the merge, not the importer.)
+
 ## From the big backlog round (2026-07-04)
 
 - **T-10 Player notes** — "Create session note" command; visibility via

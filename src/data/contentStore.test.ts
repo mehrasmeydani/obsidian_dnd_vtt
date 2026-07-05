@@ -42,8 +42,12 @@ function bundle(name: string, races: RaceData[]): ContentBundle {
   };
 }
 
-function subclass(id: string, name: string): SubclassData {
-  return { id, name, features: [], featureChoices: [] };
+function subclass(
+  id: string,
+  name: string,
+  features: SubclassData["features"] = [],
+): SubclassData {
+  return { id, name, features, featureChoices: [] };
 }
 
 /** A minimal imported-style class (a distinct id from any SRD entry). */
@@ -52,6 +56,7 @@ function importedClass(
   name: string,
   edition: "2014" | "2024",
   subclasses: SubclassData[],
+  features: ClassData["features"] = [],
 ): ClassData {
   return {
     id,
@@ -60,7 +65,7 @@ function importedClass(
     hitDie: 12,
     savingThrows: ["str", "con"],
     skillChoice: { count: 2, from: "any" },
-    features: [],
+    features,
     proficiencies: { armor: [], weapons: [], tools: [] },
     resources: [],
     asiLevels: [4],
@@ -225,6 +230,100 @@ describe("subclass folding (same class name + edition)", () => {
     store.addBundle("override.json", classBundle("Override", [replacement]));
     const barbarian = store.classes.find((c) => c.id === "barbarian");
     expect(barbarian?.subclasses.map((s) => s.name)).toEqual(["Only Sub"]);
+  });
+
+  it("replaces a staged subclass stub with a deeper imported one (T-44)", () => {
+    const store = new ContentStore();
+    const deepBerserker = subclass(
+      "path-of-the-berserker-xphb",
+      "Path of the Berserker",
+      [
+        { name: "Frenzy", level: 3, description: "Extra damage.", effects: [] },
+        { name: "Mindless Rage", level: 6, effects: [] },
+        { name: "Retaliation", level: 10, effects: [] },
+        { name: "Intimidating Presence", level: 14, effects: [] },
+      ],
+    );
+    store.addBundle(
+      "xphb-import.json",
+      classBundle("XPHB import", [
+        importedClass("class-barbarian-xphb", "Barbarian", "2024", [
+          deepBerserker,
+        ]),
+      ]),
+    );
+    const card = store.classes.find(
+      (c) => c.name === "Barbarian" && c.edition === "2024",
+    );
+    const berserkers = card?.subclasses.filter(
+      (s) => s.name === "Path of the Berserker",
+    );
+    expect(berserkers).toHaveLength(1);
+    // The staged SRD 5.2 stub (one level-3 feature) loses to the import.
+    expect(berserkers?.[0].id).toBe("path-of-the-berserker-xphb");
+    expect(berserkers?.[0].features.map((f) => f.level).sort((a, b) => a - b))
+      .toEqual([3, 6, 10, 14]);
+  });
+
+  it("adopts a deeper imported class progression, keeping SRD effects and choices (T-44)", () => {
+    const store = new ContentStore();
+    const imported = importedClass(
+      "class-barbarian-xphb",
+      "Barbarian",
+      "2024",
+      [],
+      [
+        { name: "Rage", level: 1, description: "Imported text.", effects: [] },
+        { name: "Unarmored Defense", level: 1, description: "Text only.", effects: [] },
+        { name: "Extra Attack", level: 5, effects: [] },
+        { name: "Primal Champion", level: 20, effects: [] },
+      ],
+    );
+    store.addBundle("xphb-import.json", classBundle("XPHB import", [imported]));
+    const srd = CLASSES.find((c) => c.id === "barbarian-2024") as ClassData;
+    const card = store.classes.find(
+      (c) => c.name === "Barbarian" && c.edition === "2024",
+    ) as ClassData;
+    // The level-1-only staged card adopts the import's full progression…
+    expect(card.id).toBe("barbarian-2024");
+    expect(card.features.some((f) => f.name === "Extra Attack")).toBe(true);
+    expect(Math.max(...card.features.map((f) => f.level))).toBe(20);
+    // …with the SRD's mechanical effects re-attached by name…
+    const unarmored = card.features.find((f) => f.name === "Unarmored Defense");
+    expect(unarmored?.effects).toEqual([
+      { kind: "unarmored-defense", ability: "con", shield: true },
+    ]);
+    // …while choices, proficiencies, equipment and resources stay the SRD's.
+    expect(card.featureChoices).toEqual(srd.featureChoices);
+    expect(card.proficiencies).toEqual(srd.proficiencies);
+    expect(card.equipment).toEqual(srd.equipment);
+    expect(card.resources).toEqual(srd.resources);
+  });
+
+  it("leaves a deep SRD (2014) card's features untouched by an import (T-44)", () => {
+    const store = new ContentStore();
+    const imported = importedClass(
+      "class-barbarian-phb",
+      "Barbarian",
+      "2014",
+      [
+        subclass("path-of-the-berserker-phb", "Path of the Berserker", [
+          { name: "Frenzy", level: 3, description: "Import.", effects: [] },
+        ]),
+      ],
+      [{ name: "Rage", level: 1, description: "Import.", effects: [] }],
+    );
+    store.addBundle("phb-import.json", classBundle("PHB import", [imported]));
+    const srd = CLASSES.find((c) => c.id === "barbarian") as ClassData;
+    const card = store.classes.find(
+      (c) => c.name === "Barbarian" && c.edition === "2014",
+    ) as ClassData;
+    // SRD 5.1 carries the full T-21 progression — deeper than any stub, so
+    // both the class features and the curated Berserker stay the SRD's.
+    expect(card.features).toEqual(srd.features);
+    expect(
+      card.subclasses.find((s) => s.name === "Path of the Berserker")?.id,
+    ).toBe("path-of-the-berserker");
   });
 
   it("does not fold from disabled bundles", () => {

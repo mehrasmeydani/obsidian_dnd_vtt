@@ -28,24 +28,34 @@ holes that hit **all 12** 2024 SRD cards:
    features even with a complete import installed.
 
 ## Acceptance criteria
-- [ ] Subclass name tie in the fold: keep the *deeper* record (higher max
+- [x] Subclass name tie in the fold: keep the *deeper* record (higher max
       feature level); the existing card still wins true ties, preserving
       SRD curation where SRD data is complete (2014).
-- [ ] Class-feature fold: when the base card's features stop at level 1
+- [x] Class-feature fold: when the base card's features stop at level 1
       and the incoming same-name/same-edition class carries a deeper
       progression, adopt the incoming feature list — but **preserve SRD
       feature effects** by re-attaching effects from same-named SRD
       features (Unarmored Defense's `unarmored-defense` effect drives AC;
       losing it would break derived stats).
-- [ ] Never adopt incoming `featureChoices`/equipment/proficiencies/
+- [x] Never adopt incoming `featureChoices`/equipment/proficiencies/
       resources wholesale — the SRD card keeps those (imports don't
       model choices; the Weapon Mastery / Divine Order pickers must
       survive).
-- [ ] Regression tests: a shallow-SRD + deep-import fold produces a deep
+- [x] Regression tests: a shallow-SRD + deep-import fold produces a deep
       card with SRD effects and choices intact; a deep-SRD (2014) card is
       unchanged by an import.
 - [ ] User verifies in Obsidian: 2024 Berserker shows 3/6/10/14 features;
       a level-5 2024 Barbarian gets its full class progression.
+
+## Implementation notes (2026-07-05)
+`contentStore.ts` fold: `maxFeatureLevel` is the depth tiebreaker;
+`withDonorEffects` re-attaches the losing record's effects onto
+same-named features that carry none; a deeper same-named subclass also
+inherits the loser's `featureChoices` when it has none of its own.
+Verified against the reference import: all 12 2024 cards reach L20
+class features, Berserker 3/6/10/14, Weapon Mastery / Primal Knowledge
+pickers and both Unarmored Defense effects intact, 2014 cards
+byte-identical to SRD.
 
 ## Non-goals / alternatives considered
 - **Wholesale replace SRD card with the import** — rejected: imports have
@@ -58,4 +68,4 @@ holes that hit **all 12** 2024 SRD cards:
   imports work correctly *now* and as a permanent guard for any shallow
   bundle entry.
 
-## Status: todo
+## Status: needs-check
