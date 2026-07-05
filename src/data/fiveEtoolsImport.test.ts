@@ -6,6 +6,7 @@ import {
   classesFromFiveEtools,
   featFromFiveEtools,
   itemFromFiveEtools,
+  monsterFromFiveEtools,
   importFiveEtools,
   raceFromFiveEtools,
   renderEntries,
@@ -571,6 +572,56 @@ describe("itemFromFiveEtools", () => {
     });
     expect(item.type).toBe("Melee weapon");
     expect(item.requiresAttunement).toBe(false);
+  });
+});
+
+// --- Monsters ----------------------------------------------------------
+
+describe("monsterFromFiveEtools", () => {
+  it("maps a full stat block", () => {
+    const monster = monsterFromFiveEtools({
+      name: "Test Wyrm",
+      source: "MM",
+      size: ["H"],
+      type: { type: "dragon", tags: ["fire"] },
+      alignment: ["C", "E"],
+      ac: [{ ac: 19, from: ["natural armor"] }],
+      hp: { average: 256, formula: "19d12 + 133" },
+      speed: { walk: 40, fly: { number: 80, condition: "(hover)" } },
+      str: 27, dex: 10, con: 25, int: 16, wis: 13, cha: 21,
+      cr: "17",
+      senses: ["darkvision 120 ft."],
+      languages: ["Common", "Draconic"],
+      trait: [{ name: "Legendary Resistance (3/Day)", entries: ["It succeeds anyway."] }],
+      action: [{ name: "Bite", entries: ["{@atk mw} {@hit 14} to hit."] }],
+      legendary: [{ name: "Detect", entries: ["Perception check."] }],
+    });
+    expect(monster).toMatchObject({
+      id: "5etools-monster-test-wyrm-mm",
+      size: "Huge",
+      type: "dragon",
+      alignment: "chaotic evil",
+      armorClass: 19,
+      armorDescription: "natural armor",
+      hitPoints: 256,
+      hitDice: "19d12 + 133",
+      speed: { walk: 40, fly: 80 },
+      challengeRating: "17",
+      senses: "darkvision 120 ft.",
+    });
+    expect(monster.abilityScores.str).toBe(27);
+    expect(monster.traits[0].name).toBe("Legendary Resistance (3/Day)");
+    expect(monster.actions[0].description).not.toContain("{@");
+    expect(monster.legendaryActions).toHaveLength(1);
+  });
+
+  it("rejects stat blocks without AC or HP", () => {
+    expect(() =>
+      monsterFromFiveEtools({ name: "Ghost Data", hp: { special: "?" }, ac: [10] }),
+    ).toThrow(/hit points/);
+    expect(() =>
+      monsterFromFiveEtools({ name: "Ghost Data", hp: { average: 10 } }),
+    ).toThrow(/armor class/);
   });
 });
 

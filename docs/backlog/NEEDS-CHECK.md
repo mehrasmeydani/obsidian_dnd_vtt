@@ -13,12 +13,15 @@ T-46…T-56 on the board.)*
   split into a "5.5e (2024)" section on top and "5e (2014)" below
   instead of mixing editions. Verify all three steps.
 
-- **Items & spells import** — the importer now ingests 5etools
-  `item`/`baseitem`; `items.json`, `items-base.json`, `spells-phb.json`
-  and `spells-xphb.json` were copied into your vault's `5etools`
-  folder. **Re-run "Import 5etools data"**, then check settings show the
-  bundle grew (~2,658 items, ~752 spells). Nothing browses them yet —
-  that's T-48 (loot picker) and T-15 (spell selection).
+- **Items, spells & monsters import** — the importer now ingests
+  5etools `item`/`baseitem` and `monster`; `items.json`,
+  `items-base.json`, `spells-phb.json`, `spells-xphb.json`,
+  `bestiary-mm.json` and `bestiary-xmm.json` were copied into your
+  vault's `5etools` folder. **Re-run "Import 5etools data"**, then
+  check the import notice / console: ~2,658 items, ~752 spells,
+  ~953 monsters, no skipped records from these files. Nothing browses
+  them yet — that's T-48 (loot picker), T-15 (spells) and T-57
+  (encounter planner).
 
 - **T-10 Player notes** — "Create session note" command; visibility via
   frontmatter (`private`/`party`/`dm`); sessions folder setting.

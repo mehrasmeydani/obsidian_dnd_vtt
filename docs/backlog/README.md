@@ -69,6 +69,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-54](T-54-skills-consolidated.md) | All skill/expertise picks on Skills step | P2 | S | 1 | T-28 | todo |
 | [T-55](T-55-sheet-rolling.md) | Sheet dice rolling (adv/dis, party hooks) | P2 | L | 2 | T-01, T-27 | todo |
 | [T-56](T-56-starting-equipment-quality.md) | Starting equipment data quality pass | P3 | S | 1 | T-07 | todo |
+| [T-57](T-57-encounter-planner.md) | Encounter planner (future phase) | P3 | XL | 3+ | T-14 | todo |
 
 ## Suggested order
 

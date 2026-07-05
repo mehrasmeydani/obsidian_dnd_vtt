@@ -11,6 +11,7 @@ import type {
   EquipmentItem,
   FeatData,
   ItemData,
+  MonsterData,
   RaceData,
   SpellData,
   StartingEquipment,
@@ -1044,6 +1045,131 @@ export function itemFromFiveEtools(raw: unknown): ItemData {
 }
 
 // ---------------------------------------------------------------------------
+// Monsters (bestiary).
+// ---------------------------------------------------------------------------
+
+const SIZE_NAMES: Record<string, string> = {
+  T: "Tiny",
+  S: "Small",
+  M: "Medium",
+  L: "Large",
+  H: "Huge",
+  G: "Gargantuan",
+};
+
+const ALIGNMENT_NAMES: Record<string, string> = {
+  L: "lawful",
+  N: "neutral",
+  C: "chaotic",
+  G: "good",
+  E: "evil",
+  U: "unaligned",
+  A: "any alignment",
+};
+
+function monsterTraits(entries: unknown): { name: string; description?: string }[] {
+  if (!Array.isArray(entries)) return [];
+  return entries
+    .filter(
+      (e): e is { name?: unknown; entries?: unknown } =>
+        !!e && typeof e === "object",
+    )
+    .map((e) => ({
+      name: typeof e.name === "string" ? stripTags(e.name) : "—",
+      description: renderEntries(e.entries) || undefined,
+    }));
+}
+
+export function monsterFromFiveEtools(raw: unknown): MonsterData {
+  const m = raw as Record<string, unknown>;
+  if (!m || typeof m.name !== "string") throw new Error("no name");
+  if (m._copy) throw new Error("unresolved _copy (base record not found)");
+
+  // AC entries are numbers or { ac, from }; the first is the headline value.
+  const acEntry = Array.isArray(m.ac) ? m.ac[0] : m.ac;
+  const armorClass =
+    typeof acEntry === "number"
+      ? acEntry
+      : acEntry && typeof (acEntry as { ac?: unknown }).ac === "number"
+        ? ((acEntry as { ac: number }).ac)
+        : undefined;
+  if (armorClass === undefined) throw new Error("no armor class");
+  const acFrom =
+    acEntry && typeof acEntry === "object"
+      ? (acEntry as { from?: unknown[] }).from
+      : undefined;
+
+  const hp = m.hp as { average?: unknown; formula?: unknown } | undefined;
+  if (!hp || typeof hp.average !== "number") throw new Error("no hit points");
+
+  // Speeds are numbers or { number, condition } per movement mode.
+  const speed: Record<string, number> = {};
+  if (m.speed && typeof m.speed === "object") {
+    for (const [mode, value] of Object.entries(m.speed as Record<string, unknown>)) {
+      if (typeof value === "number") speed[mode] = value;
+      else if (value && typeof (value as { number?: unknown }).number === "number") {
+        speed[mode] = (value as { number: number }).number;
+      }
+    }
+  }
+
+  const scores = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
+  for (const ability of Object.keys(scores) as (keyof typeof scores)[]) {
+    if (typeof m[ability] === "number") scores[ability] = m[ability] as number;
+  }
+
+  const type =
+    typeof m.type === "string"
+      ? m.type
+      : m.type && typeof (m.type as { type?: unknown }).type === "string"
+        ? ((m.type as { type: string }).type)
+        : "unknown";
+  const cr =
+    typeof m.cr === "string"
+      ? m.cr
+      : m.cr && typeof (m.cr as { cr?: unknown }).cr === "string"
+        ? ((m.cr as { cr: string }).cr)
+        : "—";
+  const alignment = Array.isArray(m.alignment)
+    ? m.alignment
+        .filter((a): a is string => typeof a === "string")
+        .map((a) => ALIGNMENT_NAMES[a] ?? a)
+        .join(" ") || undefined
+    : undefined;
+  const joined = (value: unknown) =>
+    Array.isArray(value)
+      ? value.filter((v): v is string => typeof v === "string").join(", ") ||
+        undefined
+      : undefined;
+
+  return {
+    id: importId("monster", m.name, m.source as string | undefined),
+    name: m.name,
+    size: Array.isArray(m.size)
+      ? (SIZE_NAMES[String(m.size[0])] ?? String(m.size[0]))
+      : "Medium",
+    type,
+    alignment,
+    armorClass,
+    armorDescription: Array.isArray(acFrom)
+      ? stripTags(acFrom.filter((f): f is string => typeof f === "string").join(", ")) ||
+        undefined
+      : undefined,
+    hitPoints: hp.average,
+    hitDice: typeof hp.formula === "string" ? hp.formula : undefined,
+    speed,
+    abilityScores: scores,
+    challengeRating: cr,
+    senses: joined(m.senses),
+    languages: joined(m.languages),
+    traits: monsterTraits(m.trait),
+    actions: monsterTraits(m.action),
+    reactions: monsterTraits(m.reaction),
+    legendaryActions: monsterTraits(m.legendary),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Spells.
 // ---------------------------------------------------------------------------
 
@@ -1211,6 +1337,7 @@ export function importFiveEtools(
     "spell",
     "item",
     "baseitem",
+    "monster",
     "_meta",
   ]);
 
@@ -1253,6 +1380,7 @@ export function importFiveEtools(
     // weapons/armor table (items-base.json).
     convertEach("item", "item", itemFromFiveEtools, bundle.items);
     convertEach("baseitem", "item", itemFromFiveEtools, bundle.items);
+    convertEach("monster", "monster", monsterFromFiveEtools, bundle.monsters);
     if (Array.isArray(data.class)) {
       const { classes, skipped: classSkipped } = classesFromFiveEtools(
         data as FiveEtoolsClassFile,
