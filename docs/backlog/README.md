@@ -56,6 +56,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-41](T-41-rules-glossary.md) | Rules glossary: mechanics as content | P2 | M | 2 | T-11 | todo |
 | [T-42](T-42-import-fluff-lore.md) | Import 5etools fluff as lore text | P3 | S | 2 | T-13 | todo |
 | [T-43](T-43-5etools-copy-resolution.md) | 5etools importer: resolve `_copy` variants | P2 | M | 2 | T-13 | needs-check |
+| [T-44](T-44-fold-depth-precedence.md) | Content fold: deeper data wins over staged SRD stubs | P1 | M | 2 | T-17, T-43 | todo |
 
 ## Suggested order
 
