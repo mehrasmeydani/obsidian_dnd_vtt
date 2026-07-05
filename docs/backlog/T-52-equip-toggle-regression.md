@@ -8,17 +8,25 @@ shield again — the toggle has disappeared from the inventory.
 
 ## Notes
 - User report (`todo`, 2026-07-05, #major), against T-22/T-36.
-- T-36 intentionally narrowed the toggle to armor-linked items
-  (`Item.armorId`); suspicion: characters whose gear lost/never got
-  `armorId` (2024 classes? imported content? loot added by hand) show
-  no toggles at all — the narrowing turns into "nothing is equippable".
-- Investigate: 2024 class equipment data linking, assembly's
-  auto-link-by-name, and notes saved before armorId existed.
+- **Design correction from the user (mid-fix):** it's not an armor-link
+  bug — *everything* should be equippable (greataxe, handaxe, backpack:
+  carried on your person vs left in a cart/on a horse). T-36's
+  "wearables only" rule is retired; slot limits stay with T-38.
+
+## Resolution (2026-07-05)
+- Every inventory item gets the equip toggle again (read-mode chip
+  button + edit-mode checkbox). The one-body-armor doffing rule and
+  armor-driven AC are unchanged; equipping non-armor gear never moves
+  AC.
+- Bonus hardening: `linkArmorByName` (rules/armorClass.ts) re-links
+  `armorId` by name — applied at assembly and when parsing notes, so
+  characters saved before armorId existed get their armor feeding AC
+  again; tolerates a trailing " armor" (fixes ranger-2024's "Studded
+  leather armor").
 
 ## Acceptance criteria
-- [ ] Root cause identified and covered by a regression test.
-- [ ] Armor/shield items show the equip toggle again on affected
-      characters (including already-saved notes).
+- [x] Root cause identified and covered by regression tests.
+- [x] Every item shows the equip toggle (including already-saved notes).
 - [ ] User verifies in Obsidian.
 
-## Status: todo
+## Status: needs-check

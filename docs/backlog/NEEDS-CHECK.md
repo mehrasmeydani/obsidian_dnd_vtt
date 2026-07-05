@@ -18,9 +18,14 @@ T-46…T-56 on the board.)*
   layer will filter on, so today the check is just: note created in the
   right folder, frontmatter keys present, your prose preserved on edit.
 
-- **T-22 / T-36 Equip & Wearing/Bags** — kept open: your report
-  "equipping items is gone again" is being fixed under **T-52**;
-  re-verify both once it ships.
+- **T-22 / T-36 / T-52 Equipping** — fixed per your rule: **every**
+  item can equip now (greataxe, backpack — on your person vs in
+  bags/cart/horse), not just armor. Verify: read-mode inventory chips
+  are all clickable toggles; "Wearing" vs "In bags" follows them;
+  equipping armor still moves AC (and a second body armor doffs the
+  first) while non-armor gear never changes AC; an *old* character
+  note's armor also moves AC again (links heal on load). Slot limits
+  (one body armor, two hands…) remain future work under T-38.
 
 - **T-23 Frontmatter projection** — kept in progress at your request
   (`hp`/`hp_max`/`race` two-way; `ac`/`level`/`class` write-only).

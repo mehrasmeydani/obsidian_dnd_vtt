@@ -64,7 +64,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-49](T-49-edition-sections.md) | Wizard lists: 5e / 5.5e sections | P2 | S | 1 | T-17 | todo |
 | [T-50](T-50-import-folder-howto.md) | Importer how-to when folder missing | P3 | XS | 2 | T-13 | todo |
 | [T-51](T-51-class-choice-audit.md) | Class choice audit (Metamagic & co.) | P1 | L | 1 | T-21 | todo |
-| [T-52](T-52-equip-toggle-regression.md) | Regression: equip toggle gone | P1 | S | 1 | T-22, T-36 | todo |
+| [T-52](T-52-equip-toggle-regression.md) | Regression: equip toggle gone | P1 | S | 1 | T-22, T-36 | needs-check |
 | [T-53](T-53-asi-source-labels.md) | Ability bonus labels name their source | P3 | XS | 1 | T-26 | todo |
 | [T-54](T-54-skills-consolidated.md) | All skill/expertise picks on Skills step | P2 | S | 1 | T-28 | todo |
 | [T-55](T-55-sheet-rolling.md) | Sheet dice rolling (adv/dis, party hooks) | P2 | L | 2 | T-01, T-27 | todo |

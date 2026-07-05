@@ -5,7 +5,7 @@ import {
   type Character,
 } from "../model/schema";
 import { totalLevel } from "../rules/abilityMath";
-import { armorClass } from "../rules/armorClass";
+import { armorClass, linkArmorByName } from "../rules/armorClass";
 import {
   readProjection,
   writeProjection,
@@ -213,13 +213,20 @@ export function parseCharacterNote(content: string): ParseResult {
     };
   }
 
+  // Heal armor links (T-52): notes saved before `armorId` existed (or
+  // hand-added gear) get re-linked by name so equipping them moves AC.
+  const healed = {
+    ...character.data,
+    inventory: linkArmorByName(character.data.inventory),
+  };
+
   // Fold hand-edited two-way frontmatter back in (T-23): the serializer
   // writes envelope and frontmatter in sync, so a difference here is a
   // newer hand edit and wins; invalid edits are ignored (and rewritten on
   // the next save).
   return {
     ok: true,
-    character: readProjection(content, character.data, CHARACTER_PROJECTION),
+    character: readProjection(content, healed, CHARACTER_PROJECTION),
   };
 }
 

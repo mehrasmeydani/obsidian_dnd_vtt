@@ -15,6 +15,27 @@ import { abilityModifier } from "./abilityMath";
  * An equipped shield adds its bonus on top of 2–4 (for 3, only when the
  * formula allows it).
  */
+/**
+ * Link inventory items to armor data by name (T-52): items from notes
+ * saved before `armorId` existed — or added by hand — carry none, which
+ * silently drops them from the AC formula. Case-insensitive exact name
+ * match, with a trailing " armor" tolerated ("Studded leather armor" →
+ * "Studded Leather"). Already-linked items are left alone.
+ */
+export function linkArmorByName<T extends { name: string; armorId?: string }>(
+  items: T[],
+  armorList: ArmorData[] = ARMOR,
+): T[] {
+  const byName = new Map(armorList.map((a) => [a.name.toLowerCase(), a]));
+  const lookup = (name: string) =>
+    byName.get(name) ?? byName.get(name.replace(/ armou?r$/, ""));
+  return items.map((item) => {
+    if (item.armorId !== undefined) return item;
+    const armor = lookup(item.name.trim().toLowerCase());
+    return armor ? { ...item, armorId: armor.id } : item;
+  });
+}
+
 export function armorClass(
   character: Character,
   armorList: ArmorData[] = ARMOR,

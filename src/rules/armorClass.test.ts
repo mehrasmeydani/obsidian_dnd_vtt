@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { emptyCharacter, type Character, type Item } from "../model/schema";
-import { armorClass } from "./armorClass";
+import { armorClass, linkArmorByName } from "./armorClass";
 
 /**
  * Every AC derivation path (T-06): override, body armor per type (light /
@@ -97,5 +97,42 @@ describe("armorClass", () => {
       inventory: [{ id: "x", name: "X", quantity: 1, equipped: true, armorId: "mystery" }],
     });
     expect(armorClass(c)).toBe(12);
+  });
+});
+
+describe("linkArmorByName (T-52)", () => {
+  const item = (name: string, armorId?: string): Item => ({
+    id: name.toLowerCase().replace(/\s+/g, "-"),
+    name,
+    quantity: 1,
+    equipped: false,
+    ...(armorId ? { armorId } : {}),
+  });
+
+  it("links unlinked items by exact name, case-insensitively", () => {
+    const [linked] = linkArmorByName([item("scale MAIL")]);
+    expect(linked.armorId).toBe("scale-mail");
+  });
+
+  it("tolerates a trailing 'armor' (ranger-2024's Studded leather armor)", () => {
+    const [linked] = linkArmorByName([item("Studded leather armor")]);
+    expect(linked.armorId).toBe("studded-leather");
+  });
+
+  it("leaves already-linked and non-armor items alone", () => {
+    const items = [item("Rope"), item("Leather Armor", "custom-id")];
+    const [rope, leather] = linkArmorByName(items);
+    expect(rope.armorId).toBeUndefined();
+    expect(leather.armorId).toBe("custom-id");
+  });
+
+  it("healed links feed the AC formula", () => {
+    const c = withDex(18, {
+      inventory: linkArmorByName([item("Leather Armor")]).map((i) => ({
+        ...i,
+        equipped: true,
+      })),
+    });
+    expect(armorClass(c)).toBe(15); // 11 + 4, same as a pre-linked item
   });
 });

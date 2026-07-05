@@ -287,14 +287,15 @@ describe("equip toggle (T-22, always live)", () => {
 
   const ac = () => screen.getByText("AC").nextElementSibling?.textContent;
 
-  it("renders wearables as toggle buttons; other items as plain chips (T-36)", () => {
-    renderSheet(armoredCharacter());
+  it("renders every item as an equip toggle button (T-52)", () => {
+    const { last } = renderSheet(armoredCharacter());
     const leather = screen.getByRole("button", { name: /Leather armor/ });
     expect(leather.getAttribute("aria-pressed")).toBe("true");
     expect(leather.classList.contains("is-equipped")).toBe(true);
-    // Non-wearables (rope) are not equippable — no button, just a chip.
-    expect(screen.queryByRole("button", { name: "Rope" })).toBeNull();
-    expect(screen.getByText("Rope")).toBeTruthy();
+    // Non-armor gear equips too (carried on your person vs stowed) —
+    // it just doesn't feed AC.
+    fireEvent.click(screen.getByRole("button", { name: /^Rope/ }));
+    expect(last().inventory.find((i) => i.id === "rope")?.equipped).toBe(true);
   });
 
   it("splits read mode into Wearing and In bags (T-36)", () => {
@@ -349,28 +350,36 @@ describe("equip toggle (T-22, always live)", () => {
     expect(last().inventory.find((i) => i.id === "leather")?.equipped).toBe(false);
   });
 
-  it("edit mode offers the Equipped checkbox only for wearables (T-36)", () => {
+  it("edit mode offers the Equipped checkbox on every item (T-52)", () => {
     renderSheet(armoredCharacter());
     enterEditMode();
     expect(screen.getByLabelText("Item 1 equipped")).toBeTruthy(); // leather
     expect(screen.getByLabelText("Item 3 equipped")).toBeTruthy(); // shield
-    expect(screen.queryByLabelText("Item 4 equipped")).toBeNull(); // rope
+    expect(screen.getByLabelText("Item 4 equipped")).toBeTruthy(); // rope
+  });
+
+  it("equipping non-armor gear never changes AC (T-52)", () => {
+    renderSheet(armoredCharacter());
+    expect(ac()).toBe("14");
+    fireEvent.click(screen.getByRole("button", { name: "Rope" }));
+    expect(ac()).toBe("14");
   });
 });
 
 describe("collapsible sections (T-32)", () => {
   it("collapses and expands the inventory tile; controls keep working", () => {
     const { last } = renderSheet();
-    expect(screen.getByText("Dagger ×2")).toBeTruthy();
+    // Equipped items render as toggle buttons with a trailing marker (T-52).
+    expect(screen.getByRole("button", { name: /Dagger ×2/ })).toBeTruthy();
 
     const toggle = screen.getByRole("button", { name: /Inventory/ });
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.queryByText("Dagger ×2")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Dagger ×2/ })).toBeNull();
 
     fireEvent.click(toggle);
-    expect(screen.getByText("Dagger ×2")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Dagger ×2/ })).toBeTruthy();
     // Play controls still live after a collapse/expand cycle.
     fireEvent.change(screen.getByLabelText("HP amount"), {
       target: { value: "2" },
@@ -610,8 +619,8 @@ describe("edit mode", () => {
     fireEvent.change(screen.getByLabelText("Item 3 quantity"), {
       target: { value: "2" },
     });
-    // Non-wearable items have no Equipped checkbox (T-36).
-    expect(screen.queryByLabelText("Item 3 equipped")).toBeNull();
+    // Every item is equippable (T-52); a fresh one starts unequipped.
+    expect(screen.getByLabelText("Item 3 equipped")).toBeTruthy();
     expect(last().inventory[2]).toMatchObject({
       name: "Grappling hook",
       quantity: 2,

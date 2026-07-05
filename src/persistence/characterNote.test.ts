@@ -38,6 +38,24 @@ describe("round trip", () => {
     if (result.ok) expect(result.character).toEqual(character);
   });
 
+  it("heals missing armor links by name on parse (T-52)", () => {
+    // Notes saved before `armorId` existed carry unlinked armor; loading
+    // one must re-link it so equipping moves AC again.
+    const character = {
+      ...sampleCharacter(),
+      inventory: [
+        { id: "cm-0", name: "Chain mail", quantity: 1, equipped: true },
+        { id: "rope-0", name: "Rope", quantity: 1, equipped: false },
+      ],
+    };
+    const result = parseCharacterNote(serializeCharacterNote(character));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.character.inventory[0].armorId).toBe("chain-mail");
+      expect(result.character.inventory[1].armorId).toBeUndefined();
+    }
+  });
+
   it("survives repeated save/load cycles unchanged", () => {
     const character = sampleCharacter();
     let note = serializeCharacterNote(character);

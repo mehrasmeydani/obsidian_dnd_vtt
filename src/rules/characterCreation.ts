@@ -9,6 +9,7 @@ import {
   type ProficiencyLevel,
   type Skill,
 } from "../model/schema";
+import { linkArmorByName } from "./armorClass";
 import {
   ARMOR,
   type BackgroundData,
@@ -981,19 +982,21 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
   }
 
   // Class fixed gear + the chosen option from each choice + background gear.
-  // Armor-like items are linked to their armor data by name (drives AC).
-  const armorByName = new Map(ARMOR.map((a) => [a.name.toLowerCase(), a]));
+  // Armor-like items are linked to their armor data by name (drives AC),
+  // via the same tolerant lookup that heals loaded notes (T-52).
   const inventory: Item[] = [];
   const addGear = (items: EquipmentItem[]) => {
     for (const item of items) {
-      const armor = armorByName.get(item.name.toLowerCase());
-      inventory.push({
-        id: `${slugify(item.name)}-${inventory.length}`,
-        name: item.name,
-        quantity: item.quantity ?? 1,
-        equipped: false,
-        ...(armor ? { armorId: armor.id } : {}),
-      });
+      inventory.push(
+        ...linkArmorByName([
+          {
+            id: `${slugify(item.name)}-${inventory.length}`,
+            name: item.name,
+            quantity: item.quantity ?? 1,
+            equipped: false,
+          },
+        ]),
+      );
     }
   };
   if (draft.equipmentMode === "gold") {
@@ -1015,8 +1018,9 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
 
   // Starting armor is worn when unambiguous: the only body armor (and the
   // only shield) start equipped.
+  const armorById = new Map(ARMOR.map((a) => [a.id, a]));
   const armorType = (item: Item) =>
-    item.armorId ? armorByName.get(item.name.toLowerCase())?.type : undefined;
+    item.armorId ? armorById.get(item.armorId)?.type : undefined;
   const bodyArmor = inventory.filter((i) => {
     const type = armorType(i);
     return type !== undefined && type !== "shield";
