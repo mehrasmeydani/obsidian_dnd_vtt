@@ -74,13 +74,50 @@ export function renderEntries(entries: unknown, depth = 0): string {
       const body = renderEntries(entry.entry ?? entry.entries, depth);
       return name ? `${name} ${body}`.trim() : body;
     }
-    case "table":
-      return "(table omitted)";
+    case "table": {
+      // Tables carry real rules text (Wild Magic Surge d100, Circle Spells);
+      // render caption + header + one line per row.
+      const caption =
+        typeof entry.caption === "string" ? stripTags(entry.caption) : "";
+      const header = Array.isArray(entry.colLabels)
+        ? entry.colLabels
+            .map((c) => (typeof c === "string" ? stripTags(c) : ""))
+            .join(" | ")
+        : "";
+      const rows = Array.isArray(entry.rows)
+        ? entry.rows
+            .map((row) =>
+              Array.isArray(row)
+                ? row.map((cell) => renderEntries(cell, depth + 1)).join(" | ")
+                : renderEntries(row, depth + 1),
+            )
+            .filter(Boolean)
+            .join("\n")
+        : "";
+      return [caption, header, rows].filter(Boolean).join("\n");
+    }
     case "options":
       return renderEntries(entry.entries, depth);
+    // "Spell save DC = 8 + prof + <ability>" summary blocks.
+    case "abilityDc":
+    case "abilityAttackMod": {
+      const abilities = (Array.isArray(entry.attributes) ? entry.attributes : [])
+        .map((a) => (typeof a === "string" ? ABILITY_NAMES[a] ?? a : ""))
+        .filter(Boolean)
+        .join(" or ");
+      if (!abilities) return "";
+      const name = typeof entry.name === "string" ? stripTags(entry.name) : "";
+      return entry.type === "abilityDc"
+        ? `${name} save DC = 8 + your proficiency bonus + your ${abilities} modifier`
+        : `${name} attack modifier = your proficiency bonus + your ${abilities} modifier`;
+    }
     case "refOptionalfeature":
       return typeof entry.optionalfeature === "string"
         ? `- ${entry.optionalfeature.split("|")[0]}`
+        : "";
+    case "refFeat":
+      return typeof entry.feat === "string"
+        ? `- ${stripTags(entry.feat).split("|")[0]}`
         : "";
     case "refSubclassFeature":
     case "refClassFeature":
@@ -105,6 +142,15 @@ export function renderEntries(entries: unknown, depth = 0): string {
 // ---------------------------------------------------------------------------
 
 const ABILITIES = new Set(["str", "dex", "con", "int", "wis", "cha"]);
+
+const ABILITY_NAMES: Record<string, string> = {
+  str: "Strength",
+  dex: "Dexterity",
+  con: "Constitution",
+  int: "Intelligence",
+  wis: "Wisdom",
+  cha: "Charisma",
+};
 
 /** "animal handling" → "animalHandling"; returns undefined when unknown. */
 function toSkill(name: string): Skill | undefined {

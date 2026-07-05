@@ -52,6 +52,37 @@ describe("renderEntries", () => {
     expect(text).toContain("Pin: Make another Athletics check.");
     expect(text).toContain("Detail. More text.");
   });
+
+  it("renders tables as caption, header, and rows (Wild Magic Surge…)", () => {
+    const text = renderEntries({
+      type: "table",
+      caption: "Wild Magic Surge",
+      colLabels: ["{@dice d100}", "Effect"],
+      rows: [
+        ["01-02", "Roll again next turn."],
+        ["03-04", "You see {@condition invisible} creatures."],
+      ],
+    });
+    expect(text).toContain("Wild Magic Surge");
+    expect(text).toContain("d100 | Effect");
+    expect(text).toContain("01-02 | Roll again next turn.");
+    expect(text).toContain("03-04 | You see invisible creatures.");
+  });
+
+  it("renders ability DC and attack-mod blocks as formulas", () => {
+    expect(
+      renderEntries({ type: "abilityDc", name: "Spell", attributes: ["wis"] }),
+    ).toBe("Spell save DC = 8 + your proficiency bonus + your Wisdom modifier");
+    expect(
+      renderEntries({
+        type: "abilityAttackMod",
+        name: "Spell",
+        attributes: ["int", "cha"],
+      }),
+    ).toBe(
+      "Spell attack modifier = your proficiency bonus + your Intelligence or Charisma modifier",
+    );
+  });
 });
 
 // --- Races --------------------------------------------------------------
