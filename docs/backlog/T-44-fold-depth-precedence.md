@@ -68,4 +68,4 @@ byte-identical to SRD.
   imports work correctly *now* and as a permanent guard for any shallow
   bundle entry.
 
-## Status: needs-check
+## Status: done

@@ -43,4 +43,4 @@ Inquisitive…) can't be used with 2024 classes at all.
   in the import folder) stay unsupported — same-file covers the observed
   skip log entirely when the standard 5etools data files are present.
 
-## Status: needs-check
+## Status: done
