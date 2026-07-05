@@ -8,6 +8,7 @@ import {
   importFiveEtools,
   raceFromFiveEtools,
   renderEntries,
+  resolveCopies,
   spellFromFiveEtools,
   stripTags,
 } from "./fiveEtoolsImport";
@@ -328,18 +329,56 @@ describe("classesFromFiveEtools", () => {
     ).toContain("actual level-3 rules text");
   });
 
-  it("skips _copy subclass stubs (XPHB re-listings) with a reason", () => {
+  it("resolves _copy subclass stubs against same-file bases (T-43)", () => {
+    // The XPHB-style re-listing: a copy stub re-parents the PHB Champion
+    // under a second class; it must arrive with the base's features.
+    const file = {
+      class: [
+        FIGHTER_FILE.class[0],
+        { ...FIGHTER_FILE.class[0], source: "XPHB" },
+      ],
+      subclass: [
+        ...FIGHTER_FILE.subclass,
+        {
+          name: "Champion",
+          shortName: "Champion",
+          source: "PHB",
+          className: "Fighter",
+          classSource: "XPHB",
+          _copy: {
+            name: "Champion",
+            source: "PHB",
+            shortName: "Champion",
+            className: "Fighter",
+            classSource: "PHB",
+          },
+        },
+      ],
+      classFeature: FIGHTER_FILE.classFeature,
+      subclassFeature: FIGHTER_FILE.subclassFeature,
+    };
+    const { classes, skipped } = classesFromFiveEtools(file);
+    const fighter2024 = classes.find((c) => c.edition === "2024");
+    expect(fighter2024?.subclasses.map((s) => s.name)).toEqual(["Champion"]);
+    // The resolved copy carries the base's leveled features.
+    expect(
+      fighter2024?.subclasses[0].features.map((f) => `${f.level}:${f.name}`),
+    ).toEqual(["3:Champion", "3:Improved Critical", "7:Remarkable Athlete"]);
+    expect(skipped.filter((line) => line.includes("_copy"))).toEqual([]);
+  });
+
+  it("skips a _copy subclass whose base is not in the file", () => {
     const file = {
       class: [FIGHTER_FILE.class[0]],
       subclass: [
         ...FIGHTER_FILE.subclass,
         {
-          name: "Champion Reprint",
-          shortName: "Champion Reprint",
+          name: "Orphan Copy",
+          shortName: "Orphan Copy",
           source: "XGE",
           className: "Fighter",
           classSource: "PHB",
-          _copy: { name: "Champion", source: "PHB" },
+          _copy: { name: "Not In This File", source: "PHB" },
         },
       ],
       classFeature: FIGHTER_FILE.classFeature,
@@ -348,8 +387,59 @@ describe("classesFromFiveEtools", () => {
     const { classes, skipped } = classesFromFiveEtools(file);
     expect(classes[0].subclasses.map((s) => s.name)).toEqual(["Champion"]);
     expect(
-      skipped.find((line) => line.includes("Champion Reprint")),
-    ).toContain("_copy variants are not supported");
+      skipped.find((line) => line.includes("Orphan Copy")),
+    ).toContain("unresolved _copy");
+  });
+
+  it("applies _mod entry edits when resolving a _copy (T-43)", () => {
+    const raceFile = [
+      {
+        name: "Dwarf",
+        source: "PHB",
+        speed: 25,
+        ability: [{ con: 2 }],
+        entries: [
+          { name: "Darkvision", type: "entries", entries: ["See in the dark."] },
+          { name: "Stonecunning", type: "entries", entries: ["Know stone."] },
+        ],
+      },
+      {
+        name: "Variant Dwarf",
+        source: "HB",
+        _copy: {
+          name: "Dwarf",
+          source: "PHB",
+          _mod: {
+            entries: [
+              {
+                mode: "replaceArr",
+                replace: "Stonecunning",
+                items: {
+                  name: "Metalcunning",
+                  type: "entries",
+                  entries: ["Know metal instead."],
+                },
+              },
+              {
+                mode: "appendArr",
+                items: { name: "Extra Trait", type: "entries", entries: ["More."] },
+              },
+            ],
+          },
+        },
+      },
+    ];
+    const { records, skipped } = resolveCopies(raceFile, "race");
+    expect(skipped).toEqual([]);
+    const variant = raceFromFiveEtools(
+      records.find((r) => (r as { name: string }).name === "Variant Dwarf"),
+    );
+    expect(variant.speed).toBe(25); // inherited from the base
+    expect(variant.traits.map((t) => t.name)).toEqual([
+      "Darkvision",
+      "Metalcunning",
+      "Extra Trait",
+    ]);
   });
 
   it("maps 5etools editions: 'one' → 2024, 'classic'/absent → 2014", () => {

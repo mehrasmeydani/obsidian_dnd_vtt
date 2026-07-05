@@ -190,10 +190,162 @@ function skipLine(kind: string, raw: unknown, reason: string): string {
 // Races.
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// `_copy` resolution (T-43). 5etools stores variants as diffs: `_copy` names
+// a base record (by name/source/className/…), `_mod` describes entry edits.
+// Resolution runs as a pre-pass over each record array so the converters
+// only ever see full records; anything unresolvable keeps the old
+// skip-with-reason behavior.
+// ---------------------------------------------------------------------------
+
+/** Apply one `_mod` property edit (an op object, op array, or "remove"). */
+function applyModOps(
+  target: Record<string, unknown>,
+  mod: unknown,
+): void {
+  if (!mod || typeof mod !== "object") return;
+  for (const [prop, opsRaw] of Object.entries(mod as Record<string, unknown>)) {
+    if (prop === "*") throw new Error('unsupported _mod target "*"');
+    const ops = Array.isArray(opsRaw) ? opsRaw : [opsRaw];
+    for (const opRaw of ops) {
+      if (opRaw === "remove") {
+        delete target[prop];
+        continue;
+      }
+      if (!opRaw || typeof opRaw !== "object") {
+        throw new Error("unsupported _mod operation");
+      }
+      const op = opRaw as Record<string, unknown>;
+      const arr = Array.isArray(target[prop])
+        ? [...(target[prop] as unknown[])]
+        : [];
+      const items =
+        op.items === undefined ? [] : Array.isArray(op.items) ? op.items : [op.items];
+      switch (op.mode) {
+        case "appendArr":
+          target[prop] = [...arr, ...items];
+          break;
+        case "prependArr":
+          target[prop] = [...items, ...arr];
+          break;
+        case "insertArr": {
+          const index = typeof op.index === "number" ? op.index : arr.length;
+          arr.splice(index, 0, ...items);
+          target[prop] = arr;
+          break;
+        }
+        case "removeArr": {
+          const names = new Set(
+            (Array.isArray(op.names) ? op.names : [op.names]).filter(
+              (n): n is string => typeof n === "string",
+            ),
+          );
+          target[prop] = arr.filter(
+            (e) =>
+              !(
+                e &&
+                typeof e === "object" &&
+                names.has((e as { name?: string }).name ?? "")
+              ),
+          );
+          break;
+        }
+        case "replaceArr": {
+          const replace = op.replace;
+          const index =
+            typeof replace === "string"
+              ? arr.findIndex(
+                  (e) =>
+                    e !== null &&
+                    typeof e === "object" &&
+                    (e as { name?: string }).name === replace,
+                )
+              : replace &&
+                  typeof replace === "object" &&
+                  typeof (replace as { index?: unknown }).index === "number"
+                ? ((replace as { index: number }).index)
+                : -1;
+          if (index < 0 || index >= arr.length) {
+            throw new Error("_mod replaceArr target not found");
+          }
+          arr.splice(index, 1, ...items);
+          target[prop] = arr;
+          break;
+        }
+        default:
+          throw new Error(`unsupported _mod mode "${String(op.mode)}"`);
+      }
+    }
+  }
+}
+
+/**
+ * Resolve `_copy` records against bases in the same array. Multi-pass so
+ * copy-of-copy chains settle; records whose `_mod` cannot be applied are
+ * dropped with a skip line, and copies whose base is absent are left as-is
+ * (the converters still reject them with the old reason).
+ */
+export function resolveCopies(
+  records: unknown[],
+  kind: string,
+): { records: unknown[]; skipped: string[] } {
+  const out: (unknown | undefined)[] = [...records];
+  const skipped: string[] = [];
+  let progress = true;
+  for (let pass = 0; pass < 5 && progress; pass++) {
+    progress = false;
+    for (let i = 0; i < out.length; i++) {
+      const rec = out[i];
+      if (!rec || typeof rec !== "object") continue;
+      const spec = (rec as Record<string, unknown>)._copy;
+      if (!spec || typeof spec !== "object") continue;
+      // The spec's plain string fields are the base's identity
+      // (name, source, className, classSource, shortName…).
+      const identity = Object.entries(spec as Record<string, unknown>).filter(
+        ([key, value]) => !key.startsWith("_") && typeof value === "string",
+      );
+      if (identity.length === 0) continue;
+      const base = out.find((candidate, j) => {
+        if (j === i || !candidate || typeof candidate !== "object") return false;
+        // An unresolved copy can't be a base yet — wait for a later pass.
+        if ((candidate as Record<string, unknown>)._copy) return false;
+        return identity.every(
+          ([key, value]) =>
+            (candidate as Record<string, unknown>)[key] === value,
+        );
+      });
+      if (!base) continue;
+      try {
+        const merged = JSON.parse(JSON.stringify(base)) as Record<string, unknown>;
+        for (const [key, value] of Object.entries(rec as Record<string, unknown>)) {
+          if (key === "_copy") continue;
+          merged[key] = value;
+        }
+        applyModOps(merged, (spec as Record<string, unknown>)._mod);
+        // Mark it: when a copy and a native record share a name (XPHB
+        // re-listing + real XPHB rewrite), the native one must win.
+        merged._resolvedCopy = true;
+        out[i] = merged;
+      } catch (error) {
+        skipped.push(
+          skipLine(
+            kind,
+            rec,
+            error instanceof Error ? error.message : String(error),
+          ),
+        );
+        out[i] = undefined;
+      }
+      progress = true;
+    }
+  }
+  return { records: out.filter((r) => r !== undefined), skipped };
+}
+
 export function raceFromFiveEtools(raw: unknown): RaceData {
   const race = raw as Record<string, unknown>;
   if (!race || typeof race.name !== "string") throw new Error("no name");
-  if (race._copy) throw new Error("_copy variants are not supported");
+  if (race._copy) throw new Error("unresolved _copy (base record not found)");
 
   const speed =
     typeof race.speed === "number"
@@ -497,6 +649,14 @@ export function classesFromFiveEtools(file: FiveEtoolsClassFile): {
   const classFeatureTable = (file.classFeature ?? []) as RawFeatureRecord[];
   const subclassFeatureTable = (file.subclassFeature ?? []) as RawFeatureRecord[];
 
+  // Resolve _copy variants first (T-43): XPHB re-lists old subclasses as
+  // copy stubs ("use the XGE Mastermind under the 2024 Rogue"); resolving
+  // them re-parents the base subclass, whose feature refs then import in
+  // full. Unresolved copies still hit the skip below.
+  const { records: subclassRecords, skipped: subclassCopySkipped } =
+    resolveCopies(file.subclass ?? [], "subclass");
+  skipped.push(...subclassCopySkipped);
+
   for (const raw of file.class ?? []) {
     const cls = raw as Record<string, unknown>;
     try {
@@ -584,20 +744,31 @@ export function classesFromFiveEtools(file: FiveEtoolsClassFile): {
       }
 
       const subclasses: SubclassData[] = [];
-      for (const subRaw of file.subclass ?? []) {
+      // This class's subclass records, deduped by name: a native record
+      // (the XPHB rewrite) beats a resolved _copy re-listing of the old one.
+      const subclassByName = new Map<string, Record<string, unknown>>();
+      for (const subRaw of subclassRecords) {
         const sub = subRaw as Record<string, unknown>;
-        if (sub.className !== cls.name || sub.classSource !== cls.source) continue;
+        if (!sub || sub.className !== cls.name || sub.classSource !== cls.source) {
+          continue;
+        }
         if (typeof sub.name !== "string") continue;
-        // XPHB re-lists old subclasses under the 2024 class as `_copy` stubs
-        // with no features of their own ("use the XGE Mastermind here").
-        // Same policy as races/backgrounds: _copy is not resolved — skip,
-        // otherwise they arrive as empty subclass cards.
+        const existing = subclassByName.get(sub.name);
+        if (!existing || (existing._resolvedCopy && !sub._resolvedCopy)) {
+          subclassByName.set(sub.name, sub);
+        }
+      }
+      for (const sub of subclassByName.values()) {
+        const subRaw: unknown = sub;
+        if (typeof sub.name !== "string") continue; // map guarantees; narrows
+        // Only copies whose base wasn't found survive resolution (T-43) —
+        // without a base they'd arrive as empty subclass cards, so skip.
         if (sub._copy) {
           skipped.push(
             skipLine(
               "subclass",
               subRaw,
-              "_copy variants are not supported",
+              "unresolved _copy (base record not found)",
             ),
           );
           continue;
@@ -690,7 +861,7 @@ function capitalize(text: string): string {
 export function backgroundFromFiveEtools(raw: unknown): BackgroundData {
   const background = raw as Record<string, unknown>;
   if (!background || typeof background.name !== "string") throw new Error("no name");
-  if (background._copy) throw new Error("_copy variants are not supported");
+  if (background._copy) throw new Error("unresolved _copy (base record not found)");
 
   const grantedSkills: Skill[] = [];
   let skillChoice: BackgroundData["skillChoice"];
@@ -787,7 +958,7 @@ export function backgroundFromFiveEtools(raw: unknown): BackgroundData {
 export function featFromFiveEtools(raw: unknown): FeatData {
   const feat = raw as Record<string, unknown>;
   if (!feat || typeof feat.name !== "string") throw new Error("no name");
-  if (feat._copy) throw new Error("_copy variants are not supported");
+  if (feat._copy) throw new Error("unresolved _copy (base record not found)");
   return {
     id: importId("feat", feat.name, feat.source as string | undefined),
     name: feat.name,
@@ -979,7 +1150,13 @@ export function importFiveEtools(
       into: T[],
     ): void => {
       if (!Array.isArray(data[key])) return;
-      for (const raw of data[key] as unknown[]) {
+      // Resolve _copy variants against same-file bases first (T-43).
+      const { records, skipped: copySkipped } = resolveCopies(
+        data[key] as unknown[],
+        kind,
+      );
+      skipped.push(...copySkipped);
+      for (const raw of records) {
         try {
           into.push(convert(raw));
         } catch (error) {

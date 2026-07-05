@@ -46,6 +46,15 @@ wrong.
   only exist as XPHB stubs (no 2024 rewrite) now appear only on the 2014
   card — by design until _copy resolution.
 
+- **T-43 `_copy` resolution** — the importer now resolves 5etools `_copy`
+  variants against bases in the same file, including `_mod` entry edits.
+  **Re-run "Import 5etools data"**, then check: variant backgrounds
+  (Variant Criminal (Spy), the Baldur's Gate set…) and reskinned races
+  appear; every 2024 class lists the old subclasses too (2024 Rogue gets
+  Mastermind/Scout/Swashbuckler/Inquisitive with full features); where a
+  real 2024 rewrite exists (Assassin), it wins over the re-listed 2014
+  version. The `_copy` skip log lines should be gone.
+
 ## From the big backlog round (2026-07-04)
 
 - **T-10 Player notes** — "Create session note" command; visibility via
