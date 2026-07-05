@@ -9,6 +9,19 @@ wrong.
 25/26/27/28/30–35/37/43/44 to done; the reported problems became
 T-46…T-56 on the board.)*
 
+- **T-51 Class choices: Metamagic, invocations & co.** — all SRD
+  choose-N-options grants above level 1 are now real pickers on the
+  Class options step. **How to check:** create a 2014 sorcerer at
+  starting level 3 (or 10/17) — Metamagic groups appear with 8 options
+  and an option picked at 3 disappears from the level-10 group; a 2024
+  sorcerer gets them at level 2; a 2014 warlock at level 5 owes
+  invocations at levels 2 and 5 with grey italic prerequisite text on
+  cards like Ascendant Step (advisory only — you enforce prereqs
+  yourself for now); a level-10 Champion fighter owes a second Fighting
+  Style that can't repeat the first; a level-6 ranger owes extra
+  Favored Enemy / Natural Explorer picks. The full audit table is in
+  the ticket.
+
 - **T-49 Edition sections** — the Race/Class/Background card grids now
   split into a "5.5e (2024)" section on top and "5e (2014)" below
   instead of mixing editions. Verify all three steps.

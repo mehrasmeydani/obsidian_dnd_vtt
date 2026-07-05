@@ -8,6 +8,12 @@ holdable — weapons, shields, clothes, rings, pendants — with realistic
 limits: two hands' worth of held items, one body armor, unlimited
 accessories. Gold coins and candles are not equippable at all.
 
+**User note (todo, 2026-07-06):** "add a in hand left and right in the
+inventory this can be a part of drag and drop same goes for a cape body
+shoes and so on #minor" — i.e. distinguish left/right hand and add more
+granular body slots (cape, shoes…); the drag-and-drop interaction
+belongs with T-40's dynamic layout work.
+
 ## Problem today
 T-36 keyed "wearable" off `armorId`, so only SRD armor/shields toggle —
 in practice "nothing is toggleable" (weapons and clothes from starting

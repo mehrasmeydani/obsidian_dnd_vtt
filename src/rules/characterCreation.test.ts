@@ -9,6 +9,7 @@ import {
   assembleCharacter,
   bonusSkillCount,
   emptyDraft,
+  featureChoiceProblems,
   finalAbilityScores,
   grantedClassFeatures,
   originFeatProblems,
@@ -1150,6 +1151,28 @@ describe("subclasses and feature choices", () => {
     };
     expect(validateDraft(bad)).toContain(
       "Expertise picks must be proficient skills.",
+    );
+  });
+
+  it("rejects the same option picked in two choices sharing a pool (T-51)", () => {
+    const sorcerer = byId(CLASSES, "sorcerer");
+    const draft: CharacterDraft = {
+      ...emptyDraft(),
+      charClass: sorcerer,
+      level: 10,
+      subclass: sorcerer.subclasses[0],
+      featurePicks: {
+        metamagic: ["Careful Spell", "Distant Spell"],
+        "metamagic-10": ["Careful Spell"],
+      },
+    };
+    expect(featureChoiceProblems(draft, ["options"])).toContain(
+      "Careful Spell can only be chosen once.",
+    );
+
+    draft.featurePicks["metamagic-10"] = ["Quickened Spell"];
+    expect(featureChoiceProblems(draft, ["options"])).not.toContainEqual(
+      expect.stringContaining("can only be chosen once"),
     );
   });
 

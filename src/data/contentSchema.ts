@@ -197,11 +197,21 @@ const FeatureChoiceBaseSchema = z.object({
   description: z.string().optional(),
 });
 
+/**
+ * One pickable option of an "options" feature choice. `prereq` is advisory
+ * text (invocations: "5th-level warlock, Pact of the Blade feature") shown on
+ * the card — the player validates it themselves in v1 (T-51).
+ */
+export const FeatureOptionSchema = TraitSchema.extend({
+  prereq: z.string().optional(),
+});
+export type FeatureOption = z.infer<typeof FeatureOptionSchema>;
+
 export const FeatureChoiceSchema = z.discriminatedUnion("kind", [
   /** Pick `count` named options; each pick becomes a feature. */
   FeatureChoiceBaseSchema.extend({
     kind: z.literal("options"),
-    options: z.array(TraitSchema).min(2),
+    options: z.array(FeatureOptionSchema).min(2),
   }),
   /** Pick `count` new skill proficiencies (e.g. Lore bard, Primal Knowledge). */
   FeatureChoiceBaseSchema.extend({

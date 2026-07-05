@@ -2,6 +2,13 @@ import { describe, expect, it } from "vitest";
 import { ABILITIES } from "../model/schema";
 import { BACKGROUNDS, CLASSES, RACES } from "./srd";
 
+/** The entity with `id`, or throw — keeps test failures readable. */
+function byId<T extends { id: string }>(list: T[], id: string): T {
+  const found = list.find((e) => e.id === id);
+  if (!found) throw new Error(`No entity ${id}`);
+  return found;
+}
+
 /**
  * Data-integrity regression tests for the static SRD content. The wizard and
  * assembler trust this data (unique ids, satisfiable skill choices, sane hit
@@ -194,8 +201,70 @@ describe("classes", () => {
           );
         }
       }
+
+      // Choices sharing options (Metamagic at 3/10/17, fighting styles on
+      // class + Champion) must stay satisfiable when every pick has to be
+      // distinct across the cluster (T-51).
+      const optionChoices = allChoices.filter((c) => c.kind === "options");
+      for (const choice of optionChoices) {
+        const cluster = optionChoices.filter((other) =>
+          other.options.some((o) =>
+            choice.options.some((co) => co.name === o.name),
+          ),
+        );
+        const union = new Set(
+          cluster.flatMap((c) => c.options.map((o) => o.name)),
+        );
+        const totalPicks = cluster.reduce((sum, c) => sum + c.count, 0);
+        expect(totalPicks).toBeLessThanOrEqual(union.size);
+      }
     },
   );
+
+  it("ships the T-51 class choices at the right levels", () => {
+    const levels = (classId: string, name: string) =>
+      byId(CLASSES, classId)
+        .featureChoices.filter((c) => c.name === name)
+        .map((c) => [c.level, c.count]);
+
+    // Metamagic: 2 options at 3 (2014) / 2 (2024), one more at 10 and 17.
+    expect(levels("sorcerer", "Metamagic")).toEqual([[3, 2], [10, 1], [17, 1]]);
+    expect(levels("sorcerer-2024", "Metamagic")).toEqual([
+      [2, 2], [10, 1], [17, 1],
+    ]);
+
+    // Invocations known: 8 by level 18 (2014), 10 by level 18 (2024).
+    const total = (classId: string) =>
+      levels(classId, "Eldritch Invocations").reduce((s, [, n]) => s + n, 0);
+    expect(total("warlock")).toBe(8);
+    expect(total("warlock-2024")).toBe(10);
+
+    // Invocations with prerequisites carry advisory prereq text.
+    const invocations = byId(CLASSES, "warlock").featureChoices.find(
+      (c) => c.name === "Eldritch Invocations",
+    );
+    if (invocations?.kind !== "options") throw new Error("kind");
+    const ascendant = invocations.options.find(
+      (o) => o.name === "Ascendant Step",
+    );
+    expect(ascendant?.prereq).toBe("9th-level warlock");
+
+    // Champion owes a second Fighting Style at 10 from the class's pool.
+    const champion = byId(CLASSES, "fighter").subclasses.find(
+      (s) => s.id === "champion",
+    );
+    expect(
+      champion?.featureChoices.map((c) => [c.name, c.level]),
+    ).toContainEqual(["Additional Fighting Style", 10]);
+
+    // Ranger re-picks: favored enemy at 6/14, natural explorer at 6/10.
+    expect(levels("ranger", "Favored Enemy").map(([l]) => l)).toEqual([
+      1, 6, 14,
+    ]);
+    expect(levels("ranger", "Natural Explorer").map(([l]) => l)).toEqual([
+      1, 6, 10,
+    ]);
+  });
 });
 
 describe("2014 Barbarian progression (T-19)", () => {

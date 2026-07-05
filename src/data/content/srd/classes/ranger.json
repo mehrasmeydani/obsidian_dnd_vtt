@@ -248,6 +248,178 @@
           "description": "Add your ability modifier to the damage of off-hand attacks."
         }
       ]
+    },
+    {
+      "id": "favored-enemy-6",
+      "name": "Favored Enemy",
+      "kind": "options",
+      "level": 6,
+      "count": 1,
+      "description": "Choose one additional favored enemy (and an associated language).",
+      "options": [
+        {
+          "name": "Aberrations"
+        },
+        {
+          "name": "Beasts"
+        },
+        {
+          "name": "Celestials"
+        },
+        {
+          "name": "Constructs"
+        },
+        {
+          "name": "Dragons"
+        },
+        {
+          "name": "Elementals"
+        },
+        {
+          "name": "Fey"
+        },
+        {
+          "name": "Fiends"
+        },
+        {
+          "name": "Giants"
+        },
+        {
+          "name": "Monstrosities"
+        },
+        {
+          "name": "Oozes"
+        },
+        {
+          "name": "Plants"
+        },
+        {
+          "name": "Undead"
+        },
+        {
+          "name": "Humanoids (two races)"
+        }
+      ]
+    },
+    {
+      "id": "favored-enemy-14",
+      "name": "Favored Enemy",
+      "kind": "options",
+      "level": 14,
+      "count": 1,
+      "description": "Choose one additional favored enemy (and an associated language).",
+      "options": [
+        {
+          "name": "Aberrations"
+        },
+        {
+          "name": "Beasts"
+        },
+        {
+          "name": "Celestials"
+        },
+        {
+          "name": "Constructs"
+        },
+        {
+          "name": "Dragons"
+        },
+        {
+          "name": "Elementals"
+        },
+        {
+          "name": "Fey"
+        },
+        {
+          "name": "Fiends"
+        },
+        {
+          "name": "Giants"
+        },
+        {
+          "name": "Monstrosities"
+        },
+        {
+          "name": "Oozes"
+        },
+        {
+          "name": "Plants"
+        },
+        {
+          "name": "Undead"
+        },
+        {
+          "name": "Humanoids (two races)"
+        }
+      ]
+    },
+    {
+      "id": "natural-explorer-6",
+      "name": "Natural Explorer",
+      "kind": "options",
+      "level": 6,
+      "count": 1,
+      "description": "Choose one additional favored terrain.",
+      "options": [
+        {
+          "name": "Arctic"
+        },
+        {
+          "name": "Coast"
+        },
+        {
+          "name": "Desert"
+        },
+        {
+          "name": "Forest"
+        },
+        {
+          "name": "Grassland"
+        },
+        {
+          "name": "Mountain"
+        },
+        {
+          "name": "Swamp"
+        },
+        {
+          "name": "Underdark"
+        }
+      ]
+    },
+    {
+      "id": "natural-explorer-10",
+      "name": "Natural Explorer",
+      "kind": "options",
+      "level": 10,
+      "count": 1,
+      "description": "Choose one additional favored terrain.",
+      "options": [
+        {
+          "name": "Arctic"
+        },
+        {
+          "name": "Coast"
+        },
+        {
+          "name": "Desert"
+        },
+        {
+          "name": "Forest"
+        },
+        {
+          "name": "Grassland"
+        },
+        {
+          "name": "Mountain"
+        },
+        {
+          "name": "Swamp"
+        },
+        {
+          "name": "Underdark"
+        }
+      ]
     }
   ],
   "features": [

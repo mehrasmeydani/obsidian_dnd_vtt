@@ -81,10 +81,899 @@
     {
       "level": 1,
       "name": "Eldritch Invocations",
-      "description": "You learn Eldritch Invocations — fragments of forbidden knowledge that grant abilities; you can replace one when you gain a warlock level. (Invocation selection is not yet modeled.)"
+      "description": "You learn Eldritch Invocations — fragments of forbidden knowledge that grant abilities; you can replace one when you gain a warlock level."
     }
   ],
-  "featureChoices": [],
+  "featureChoices": [
+    {
+      "id": "invocations",
+      "name": "Eldritch Invocations",
+      "kind": "options",
+      "level": 1,
+      "count": 1,
+      "description": "You learn one Eldritch Invocation of your choice; some have prerequisites you must meet.",
+      "options": [
+        {
+          "name": "Agonizing Blast",
+          "description": "Choose one of your known Warlock cantrips that deals damage. You can add your Charisma modifier to that spell's damage rolls. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Armor of Shadows",
+          "description": "You can cast Mage Armor on yourself without expending a spell slot."
+        },
+        {
+          "name": "Ascendant Step",
+          "description": "You can cast Levitate on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Devil's Sight",
+          "description": "You can see normally in Dim Light and Darkness—both magical and nonmagical—within 120 feet of yourself.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Eldritch Spear",
+          "description": "Choose one of your known Warlock cantrips that deals damage and has a range of 10+ feet. When you cast that spell, its range increases by a number of feet equal to 30 times your Warlock level. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Fiendish Vigor",
+          "description": "You can cast False Life on yourself without expending a spell slot. When you cast the spell with this feature, you don't roll the die for the Temporary Hit Points; you automatically get the highest number on the die.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Gaze of Two Minds",
+          "description": "You can use a Bonus Action to touch a willing creature and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can take a Bonus Action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. The connection ends if you don't maintain it in this way. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you can cast spells as if you were in your space or the other creature's space if the two of you are within 60 feet of each other.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Lifedrinker",
+          "description": "Once per turn when you hit a creature with your pact weapon, you can deal an extra 1d6 Necrotic, Psychic, or Radiant damage (your choice) to the creature, and you can expend one of your Hit Point Dice to roll it and regain a number of Hit Points equal to the roll plus your Constitution modifier (minimum of 1 Hit Points).",
+          "prereq": "9th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Mask of Many Faces",
+          "description": "You can cast Disguise Self without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Master of Myriad Forms",
+          "description": "You can cast Alter Self without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Misty Visions",
+          "description": "You can cast Silent Image without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "One with Shadows",
+          "description": "While you're in an area of Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Otherworldly Leap",
+          "description": "You can cast Jump on yourself without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Pact of the Blade",
+          "description": "As a Bonus Action, you can conjure a pact weapon in your hand—a Simple or Martial Melee weapon of your choice with which you bond—or create a bond with a magic weapon you touch; you can't bond with a magic weapon if someone else is attuned to it or another Warlock is bonded with it. Until the bond ends, you have proficiency with the weapon, and you can use it as a Spellcasting Focus. Whenever you attack with the bonded weapon, you can use your Charisma modifier for the attack and damage rolls instead of using Strength or Dexterity; and you can cause the weapon to deal Necrotic, Psychic, or Radiant damage or its normal damage type. Your bond with the weapon ends if you use this feature's Bonus Action again, if the weapon is more than 5 feet away from you for 1 minute or more, or if you die. A conjured weapon disappears when the bond ends."
+        },
+        {
+          "name": "Pact of the Chain",
+          "description": "You learn the Find Familiar spell and can cast it as a Magic action without expending a spell slot. When you cast the spell, you choose one of the normal forms for your familiar or one of the following special forms: Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake (see appendix B for the familiar's stat block). Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its Reaction."
+        },
+        {
+          "name": "Pact of the Tome",
+          "description": "Stitching together strands of shadow, you conjure forth a book in your hand at the end of a Short Rest or Long Rest. This Book of Shadows (you determine its appearance) contains eldritch magic that only you can access, granting you the benefits below. The book disappears if you conjure another book with this feature or if you die. Cantrips and Rituals. When the book appears, choose three cantrips, and choose two level 1 spells that have the Ritual tag. The spells can be from any class's spell list, and they must be spells you don't already have prepared. While the book is on your person, you have the chosen spells prepared, and they function as Warlock spells for you. Spellcasting Focus. You can use the book as a Spellcasting Focus."
+        },
+        {
+          "name": "Repelling Blast",
+          "description": "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with that cantrip, you can push the creature up to 10 feet straight away from you. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage via an Attack Roll"
+        },
+        {
+          "name": "Thirsting Blade",
+          "description": "You gain the Extra Attack feature for your pact weapon only. With that feature, you can attack twice with the weapon instead of once when you take the Attack action on your turn.",
+          "prereq": "5th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Visions of Distant Realms",
+          "description": "You can cast Arcane Eye without expending a spell slot.",
+          "prereq": "9th-level warlock"
+        },
+        {
+          "name": "Whispers of the Grave",
+          "description": "You can cast Speak with Dead without expending a spell slot.",
+          "prereq": "7th-level warlock"
+        },
+        {
+          "name": "Witch Sight",
+          "description": "You have Truesight with a range of 30 feet.",
+          "prereq": "15th-level warlock"
+        }
+      ]
+    },
+    {
+      "id": "invocations-2",
+      "name": "Eldritch Invocations",
+      "kind": "options",
+      "level": 2,
+      "count": 2,
+      "description": "Choose two additional Eldritch Invocations.",
+      "options": [
+        {
+          "name": "Agonizing Blast",
+          "description": "Choose one of your known Warlock cantrips that deals damage. You can add your Charisma modifier to that spell's damage rolls. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Armor of Shadows",
+          "description": "You can cast Mage Armor on yourself without expending a spell slot."
+        },
+        {
+          "name": "Ascendant Step",
+          "description": "You can cast Levitate on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Devil's Sight",
+          "description": "You can see normally in Dim Light and Darkness—both magical and nonmagical—within 120 feet of yourself.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Eldritch Spear",
+          "description": "Choose one of your known Warlock cantrips that deals damage and has a range of 10+ feet. When you cast that spell, its range increases by a number of feet equal to 30 times your Warlock level. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Fiendish Vigor",
+          "description": "You can cast False Life on yourself without expending a spell slot. When you cast the spell with this feature, you don't roll the die for the Temporary Hit Points; you automatically get the highest number on the die.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Gaze of Two Minds",
+          "description": "You can use a Bonus Action to touch a willing creature and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can take a Bonus Action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. The connection ends if you don't maintain it in this way. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you can cast spells as if you were in your space or the other creature's space if the two of you are within 60 feet of each other.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Lifedrinker",
+          "description": "Once per turn when you hit a creature with your pact weapon, you can deal an extra 1d6 Necrotic, Psychic, or Radiant damage (your choice) to the creature, and you can expend one of your Hit Point Dice to roll it and regain a number of Hit Points equal to the roll plus your Constitution modifier (minimum of 1 Hit Points).",
+          "prereq": "9th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Mask of Many Faces",
+          "description": "You can cast Disguise Self without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Master of Myriad Forms",
+          "description": "You can cast Alter Self without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Misty Visions",
+          "description": "You can cast Silent Image without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "One with Shadows",
+          "description": "While you're in an area of Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Otherworldly Leap",
+          "description": "You can cast Jump on yourself without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Pact of the Blade",
+          "description": "As a Bonus Action, you can conjure a pact weapon in your hand—a Simple or Martial Melee weapon of your choice with which you bond—or create a bond with a magic weapon you touch; you can't bond with a magic weapon if someone else is attuned to it or another Warlock is bonded with it. Until the bond ends, you have proficiency with the weapon, and you can use it as a Spellcasting Focus. Whenever you attack with the bonded weapon, you can use your Charisma modifier for the attack and damage rolls instead of using Strength or Dexterity; and you can cause the weapon to deal Necrotic, Psychic, or Radiant damage or its normal damage type. Your bond with the weapon ends if you use this feature's Bonus Action again, if the weapon is more than 5 feet away from you for 1 minute or more, or if you die. A conjured weapon disappears when the bond ends."
+        },
+        {
+          "name": "Pact of the Chain",
+          "description": "You learn the Find Familiar spell and can cast it as a Magic action without expending a spell slot. When you cast the spell, you choose one of the normal forms for your familiar or one of the following special forms: Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake (see appendix B for the familiar's stat block). Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its Reaction."
+        },
+        {
+          "name": "Pact of the Tome",
+          "description": "Stitching together strands of shadow, you conjure forth a book in your hand at the end of a Short Rest or Long Rest. This Book of Shadows (you determine its appearance) contains eldritch magic that only you can access, granting you the benefits below. The book disappears if you conjure another book with this feature or if you die. Cantrips and Rituals. When the book appears, choose three cantrips, and choose two level 1 spells that have the Ritual tag. The spells can be from any class's spell list, and they must be spells you don't already have prepared. While the book is on your person, you have the chosen spells prepared, and they function as Warlock spells for you. Spellcasting Focus. You can use the book as a Spellcasting Focus."
+        },
+        {
+          "name": "Repelling Blast",
+          "description": "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with that cantrip, you can push the creature up to 10 feet straight away from you. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage via an Attack Roll"
+        },
+        {
+          "name": "Thirsting Blade",
+          "description": "You gain the Extra Attack feature for your pact weapon only. With that feature, you can attack twice with the weapon instead of once when you take the Attack action on your turn.",
+          "prereq": "5th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Visions of Distant Realms",
+          "description": "You can cast Arcane Eye without expending a spell slot.",
+          "prereq": "9th-level warlock"
+        },
+        {
+          "name": "Whispers of the Grave",
+          "description": "You can cast Speak with Dead without expending a spell slot.",
+          "prereq": "7th-level warlock"
+        },
+        {
+          "name": "Witch Sight",
+          "description": "You have Truesight with a range of 30 feet.",
+          "prereq": "15th-level warlock"
+        }
+      ]
+    },
+    {
+      "id": "invocations-5",
+      "name": "Eldritch Invocations",
+      "kind": "options",
+      "level": 5,
+      "count": 2,
+      "description": "Choose two additional Eldritch Invocations.",
+      "options": [
+        {
+          "name": "Agonizing Blast",
+          "description": "Choose one of your known Warlock cantrips that deals damage. You can add your Charisma modifier to that spell's damage rolls. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Armor of Shadows",
+          "description": "You can cast Mage Armor on yourself without expending a spell slot."
+        },
+        {
+          "name": "Ascendant Step",
+          "description": "You can cast Levitate on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Devil's Sight",
+          "description": "You can see normally in Dim Light and Darkness—both magical and nonmagical—within 120 feet of yourself.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Eldritch Spear",
+          "description": "Choose one of your known Warlock cantrips that deals damage and has a range of 10+ feet. When you cast that spell, its range increases by a number of feet equal to 30 times your Warlock level. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Fiendish Vigor",
+          "description": "You can cast False Life on yourself without expending a spell slot. When you cast the spell with this feature, you don't roll the die for the Temporary Hit Points; you automatically get the highest number on the die.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Gaze of Two Minds",
+          "description": "You can use a Bonus Action to touch a willing creature and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can take a Bonus Action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. The connection ends if you don't maintain it in this way. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you can cast spells as if you were in your space or the other creature's space if the two of you are within 60 feet of each other.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Lifedrinker",
+          "description": "Once per turn when you hit a creature with your pact weapon, you can deal an extra 1d6 Necrotic, Psychic, or Radiant damage (your choice) to the creature, and you can expend one of your Hit Point Dice to roll it and regain a number of Hit Points equal to the roll plus your Constitution modifier (minimum of 1 Hit Points).",
+          "prereq": "9th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Mask of Many Faces",
+          "description": "You can cast Disguise Self without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Master of Myriad Forms",
+          "description": "You can cast Alter Self without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Misty Visions",
+          "description": "You can cast Silent Image without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "One with Shadows",
+          "description": "While you're in an area of Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Otherworldly Leap",
+          "description": "You can cast Jump on yourself without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Pact of the Blade",
+          "description": "As a Bonus Action, you can conjure a pact weapon in your hand—a Simple or Martial Melee weapon of your choice with which you bond—or create a bond with a magic weapon you touch; you can't bond with a magic weapon if someone else is attuned to it or another Warlock is bonded with it. Until the bond ends, you have proficiency with the weapon, and you can use it as a Spellcasting Focus. Whenever you attack with the bonded weapon, you can use your Charisma modifier for the attack and damage rolls instead of using Strength or Dexterity; and you can cause the weapon to deal Necrotic, Psychic, or Radiant damage or its normal damage type. Your bond with the weapon ends if you use this feature's Bonus Action again, if the weapon is more than 5 feet away from you for 1 minute or more, or if you die. A conjured weapon disappears when the bond ends."
+        },
+        {
+          "name": "Pact of the Chain",
+          "description": "You learn the Find Familiar spell and can cast it as a Magic action without expending a spell slot. When you cast the spell, you choose one of the normal forms for your familiar or one of the following special forms: Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake (see appendix B for the familiar's stat block). Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its Reaction."
+        },
+        {
+          "name": "Pact of the Tome",
+          "description": "Stitching together strands of shadow, you conjure forth a book in your hand at the end of a Short Rest or Long Rest. This Book of Shadows (you determine its appearance) contains eldritch magic that only you can access, granting you the benefits below. The book disappears if you conjure another book with this feature or if you die. Cantrips and Rituals. When the book appears, choose three cantrips, and choose two level 1 spells that have the Ritual tag. The spells can be from any class's spell list, and they must be spells you don't already have prepared. While the book is on your person, you have the chosen spells prepared, and they function as Warlock spells for you. Spellcasting Focus. You can use the book as a Spellcasting Focus."
+        },
+        {
+          "name": "Repelling Blast",
+          "description": "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with that cantrip, you can push the creature up to 10 feet straight away from you. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage via an Attack Roll"
+        },
+        {
+          "name": "Thirsting Blade",
+          "description": "You gain the Extra Attack feature for your pact weapon only. With that feature, you can attack twice with the weapon instead of once when you take the Attack action on your turn.",
+          "prereq": "5th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Visions of Distant Realms",
+          "description": "You can cast Arcane Eye without expending a spell slot.",
+          "prereq": "9th-level warlock"
+        },
+        {
+          "name": "Whispers of the Grave",
+          "description": "You can cast Speak with Dead without expending a spell slot.",
+          "prereq": "7th-level warlock"
+        },
+        {
+          "name": "Witch Sight",
+          "description": "You have Truesight with a range of 30 feet.",
+          "prereq": "15th-level warlock"
+        }
+      ]
+    },
+    {
+      "id": "invocations-7",
+      "name": "Eldritch Invocations",
+      "kind": "options",
+      "level": 7,
+      "count": 1,
+      "description": "Choose an additional Eldritch Invocation.",
+      "options": [
+        {
+          "name": "Agonizing Blast",
+          "description": "Choose one of your known Warlock cantrips that deals damage. You can add your Charisma modifier to that spell's damage rolls. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Armor of Shadows",
+          "description": "You can cast Mage Armor on yourself without expending a spell slot."
+        },
+        {
+          "name": "Ascendant Step",
+          "description": "You can cast Levitate on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Devil's Sight",
+          "description": "You can see normally in Dim Light and Darkness—both magical and nonmagical—within 120 feet of yourself.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Eldritch Spear",
+          "description": "Choose one of your known Warlock cantrips that deals damage and has a range of 10+ feet. When you cast that spell, its range increases by a number of feet equal to 30 times your Warlock level. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Fiendish Vigor",
+          "description": "You can cast False Life on yourself without expending a spell slot. When you cast the spell with this feature, you don't roll the die for the Temporary Hit Points; you automatically get the highest number on the die.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Gaze of Two Minds",
+          "description": "You can use a Bonus Action to touch a willing creature and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can take a Bonus Action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. The connection ends if you don't maintain it in this way. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you can cast spells as if you were in your space or the other creature's space if the two of you are within 60 feet of each other.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Lifedrinker",
+          "description": "Once per turn when you hit a creature with your pact weapon, you can deal an extra 1d6 Necrotic, Psychic, or Radiant damage (your choice) to the creature, and you can expend one of your Hit Point Dice to roll it and regain a number of Hit Points equal to the roll plus your Constitution modifier (minimum of 1 Hit Points).",
+          "prereq": "9th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Mask of Many Faces",
+          "description": "You can cast Disguise Self without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Master of Myriad Forms",
+          "description": "You can cast Alter Self without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Misty Visions",
+          "description": "You can cast Silent Image without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "One with Shadows",
+          "description": "While you're in an area of Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Otherworldly Leap",
+          "description": "You can cast Jump on yourself without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Pact of the Blade",
+          "description": "As a Bonus Action, you can conjure a pact weapon in your hand—a Simple or Martial Melee weapon of your choice with which you bond—or create a bond with a magic weapon you touch; you can't bond with a magic weapon if someone else is attuned to it or another Warlock is bonded with it. Until the bond ends, you have proficiency with the weapon, and you can use it as a Spellcasting Focus. Whenever you attack with the bonded weapon, you can use your Charisma modifier for the attack and damage rolls instead of using Strength or Dexterity; and you can cause the weapon to deal Necrotic, Psychic, or Radiant damage or its normal damage type. Your bond with the weapon ends if you use this feature's Bonus Action again, if the weapon is more than 5 feet away from you for 1 minute or more, or if you die. A conjured weapon disappears when the bond ends."
+        },
+        {
+          "name": "Pact of the Chain",
+          "description": "You learn the Find Familiar spell and can cast it as a Magic action without expending a spell slot. When you cast the spell, you choose one of the normal forms for your familiar or one of the following special forms: Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake (see appendix B for the familiar's stat block). Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its Reaction."
+        },
+        {
+          "name": "Pact of the Tome",
+          "description": "Stitching together strands of shadow, you conjure forth a book in your hand at the end of a Short Rest or Long Rest. This Book of Shadows (you determine its appearance) contains eldritch magic that only you can access, granting you the benefits below. The book disappears if you conjure another book with this feature or if you die. Cantrips and Rituals. When the book appears, choose three cantrips, and choose two level 1 spells that have the Ritual tag. The spells can be from any class's spell list, and they must be spells you don't already have prepared. While the book is on your person, you have the chosen spells prepared, and they function as Warlock spells for you. Spellcasting Focus. You can use the book as a Spellcasting Focus."
+        },
+        {
+          "name": "Repelling Blast",
+          "description": "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with that cantrip, you can push the creature up to 10 feet straight away from you. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage via an Attack Roll"
+        },
+        {
+          "name": "Thirsting Blade",
+          "description": "You gain the Extra Attack feature for your pact weapon only. With that feature, you can attack twice with the weapon instead of once when you take the Attack action on your turn.",
+          "prereq": "5th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Visions of Distant Realms",
+          "description": "You can cast Arcane Eye without expending a spell slot.",
+          "prereq": "9th-level warlock"
+        },
+        {
+          "name": "Whispers of the Grave",
+          "description": "You can cast Speak with Dead without expending a spell slot.",
+          "prereq": "7th-level warlock"
+        },
+        {
+          "name": "Witch Sight",
+          "description": "You have Truesight with a range of 30 feet.",
+          "prereq": "15th-level warlock"
+        }
+      ]
+    },
+    {
+      "id": "invocations-9",
+      "name": "Eldritch Invocations",
+      "kind": "options",
+      "level": 9,
+      "count": 1,
+      "description": "Choose an additional Eldritch Invocation.",
+      "options": [
+        {
+          "name": "Agonizing Blast",
+          "description": "Choose one of your known Warlock cantrips that deals damage. You can add your Charisma modifier to that spell's damage rolls. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Armor of Shadows",
+          "description": "You can cast Mage Armor on yourself without expending a spell slot."
+        },
+        {
+          "name": "Ascendant Step",
+          "description": "You can cast Levitate on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Devil's Sight",
+          "description": "You can see normally in Dim Light and Darkness—both magical and nonmagical—within 120 feet of yourself.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Eldritch Spear",
+          "description": "Choose one of your known Warlock cantrips that deals damage and has a range of 10+ feet. When you cast that spell, its range increases by a number of feet equal to 30 times your Warlock level. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Fiendish Vigor",
+          "description": "You can cast False Life on yourself without expending a spell slot. When you cast the spell with this feature, you don't roll the die for the Temporary Hit Points; you automatically get the highest number on the die.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Gaze of Two Minds",
+          "description": "You can use a Bonus Action to touch a willing creature and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can take a Bonus Action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. The connection ends if you don't maintain it in this way. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you can cast spells as if you were in your space or the other creature's space if the two of you are within 60 feet of each other.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Lifedrinker",
+          "description": "Once per turn when you hit a creature with your pact weapon, you can deal an extra 1d6 Necrotic, Psychic, or Radiant damage (your choice) to the creature, and you can expend one of your Hit Point Dice to roll it and regain a number of Hit Points equal to the roll plus your Constitution modifier (minimum of 1 Hit Points).",
+          "prereq": "9th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Mask of Many Faces",
+          "description": "You can cast Disguise Self without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Master of Myriad Forms",
+          "description": "You can cast Alter Self without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Misty Visions",
+          "description": "You can cast Silent Image without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "One with Shadows",
+          "description": "While you're in an area of Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Otherworldly Leap",
+          "description": "You can cast Jump on yourself without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Pact of the Blade",
+          "description": "As a Bonus Action, you can conjure a pact weapon in your hand—a Simple or Martial Melee weapon of your choice with which you bond—or create a bond with a magic weapon you touch; you can't bond with a magic weapon if someone else is attuned to it or another Warlock is bonded with it. Until the bond ends, you have proficiency with the weapon, and you can use it as a Spellcasting Focus. Whenever you attack with the bonded weapon, you can use your Charisma modifier for the attack and damage rolls instead of using Strength or Dexterity; and you can cause the weapon to deal Necrotic, Psychic, or Radiant damage or its normal damage type. Your bond with the weapon ends if you use this feature's Bonus Action again, if the weapon is more than 5 feet away from you for 1 minute or more, or if you die. A conjured weapon disappears when the bond ends."
+        },
+        {
+          "name": "Pact of the Chain",
+          "description": "You learn the Find Familiar spell and can cast it as a Magic action without expending a spell slot. When you cast the spell, you choose one of the normal forms for your familiar or one of the following special forms: Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake (see appendix B for the familiar's stat block). Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its Reaction."
+        },
+        {
+          "name": "Pact of the Tome",
+          "description": "Stitching together strands of shadow, you conjure forth a book in your hand at the end of a Short Rest or Long Rest. This Book of Shadows (you determine its appearance) contains eldritch magic that only you can access, granting you the benefits below. The book disappears if you conjure another book with this feature or if you die. Cantrips and Rituals. When the book appears, choose three cantrips, and choose two level 1 spells that have the Ritual tag. The spells can be from any class's spell list, and they must be spells you don't already have prepared. While the book is on your person, you have the chosen spells prepared, and they function as Warlock spells for you. Spellcasting Focus. You can use the book as a Spellcasting Focus."
+        },
+        {
+          "name": "Repelling Blast",
+          "description": "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with that cantrip, you can push the creature up to 10 feet straight away from you. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage via an Attack Roll"
+        },
+        {
+          "name": "Thirsting Blade",
+          "description": "You gain the Extra Attack feature for your pact weapon only. With that feature, you can attack twice with the weapon instead of once when you take the Attack action on your turn.",
+          "prereq": "5th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Visions of Distant Realms",
+          "description": "You can cast Arcane Eye without expending a spell slot.",
+          "prereq": "9th-level warlock"
+        },
+        {
+          "name": "Whispers of the Grave",
+          "description": "You can cast Speak with Dead without expending a spell slot.",
+          "prereq": "7th-level warlock"
+        },
+        {
+          "name": "Witch Sight",
+          "description": "You have Truesight with a range of 30 feet.",
+          "prereq": "15th-level warlock"
+        }
+      ]
+    },
+    {
+      "id": "invocations-12",
+      "name": "Eldritch Invocations",
+      "kind": "options",
+      "level": 12,
+      "count": 1,
+      "description": "Choose an additional Eldritch Invocation.",
+      "options": [
+        {
+          "name": "Agonizing Blast",
+          "description": "Choose one of your known Warlock cantrips that deals damage. You can add your Charisma modifier to that spell's damage rolls. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Armor of Shadows",
+          "description": "You can cast Mage Armor on yourself without expending a spell slot."
+        },
+        {
+          "name": "Ascendant Step",
+          "description": "You can cast Levitate on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Devil's Sight",
+          "description": "You can see normally in Dim Light and Darkness—both magical and nonmagical—within 120 feet of yourself.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Eldritch Spear",
+          "description": "Choose one of your known Warlock cantrips that deals damage and has a range of 10+ feet. When you cast that spell, its range increases by a number of feet equal to 30 times your Warlock level. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Fiendish Vigor",
+          "description": "You can cast False Life on yourself without expending a spell slot. When you cast the spell with this feature, you don't roll the die for the Temporary Hit Points; you automatically get the highest number on the die.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Gaze of Two Minds",
+          "description": "You can use a Bonus Action to touch a willing creature and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can take a Bonus Action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. The connection ends if you don't maintain it in this way. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you can cast spells as if you were in your space or the other creature's space if the two of you are within 60 feet of each other.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Lifedrinker",
+          "description": "Once per turn when you hit a creature with your pact weapon, you can deal an extra 1d6 Necrotic, Psychic, or Radiant damage (your choice) to the creature, and you can expend one of your Hit Point Dice to roll it and regain a number of Hit Points equal to the roll plus your Constitution modifier (minimum of 1 Hit Points).",
+          "prereq": "9th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Mask of Many Faces",
+          "description": "You can cast Disguise Self without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Master of Myriad Forms",
+          "description": "You can cast Alter Self without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Misty Visions",
+          "description": "You can cast Silent Image without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "One with Shadows",
+          "description": "While you're in an area of Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Otherworldly Leap",
+          "description": "You can cast Jump on yourself without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Pact of the Blade",
+          "description": "As a Bonus Action, you can conjure a pact weapon in your hand—a Simple or Martial Melee weapon of your choice with which you bond—or create a bond with a magic weapon you touch; you can't bond with a magic weapon if someone else is attuned to it or another Warlock is bonded with it. Until the bond ends, you have proficiency with the weapon, and you can use it as a Spellcasting Focus. Whenever you attack with the bonded weapon, you can use your Charisma modifier for the attack and damage rolls instead of using Strength or Dexterity; and you can cause the weapon to deal Necrotic, Psychic, or Radiant damage or its normal damage type. Your bond with the weapon ends if you use this feature's Bonus Action again, if the weapon is more than 5 feet away from you for 1 minute or more, or if you die. A conjured weapon disappears when the bond ends."
+        },
+        {
+          "name": "Pact of the Chain",
+          "description": "You learn the Find Familiar spell and can cast it as a Magic action without expending a spell slot. When you cast the spell, you choose one of the normal forms for your familiar or one of the following special forms: Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake (see appendix B for the familiar's stat block). Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its Reaction."
+        },
+        {
+          "name": "Pact of the Tome",
+          "description": "Stitching together strands of shadow, you conjure forth a book in your hand at the end of a Short Rest or Long Rest. This Book of Shadows (you determine its appearance) contains eldritch magic that only you can access, granting you the benefits below. The book disappears if you conjure another book with this feature or if you die. Cantrips and Rituals. When the book appears, choose three cantrips, and choose two level 1 spells that have the Ritual tag. The spells can be from any class's spell list, and they must be spells you don't already have prepared. While the book is on your person, you have the chosen spells prepared, and they function as Warlock spells for you. Spellcasting Focus. You can use the book as a Spellcasting Focus."
+        },
+        {
+          "name": "Repelling Blast",
+          "description": "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with that cantrip, you can push the creature up to 10 feet straight away from you. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage via an Attack Roll"
+        },
+        {
+          "name": "Thirsting Blade",
+          "description": "You gain the Extra Attack feature for your pact weapon only. With that feature, you can attack twice with the weapon instead of once when you take the Attack action on your turn.",
+          "prereq": "5th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Visions of Distant Realms",
+          "description": "You can cast Arcane Eye without expending a spell slot.",
+          "prereq": "9th-level warlock"
+        },
+        {
+          "name": "Whispers of the Grave",
+          "description": "You can cast Speak with Dead without expending a spell slot.",
+          "prereq": "7th-level warlock"
+        },
+        {
+          "name": "Witch Sight",
+          "description": "You have Truesight with a range of 30 feet.",
+          "prereq": "15th-level warlock"
+        }
+      ]
+    },
+    {
+      "id": "invocations-15",
+      "name": "Eldritch Invocations",
+      "kind": "options",
+      "level": 15,
+      "count": 1,
+      "description": "Choose an additional Eldritch Invocation.",
+      "options": [
+        {
+          "name": "Agonizing Blast",
+          "description": "Choose one of your known Warlock cantrips that deals damage. You can add your Charisma modifier to that spell's damage rolls. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Armor of Shadows",
+          "description": "You can cast Mage Armor on yourself without expending a spell slot."
+        },
+        {
+          "name": "Ascendant Step",
+          "description": "You can cast Levitate on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Devil's Sight",
+          "description": "You can see normally in Dim Light and Darkness—both magical and nonmagical—within 120 feet of yourself.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Eldritch Spear",
+          "description": "Choose one of your known Warlock cantrips that deals damage and has a range of 10+ feet. When you cast that spell, its range increases by a number of feet equal to 30 times your Warlock level. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Fiendish Vigor",
+          "description": "You can cast False Life on yourself without expending a spell slot. When you cast the spell with this feature, you don't roll the die for the Temporary Hit Points; you automatically get the highest number on the die.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Gaze of Two Minds",
+          "description": "You can use a Bonus Action to touch a willing creature and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can take a Bonus Action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. The connection ends if you don't maintain it in this way. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you can cast spells as if you were in your space or the other creature's space if the two of you are within 60 feet of each other.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Lifedrinker",
+          "description": "Once per turn when you hit a creature with your pact weapon, you can deal an extra 1d6 Necrotic, Psychic, or Radiant damage (your choice) to the creature, and you can expend one of your Hit Point Dice to roll it and regain a number of Hit Points equal to the roll plus your Constitution modifier (minimum of 1 Hit Points).",
+          "prereq": "9th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Mask of Many Faces",
+          "description": "You can cast Disguise Self without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Master of Myriad Forms",
+          "description": "You can cast Alter Self without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Misty Visions",
+          "description": "You can cast Silent Image without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "One with Shadows",
+          "description": "While you're in an area of Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Otherworldly Leap",
+          "description": "You can cast Jump on yourself without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Pact of the Blade",
+          "description": "As a Bonus Action, you can conjure a pact weapon in your hand—a Simple or Martial Melee weapon of your choice with which you bond—or create a bond with a magic weapon you touch; you can't bond with a magic weapon if someone else is attuned to it or another Warlock is bonded with it. Until the bond ends, you have proficiency with the weapon, and you can use it as a Spellcasting Focus. Whenever you attack with the bonded weapon, you can use your Charisma modifier for the attack and damage rolls instead of using Strength or Dexterity; and you can cause the weapon to deal Necrotic, Psychic, or Radiant damage or its normal damage type. Your bond with the weapon ends if you use this feature's Bonus Action again, if the weapon is more than 5 feet away from you for 1 minute or more, or if you die. A conjured weapon disappears when the bond ends."
+        },
+        {
+          "name": "Pact of the Chain",
+          "description": "You learn the Find Familiar spell and can cast it as a Magic action without expending a spell slot. When you cast the spell, you choose one of the normal forms for your familiar or one of the following special forms: Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake (see appendix B for the familiar's stat block). Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its Reaction."
+        },
+        {
+          "name": "Pact of the Tome",
+          "description": "Stitching together strands of shadow, you conjure forth a book in your hand at the end of a Short Rest or Long Rest. This Book of Shadows (you determine its appearance) contains eldritch magic that only you can access, granting you the benefits below. The book disappears if you conjure another book with this feature or if you die. Cantrips and Rituals. When the book appears, choose three cantrips, and choose two level 1 spells that have the Ritual tag. The spells can be from any class's spell list, and they must be spells you don't already have prepared. While the book is on your person, you have the chosen spells prepared, and they function as Warlock spells for you. Spellcasting Focus. You can use the book as a Spellcasting Focus."
+        },
+        {
+          "name": "Repelling Blast",
+          "description": "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with that cantrip, you can push the creature up to 10 feet straight away from you. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage via an Attack Roll"
+        },
+        {
+          "name": "Thirsting Blade",
+          "description": "You gain the Extra Attack feature for your pact weapon only. With that feature, you can attack twice with the weapon instead of once when you take the Attack action on your turn.",
+          "prereq": "5th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Visions of Distant Realms",
+          "description": "You can cast Arcane Eye without expending a spell slot.",
+          "prereq": "9th-level warlock"
+        },
+        {
+          "name": "Whispers of the Grave",
+          "description": "You can cast Speak with Dead without expending a spell slot.",
+          "prereq": "7th-level warlock"
+        },
+        {
+          "name": "Witch Sight",
+          "description": "You have Truesight with a range of 30 feet.",
+          "prereq": "15th-level warlock"
+        }
+      ]
+    },
+    {
+      "id": "invocations-18",
+      "name": "Eldritch Invocations",
+      "kind": "options",
+      "level": 18,
+      "count": 1,
+      "description": "Choose an additional Eldritch Invocation.",
+      "options": [
+        {
+          "name": "Agonizing Blast",
+          "description": "Choose one of your known Warlock cantrips that deals damage. You can add your Charisma modifier to that spell's damage rolls. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Armor of Shadows",
+          "description": "You can cast Mage Armor on yourself without expending a spell slot."
+        },
+        {
+          "name": "Ascendant Step",
+          "description": "You can cast Levitate on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Devil's Sight",
+          "description": "You can see normally in Dim Light and Darkness—both magical and nonmagical—within 120 feet of yourself.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Eldritch Spear",
+          "description": "Choose one of your known Warlock cantrips that deals damage and has a range of 10+ feet. When you cast that spell, its range increases by a number of feet equal to 30 times your Warlock level. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage"
+        },
+        {
+          "name": "Fiendish Vigor",
+          "description": "You can cast False Life on yourself without expending a spell slot. When you cast the spell with this feature, you don't roll the die for the Temporary Hit Points; you automatically get the highest number on the die.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Gaze of Two Minds",
+          "description": "You can use a Bonus Action to touch a willing creature and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can take a Bonus Action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. The connection ends if you don't maintain it in this way. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you can cast spells as if you were in your space or the other creature's space if the two of you are within 60 feet of each other.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Lifedrinker",
+          "description": "Once per turn when you hit a creature with your pact weapon, you can deal an extra 1d6 Necrotic, Psychic, or Radiant damage (your choice) to the creature, and you can expend one of your Hit Point Dice to roll it and regain a number of Hit Points equal to the roll plus your Constitution modifier (minimum of 1 Hit Points).",
+          "prereq": "9th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Mask of Many Faces",
+          "description": "You can cast Disguise Self without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Master of Myriad Forms",
+          "description": "You can cast Alter Self without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Misty Visions",
+          "description": "You can cast Silent Image without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "One with Shadows",
+          "description": "While you're in an area of Dim Light or Darkness, you can cast Invisibility on yourself without expending a spell slot.",
+          "prereq": "5th-level warlock"
+        },
+        {
+          "name": "Otherworldly Leap",
+          "description": "You can cast Jump on yourself without expending a spell slot.",
+          "prereq": "2nd-level warlock"
+        },
+        {
+          "name": "Pact of the Blade",
+          "description": "As a Bonus Action, you can conjure a pact weapon in your hand—a Simple or Martial Melee weapon of your choice with which you bond—or create a bond with a magic weapon you touch; you can't bond with a magic weapon if someone else is attuned to it or another Warlock is bonded with it. Until the bond ends, you have proficiency with the weapon, and you can use it as a Spellcasting Focus. Whenever you attack with the bonded weapon, you can use your Charisma modifier for the attack and damage rolls instead of using Strength or Dexterity; and you can cause the weapon to deal Necrotic, Psychic, or Radiant damage or its normal damage type. Your bond with the weapon ends if you use this feature's Bonus Action again, if the weapon is more than 5 feet away from you for 1 minute or more, or if you die. A conjured weapon disappears when the bond ends."
+        },
+        {
+          "name": "Pact of the Chain",
+          "description": "You learn the Find Familiar spell and can cast it as a Magic action without expending a spell slot. When you cast the spell, you choose one of the normal forms for your familiar or one of the following special forms: Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, or Venomous Snake (see appendix B for the familiar's stat block). Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its Reaction."
+        },
+        {
+          "name": "Pact of the Tome",
+          "description": "Stitching together strands of shadow, you conjure forth a book in your hand at the end of a Short Rest or Long Rest. This Book of Shadows (you determine its appearance) contains eldritch magic that only you can access, granting you the benefits below. The book disappears if you conjure another book with this feature or if you die. Cantrips and Rituals. When the book appears, choose three cantrips, and choose two level 1 spells that have the Ritual tag. The spells can be from any class's spell list, and they must be spells you don't already have prepared. While the book is on your person, you have the chosen spells prepared, and they function as Warlock spells for you. Spellcasting Focus. You can use the book as a Spellcasting Focus."
+        },
+        {
+          "name": "Repelling Blast",
+          "description": "Choose one of your known Warlock cantrips that requires an attack roll. When you hit a Large or smaller creature with that cantrip, you can push the creature up to 10 feet straight away from you. Repeatable. You can gain this invocation more than once. Each time you do so, choose a different eligible cantrip.",
+          "prereq": "2nd-level warlock, Warlock Cantrip That Deals Damage via an Attack Roll"
+        },
+        {
+          "name": "Thirsting Blade",
+          "description": "You gain the Extra Attack feature for your pact weapon only. With that feature, you can attack twice with the weapon instead of once when you take the Attack action on your turn.",
+          "prereq": "5th-level warlock, Pact of the Blade invocation"
+        },
+        {
+          "name": "Visions of Distant Realms",
+          "description": "You can cast Arcane Eye without expending a spell slot.",
+          "prereq": "9th-level warlock"
+        },
+        {
+          "name": "Whispers of the Grave",
+          "description": "You can cast Speak with Dead without expending a spell slot.",
+          "prereq": "7th-level warlock"
+        },
+        {
+          "name": "Witch Sight",
+          "description": "You have Truesight with a range of 30 feet.",
+          "prereq": "15th-level warlock"
+        }
+      ]
+    }
+  ],
   "subclassLevel": 3,
   "subclasses": [
     {

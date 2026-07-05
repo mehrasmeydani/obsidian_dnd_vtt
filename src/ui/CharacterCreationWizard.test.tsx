@@ -467,6 +467,51 @@ describe("CharacterCreationWizard", () => {
     expect(stepIncomplete()).toBe(false);
   });
 
+  it("shows invocation prerequisites and hides options taken in another group (T-51)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Mordai" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
+    fireEvent.click(nextButton());
+
+    // Level-5 warlock: invocation choices owed at levels 2 and 5.
+    fireEvent.click(screen.getByRole("button", { name: /Warlock.*2014/ }));
+    fireEvent.change(screen.getByRole("spinbutton"), {
+      target: { value: "5" },
+    });
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /Fiend/ }));
+
+    // Advisory prerequisite text renders on the option card.
+    const l2 = () => choiceGroup(/Eldritch Invocations — level 2/);
+    expect(
+      l2().getByLabelText(/Ascendant Step \(prerequisite: 9th-level warlock\)/),
+    ).toBeTruthy();
+
+    // Options picked at level 2 disappear from the level-5 group.
+    const l5 = () => choiceGroup(/Eldritch Invocations — level 5/);
+    expect(l5().getByLabelText(/^Agonizing Blast/)).toBeTruthy();
+    fireEvent.click(l2().getByLabelText(/^Agonizing Blast/));
+    fireEvent.click(l2().getByLabelText(/^Devil's Sight/));
+    expect(l5().queryByLabelText(/^Agonizing Blast/)).toBeNull();
+    expect(l5().queryByLabelText(/^Devil's Sight/)).toBeNull();
+    fireEvent.click(l5().getByLabelText(/^Armor of Shadows/));
+
+    // All three picks land; the groups report full counts.
+    expect(
+      screen.getByText(/Eldritch Invocations — level 2 \(2\/2\)/),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/Eldritch Invocations — level 5 \(1\/1\)/),
+    ).toBeTruthy();
+  });
+
   it("moves freely between all steps; incomplete ones carry a warning marker (T-30)", () => {
     render(
       <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,

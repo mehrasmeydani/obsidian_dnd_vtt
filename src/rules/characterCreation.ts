@@ -794,6 +794,23 @@ export function featureChoiceProblems(
     }
   }
 
+  // An option offered by several choices (Metamagic at 3/10/17, fighting
+  // styles on both the class and the Champion) can only be taken once (T-51).
+  if (!kinds || kinds.includes("options")) {
+    const seen = new Set<string>();
+    const dupes = new Set<string>();
+    for (const choice of activeFeatureChoices(draft)) {
+      if (choice.kind !== "options") continue;
+      for (const pick of new Set(draft.featurePicks[choice.id] ?? [])) {
+        if (seen.has(pick)) dupes.add(pick);
+        seen.add(pick);
+      }
+    }
+    for (const name of dupes) {
+      errors.push(`${name} can only be chosen once.`);
+    }
+  }
+
   // A skill cannot gain expertise twice (e.g. rogue level 1 + level 6 picks).
   if (!kinds || kinds.includes("expertise")) {
     const expertisePicks = activeFeatureChoices(draft)

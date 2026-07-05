@@ -934,6 +934,13 @@ function FeatureChoiceGroup({
 }) {
   const picks = draft.featurePicks[choice.id] ?? [];
 
+  // Option names already picked in *other* options choices (shared pools).
+  const takenElsewhere = new Set(
+    activeFeatureChoices(draft)
+      .filter((c) => c.kind === "options" && c.id !== choice.id)
+      .flatMap((c) => draft.featurePicks[c.id] ?? []),
+  );
+
   const setPicks = (next: string[]) =>
     update({
       featurePicks: { ...draft.featurePicks, [choice.id]: next },
@@ -957,6 +964,9 @@ function FeatureChoiceGroup({
         <div className="dvtt-checkboxes">
           {choice.options.map((option) => {
             const checked = picks.includes(option.name);
+            // An option taken in another choice sharing it (Metamagic at
+            // 3/10/17) is hidden here, like taken skills (T-28/T-51).
+            if (!checked && takenElsewhere.has(option.name)) return null;
             return (
               <label key={option.name} title={option.description}>
                 <input
@@ -973,6 +983,9 @@ function FeatureChoiceGroup({
                   }
                 />
                 {option.name}
+                {option.prereq && (
+                  <span className="dvtt-prereq"> (prerequisite: {option.prereq})</span>
+                )}
               </label>
             );
           })}

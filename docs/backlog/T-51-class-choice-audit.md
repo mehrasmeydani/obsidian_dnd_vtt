@@ -30,10 +30,41 @@ T-21 shipped full leveled *features*, but several classes gain
 4. Importer follow-up: ingest `optionalfeatures.json` so imported
    classes get real option text (separate ticket if large).
 
-## Acceptance criteria
-- [ ] Audit table complete; SRD Metamagic options pickable on the
-      sorcerer at the right levels in both editions.
-- [ ] At least invocations/maneuvers modeled or explicitly ticketed.
-- [ ] Tests + user verification.
+## Audit table (2026-07-06)
 
-## Status: todo
+Every choose-N-options grant above level 1 across the SRD classes:
+
+| Class (edition) | Choice | Levels (count) | Disposition |
+|---|---|---|---|
+| Sorcerer 2014 | Metamagic | 3 (×2), 10, 17 | **shipped** — 8 SRD 5.1 options |
+| Sorcerer 2024 | Metamagic | 2 (×2), 10, 17 | **shipped** — 8 SRD 5.2 options (Seeking/Transmuted are not SRD) |
+| Warlock 2014 | Eldritch Invocations | 2 (×2), 5, 7, 9, 12, 15, 18 → 8 known | **shipped** — 32 SRD 5.1 options, advisory `prereq` text on cards |
+| Warlock 2014 | Pact Boon | 3 | already shipped (T-21) |
+| Warlock 2024 | Eldritch Invocations (pact boons are invocations) | 1, 2 (×2), 5 (×2), 7, 9, 12, 15, 18 → 10 known | **shipped** — 21 SRD 5.2 options incl. the three Pacts |
+| Fighter 2014 (Champion) | Additional Fighting Style | 10 | **shipped** — same pool as the class choice, cross-deduped |
+| Ranger 2014 | Favored Enemy | 6, 14 (extra picks) | **shipped** — cross-deduped with the level-1 pick |
+| Ranger 2014 | Natural Explorer | 6, 10 (extra picks) | **shipped** — same |
+| Fighter — Battle Master maneuvers | — | — | **not SRD** (Champion is the only SRD fighter subclass in both editions); arrives via the importer once `optionalfeatures.json` is ingested (plan step 4) |
+| Bard Magical Secrets · Circle of the Land bonus cantrip · Mystic Arcanum | spell picks | various | deferred to **T-15** (spell selection) |
+| 2024 classes other than barbarian/sorcerer/warlock | — | — | progressions still level-1-only; their choice audit rolls into **T-17** |
+
+Mechanics shipped with this round:
+- `prereq` advisory text on options (`FeatureOptionSchema`), rendered
+  muted/italic on the card; the player validates it themselves in v1.
+- Cross-choice dedup for shared pools: an option picked in one choice is
+  an error if re-picked in another (`featureChoiceProblems`) and is
+  *hidden* in the other groups (the T-28 pattern); an SRD integrity test
+  proves every shared-pool cluster stays satisfiable.
+- Raw `optionalfeatures.json` staged in `docs/reference/5etools/`
+  (git-ignored) for the importer follow-up.
+
+## Acceptance criteria
+- [x] Audit table complete; SRD Metamagic options pickable on the
+      sorcerer at the right levels in both editions.
+- [x] At least invocations/maneuvers modeled or explicitly ticketed
+      (invocations shipped in both editions; maneuvers are not SRD →
+      importer follow-up).
+- [x] Tests (rules dedup, SRD integrity, wizard walkthrough) — user
+      verification pending.
+
+## Status: needs-check
