@@ -10,6 +10,7 @@ import type {
   ContentBundle,
   EquipmentItem,
   FeatData,
+  ItemData,
   RaceData,
   SpellData,
   StartingEquipment,
@@ -969,6 +970,80 @@ export function featFromFiveEtools(raw: unknown): FeatData {
 }
 
 // ---------------------------------------------------------------------------
+// Items (equipment & magic items).
+// ---------------------------------------------------------------------------
+
+/** 5etools item `type` codes → readable names (the code may carry a
+ * `|source` suffix). Unknown codes pass through raw. */
+const ITEM_TYPE_NAMES: Record<string, string> = {
+  A: "Ammunition",
+  AF: "Ammunition (firearm)",
+  AT: "Artisan's tools",
+  EXP: "Explosive",
+  FD: "Food and drink",
+  G: "Adventuring gear",
+  GS: "Gaming set",
+  HA: "Heavy armor",
+  IDG: "Illegal drug",
+  INS: "Instrument",
+  LA: "Light armor",
+  M: "Melee weapon",
+  MA: "Medium armor",
+  MNT: "Mount",
+  OTH: "Other",
+  P: "Potion",
+  R: "Ranged weapon",
+  RD: "Rod",
+  RG: "Ring",
+  S: "Shield",
+  SC: "Scroll",
+  SCF: "Spellcasting focus",
+  SHP: "Ship",
+  SPC: "Vehicle (space)",
+  T: "Tools",
+  TAH: "Tack and harness",
+  TB: "Trade bar",
+  TG: "Trade good",
+  VEH: "Vehicle (land)",
+  WD: "Wand",
+  $: "Treasure",
+  "$A": "Treasure (art object)",
+  "$C": "Treasure (coinage)",
+  "$G": "Treasure (gemstone)",
+};
+
+export function itemFromFiveEtools(raw: unknown): ItemData {
+  const item = raw as Record<string, unknown>;
+  if (!item || typeof item.name !== "string") throw new Error("no name");
+  if (item._copy) throw new Error("unresolved _copy (base record not found)");
+
+  const typeCode =
+    typeof item.type === "string" ? item.type.split("|")[0] : undefined;
+  const type =
+    item.wondrous === true
+      ? "Wondrous item"
+      : item.staff === true
+        ? "Staff"
+        : typeCode
+          ? (ITEM_TYPE_NAMES[typeCode] ?? typeCode)
+          : undefined;
+  const rarity =
+    typeof item.rarity === "string" && item.rarity !== "none"
+      ? item.rarity
+      : undefined;
+  return {
+    id: importId("item", item.name, item.source as string | undefined),
+    name: item.name,
+    type,
+    rarity,
+    // `reqAttune` is `true` or a condition string ("by a cleric").
+    requiresAttunement:
+      item.reqAttune === true || typeof item.reqAttune === "string",
+    description: renderEntries(item.entries),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Spells.
 // ---------------------------------------------------------------------------
 
@@ -1104,8 +1179,9 @@ export interface FiveEtoolsImportResult {
 /**
  * Convert any number of parsed 5etools JSON files into one content bundle.
  * Top-level arrays we recognize: `race`, `class`/`subclass`(+feature
- * tables), `background`, `feat`, `spell`. Unrecognized top-level keys are
- * reported once per file, records that fail to map are reported by name.
+ * tables), `background`, `feat`, `spell`, `item`/`baseitem`. Unrecognized
+ * top-level keys are reported once per file, records that fail to map are
+ * reported by name.
  */
 export function importFiveEtools(
   files: { name: string; json: unknown }[],
@@ -1133,6 +1209,8 @@ export function importFiveEtools(
     "background",
     "feat",
     "spell",
+    "item",
+    "baseitem",
     "_meta",
   ]);
 
@@ -1171,6 +1249,10 @@ export function importFiveEtools(
     convertEach("background", "background", backgroundFromFiveEtools, bundle.backgrounds);
     convertEach("feat", "feat", featFromFiveEtools, bundle.feats);
     convertEach("spell", "spell", spellFromFiveEtools, bundle.spells);
+    // `item` = magic items & gear (items.json); `baseitem` = the mundane
+    // weapons/armor table (items-base.json).
+    convertEach("item", "item", itemFromFiveEtools, bundle.items);
+    convertEach("baseitem", "item", itemFromFiveEtools, bundle.items);
     if (Array.isArray(data.class)) {
       const { classes, skipped: classSkipped } = classesFromFiveEtools(
         data as FiveEtoolsClassFile,

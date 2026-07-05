@@ -33,4 +33,12 @@ items, SRD armor), so gearing up doesn't mean typing free-text names.
 - [ ] Armor picked as loot participates in equip/AC.
 - [ ] Tests; user verifies in Obsidian.
 
+## Data note (2026-07-05)
+The 5etools importer now ingests `item`/`baseitem` (2,658 items incl.
+all mundane gear and magic items) and the spell files were pulled into
+the user's vault import folder — the catalog this picker browses is
+real now. Mundane baseitems carry no prose (5etools keeps damage/
+properties structured, not as entries); enriching those descriptions
+is in scope here.
+
 ## Status: todo

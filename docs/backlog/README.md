@@ -61,7 +61,7 @@ flip its status here and tick the roadmap item it maps to.
 | [T-46](T-46-asi-spacing.md) | Abilities step: ASI spacing broken | P1 | XS | 1 | — | todo |
 | [T-47](T-47-repeatable-feats.md) | Repeatable feats flag | P2 | S | 1 | T-04 | todo |
 | [T-48](T-48-loot-picker.md) | Loot picker in creator & sheet | P2 | L | 2 | T-11, T-12 | todo |
-| [T-49](T-49-edition-sections.md) | Wizard lists: 5e / 5.5e sections | P2 | S | 1 | T-17 | todo |
+| [T-49](T-49-edition-sections.md) | Wizard lists: 5e / 5.5e sections | P2 | S | 1 | T-17 | needs-check |
 | [T-50](T-50-import-folder-howto.md) | Importer how-to when folder missing | P3 | XS | 2 | T-13 | todo |
 | [T-51](T-51-class-choice-audit.md) | Class choice audit (Metamagic & co.) | P1 | L | 1 | T-21 | todo |
 | [T-52](T-52-equip-toggle-regression.md) | Regression: equip toggle gone | P1 | S | 1 | T-22, T-36 | needs-check |

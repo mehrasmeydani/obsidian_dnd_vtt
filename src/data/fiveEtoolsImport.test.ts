@@ -5,6 +5,7 @@ import {
   backgroundFromFiveEtools,
   classesFromFiveEtools,
   featFromFiveEtools,
+  itemFromFiveEtools,
   importFiveEtools,
   raceFromFiveEtools,
   renderEntries,
@@ -522,6 +523,54 @@ describe("featFromFiveEtools", () => {
     });
     expect(feat.id).toBe("5etools-feat-grappler-phb");
     expect(feat.description).toContain("Advantage on grapples.");
+  });
+});
+
+// --- Items -------------------------------------------------------------
+
+describe("itemFromFiveEtools", () => {
+  it("maps a magic item with type code, rarity and attunement", () => {
+    const item = itemFromFiveEtools({
+      name: "Ring of Protection",
+      source: "DMG",
+      type: "RG|DMG",
+      rarity: "rare",
+      reqAttune: true,
+      entries: ["You gain a +1 bonus to AC and saving throws."],
+    });
+    expect(item).toMatchObject({
+      id: "5etools-item-ring-of-protection-dmg",
+      name: "Ring of Protection",
+      type: "Ring",
+      rarity: "rare",
+      requiresAttunement: true,
+    });
+    expect(item.description).toContain("+1 bonus to AC");
+  });
+
+  it("treats wondrous items, conditional attunement, and 'none' rarity", () => {
+    const item = itemFromFiveEtools({
+      name: "Holy Avenger Cloak",
+      source: "TST",
+      wondrous: true,
+      rarity: "none",
+      reqAttune: "by a paladin",
+      entries: [],
+    });
+    expect(item.type).toBe("Wondrous item");
+    expect(item.rarity).toBeUndefined();
+    expect(item.requiresAttunement).toBe(true);
+  });
+
+  it("maps a mundane baseitem", () => {
+    const item = itemFromFiveEtools({
+      name: "Longsword",
+      source: "PHB",
+      type: "M",
+      rarity: "none",
+    });
+    expect(item.type).toBe("Melee weapon");
+    expect(item.requiresAttunement).toBe(false);
   });
 });
 

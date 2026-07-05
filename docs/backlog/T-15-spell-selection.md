@@ -20,3 +20,11 @@ that my character is playable the moment the wizard finishes.
 ## Technical notes
 - Prepared casters technically choose daily — creation records the initial
   prepared set; the sheet (T-01) handles later changes.
+
+## Data note (2026-07-05)
+Spell data is in place from two sources: Open5e (T-12 refresh) and the
+5etools importer (`spell` arrays; PHB + XPHB files copied into the
+user's vault import folder — 752 spells with school/time/range/
+components/duration/ritual/concentration and full text). The wizard
+picker and the sheet's spell management should read the merged
+`ContentStore.spells`.
