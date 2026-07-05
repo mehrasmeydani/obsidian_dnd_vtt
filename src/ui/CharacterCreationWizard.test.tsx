@@ -71,7 +71,7 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     // Step 2: class.
-    fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Fighter.*2014/ }));
     fireEvent.click(nextButton());
 
     // Step 3: class options — subclass is still locked at level 1, but the
@@ -84,7 +84,7 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     // Step 4: background.
-    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Acolyte.*2014/ }));
     fireEvent.change(screen.getByLabelText("Extra language (1)"), {
       target: { value: "abyssal" },
     });
@@ -148,6 +148,41 @@ describe("CharacterCreationWizard", () => {
     expect(gear).toContain("Vestments");
   });
 
+  it("shows edition badges and gates a 2024 background on its origin feat (T-17)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+
+    // Step 1: same-named species across editions are told apart by a badge.
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Korra" },
+    });
+    expect(
+      screen.getAllByRole("button", { name: /^Human/ }).length,
+    ).toBeGreaterThan(1);
+    fireEvent.click(screen.getByRole("button", { name: /Human.*2024/ }));
+    fireEvent.click(nextButton());
+
+    // Step 2: a 2024 class.
+    fireEvent.click(screen.getByRole("button", { name: /Barbarian.*2024/ }));
+    fireEvent.click(nextButton());
+
+    // Step 3: class options — Next never blocks (T-30), so skip past.
+    fireEvent.click(nextButton());
+
+    // Step 4: a 2024 background owes an origin feat, which gates the step.
+    fireEvent.click(screen.getByRole("button", { name: /Acolyte.*2024/ }));
+    expect(
+      screen.getByText("Choose an origin feat for your background."),
+    ).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Origin feat"), {
+      target: { value: "alert" },
+    });
+    expect(
+      screen.queryByText("Choose an origin feat for your background."),
+    ).toBeNull();
+  });
+
   it("gates ability score improvements for higher starting levels", () => {
     render(
       <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
@@ -163,7 +198,7 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     // Level 4 fighter: one ASI = two +1 points to assign.
-    fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Fighter.*2014/ }));
     fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "4" } });
     fireEvent.click(nextButton());
 
@@ -175,7 +210,7 @@ describe("CharacterCreationWizard", () => {
     expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
-    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Acolyte.*2014/ }));
     fireEvent.change(screen.getByLabelText("Extra language (1)"), {
       target: { value: "abyssal" },
     });
@@ -261,13 +296,13 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     // Level 4 fighter earns one ASI (2 points).
-    fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Fighter.*2014/ }));
     fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "4" } });
     fireEvent.click(nextButton());
     fireEvent.click(screen.getByRole("button", { name: /^Champion/ }));
     fireEvent.click(screen.getByLabelText("Archery"));
     fireEvent.click(nextButton());
-    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Acolyte.*2014/ }));
     fireEvent.change(screen.getByLabelText("Extra language (1)"), {
       target: { value: "abyssal" },
     });
@@ -308,10 +343,10 @@ describe("CharacterCreationWizard", () => {
       target: { value: "giant" },
     });
     fireEvent.click(nextButton());
-    fireEvent.click(screen.getByRole("button", { name: /^Bard/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Bard.*2014/ }));
     fireEvent.click(nextButton());
     fireEvent.click(nextButton());
-    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Acolyte.*2014/ }));
     fireEvent.change(screen.getByLabelText("Extra language (1)"), {
       target: { value: "abyssal" },
     });
@@ -359,10 +394,10 @@ describe("CharacterCreationWizard", () => {
       target: { value: "smiths-tools" },
     });
     fireEvent.click(nextButton());
-    fireEvent.click(screen.getByRole("button", { name: /^Rogue/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Rogue.*2014/ }));
     fireEvent.click(nextButton());
     fireEvent.click(nextButton());
-    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Acolyte.*2014/ }));
     fireEvent.change(screen.getByLabelText("Extra language (1)"), {
       target: { value: "abyssal" },
     });
@@ -446,7 +481,7 @@ describe("CharacterCreationWizard", () => {
       target: { value: "smiths-tools" },
     });
     fireEvent.click(nextButton());
-    fireEvent.click(screen.getByRole("button", { name: /^Fighter/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Fighter.*2014/ }));
 
     // Jump straight to Review with plenty missing.
     fireEvent.click(screen.getByRole("button", { name: /Review/ }));
@@ -478,7 +513,7 @@ describe("CharacterCreationWizard", () => {
     fireEvent.click(nextButton());
 
     // Level 3 rogue, then the class-options step owes the Thief archetype.
-    fireEvent.click(screen.getByRole("button", { name: /^Rogue/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Rogue.*2014/ }));
     fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "3" } });
     fireEvent.click(nextButton());
     expect(stepIncomplete()).toBe(true);
@@ -487,7 +522,7 @@ describe("CharacterCreationWizard", () => {
     expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
-    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Acolyte.*2014/ }));
     fireEvent.change(screen.getByLabelText("Extra language (1)"), {
       target: { value: "abyssal" },
     });
@@ -539,7 +574,7 @@ describe("CharacterCreationWizard", () => {
     fireEvent.change(screen.getByPlaceholderText(/Borin/), {
       target: { value: "Grok" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Human/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Human.*2014/ }));
     fireEvent.change(screen.getByLabelText("Extra language"), {
       target: { value: "elvish" },
     });
@@ -629,7 +664,7 @@ describe("CharacterCreationWizard", () => {
     });
     fireEvent.click(nextButton());
 
-    fireEvent.click(screen.getByRole("button", { name: /^Bard/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Bard.*2014/ }));
     fireEvent.click(nextButton());
 
     // Class options: nothing is owed at level 1 (bard expertise comes at 3,
@@ -639,7 +674,7 @@ describe("CharacterCreationWizard", () => {
     expect(stepIncomplete()).toBe(false);
     fireEvent.click(nextButton());
 
-    fireEvent.click(screen.getByRole("button", { name: /^Acolyte/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Acolyte.*2014/ }));
     fireEvent.change(screen.getByLabelText("Extra language (1)"), {
       target: { value: "abyssal" },
     });

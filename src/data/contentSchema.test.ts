@@ -16,6 +16,7 @@ function minimalBundle(): ContentBundle {
       {
         id: "test-race",
         name: "Test Race",
+        edition: "2014",
         speed: 30,
         fixedBonuses: { str: 1 },
         traits: [{ name: "Trait" }],
@@ -48,7 +49,10 @@ function minimalBundle(): ContentBundle {
       {
         id: "test-bg",
         name: "Test BG",
+        edition: "2014",
         grantedSkills: ["insight"],
+        fixedBonuses: {},
+        originFeat: false,
         description: "Test",
         traits: [],
         equipment: [],
@@ -69,9 +73,10 @@ describe("parseContentBundle", () => {
   it("accepts the bundled SRD content", () => {
     const bundle = parseContentBundle(srdRaw);
     expect(bundle.name).toBe("SRD");
-    expect(bundle.races).toHaveLength(9);
-    // 12 SRD 5.1 classes + the 2024 (SRD 5.2) Barbarian variant.
-    expect(bundle.classes).toHaveLength(13);
+    // 9 SRD 5.1 races + 5 SRD 5.2 (2024) species.
+    expect(bundle.races).toHaveLength(14);
+    // 12 SRD 5.1 classes + all 12 as 2024 (SRD 5.2) variants.
+    expect(bundle.classes).toHaveLength(24);
   });
 
   it("accepts a minimal well-formed bundle", () => {

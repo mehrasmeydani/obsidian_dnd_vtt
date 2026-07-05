@@ -1,0 +1,237 @@
+{
+  "id": "ranger-2024",
+  "name": "Ranger",
+  "edition": "2024",
+  "hitDie": 10,
+  "savingThrows": [
+    "str",
+    "dex"
+  ],
+  "spellcastingAbility": "wis",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16
+  ],
+  "skillChoice": {
+    "count": 3,
+    "from": [
+      "animalHandling",
+      "athletics",
+      "insight",
+      "investigation",
+      "nature",
+      "perception",
+      "stealth",
+      "survival"
+    ]
+  },
+  "proficiencies": {
+    "armor": [
+      "Light armor",
+      "Medium armor",
+      "Shields"
+    ],
+    "weapons": [
+      "Simple weapons",
+      "Martial weapons"
+    ],
+    "tools": []
+  },
+  "equipment": {
+    "fixed": [],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Studded leather armor"
+            },
+            {
+              "name": "Scimitar"
+            },
+            {
+              "name": "Shortsword"
+            },
+            {
+              "name": "Longbow"
+            },
+            {
+              "name": "Arrows",
+              "quantity": 20
+            },
+            {
+              "name": "Druidic focus"
+            },
+            {
+              "name": "Explorer's pack"
+            },
+            {
+              "name": "Gold (gp)",
+              "quantity": 7
+            }
+          ],
+          [
+            {
+              "name": "Gold (gp)",
+              "quantity": 150
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "You cast ranger spells using Wisdom, preparing them from the ranger spell list."
+    },
+    {
+      "level": 1,
+      "name": "Favored Enemy",
+      "description": "You always have the Hunter's Mark spell prepared and can cast it without a spell slot a number of times per long rest equal to your Wisdom modifier."
+    },
+    {
+      "level": 1,
+      "name": "Weapon Mastery",
+      "description": "You can use the mastery properties of two kinds of weapons you're proficient with; change choices on a long rest."
+    }
+  ],
+  "featureChoices": [
+    {
+      "id": "weapon-mastery",
+      "name": "Weapon Mastery",
+      "level": 1,
+      "count": 2,
+      "kind": "options",
+      "description": "Choose kinds of weapons whose mastery properties you can use; you can change choices on a long rest.",
+      "options": [
+        {
+          "name": "Club"
+        },
+        {
+          "name": "Dagger"
+        },
+        {
+          "name": "Greatclub"
+        },
+        {
+          "name": "Handaxe"
+        },
+        {
+          "name": "Javelin"
+        },
+        {
+          "name": "Light Hammer"
+        },
+        {
+          "name": "Mace"
+        },
+        {
+          "name": "Quarterstaff"
+        },
+        {
+          "name": "Sickle"
+        },
+        {
+          "name": "Spear"
+        },
+        {
+          "name": "Dart"
+        },
+        {
+          "name": "Light Crossbow"
+        },
+        {
+          "name": "Shortbow"
+        },
+        {
+          "name": "Sling"
+        },
+        {
+          "name": "Battleaxe"
+        },
+        {
+          "name": "Flail"
+        },
+        {
+          "name": "Glaive"
+        },
+        {
+          "name": "Greataxe"
+        },
+        {
+          "name": "Greatsword"
+        },
+        {
+          "name": "Halberd"
+        },
+        {
+          "name": "Lance"
+        },
+        {
+          "name": "Longsword"
+        },
+        {
+          "name": "Maul"
+        },
+        {
+          "name": "Morningstar"
+        },
+        {
+          "name": "Pike"
+        },
+        {
+          "name": "Rapier"
+        },
+        {
+          "name": "Scimitar"
+        },
+        {
+          "name": "Shortsword"
+        },
+        {
+          "name": "Trident"
+        },
+        {
+          "name": "War Pick"
+        },
+        {
+          "name": "Warhammer"
+        },
+        {
+          "name": "Whip"
+        },
+        {
+          "name": "Blowgun"
+        },
+        {
+          "name": "Hand Crossbow"
+        },
+        {
+          "name": "Heavy Crossbow"
+        },
+        {
+          "name": "Longbow"
+        }
+      ]
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "hunter-2024",
+      "name": "Hunter",
+      "features": [
+        {
+          "level": 3,
+          "name": "Hunter's Lore",
+          "description": "While a creature is marked by your Hunter's Mark, you know whether it has any damage immunities, resistances, or vulnerabilities."
+        }
+      ],
+      "featureChoices": []
+    }
+  ]
+}

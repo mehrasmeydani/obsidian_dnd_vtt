@@ -3,6 +3,7 @@ import { ABILITIES, SKILLS, type Skill } from "../model/schema";
 import {
   BACKGROUNDS,
   CLASSES,
+  FEATS,
   RACES,
   type BackgroundData,
   type ClassData,
@@ -61,6 +62,17 @@ function completeDraft(
         race.bonusChoice.count,
       )
     : [];
+
+  // 2024 backgrounds can carry ability bonuses (a choice) and an origin feat.
+  const backgroundBonusAbilities = background.bonusChoice
+    ? ABILITIES.filter((a) => !(background.fixedBonuses[a] ?? 0)).slice(
+        0,
+        background.bonusChoice.count,
+      )
+    : [];
+  const originFeat = background.originFeat
+    ? (FEATS.find((f) => f.origin) ?? null)
+    : null;
 
   // Subclass owed at level 1 (cleric domain, sorcerous origin, patron).
   const subclass =
@@ -137,6 +149,8 @@ function completeDraft(
     background,
     baseScores: { ...BASE_SCORES },
     racialBonusAbilities,
+    backgroundBonusAbilities,
+    originFeat,
     raceOptions: firstOptions(race.optionChoices),
     backgroundOptions: firstOptions(background.optionChoices),
     classSkills,
@@ -230,7 +244,8 @@ describe.each(BACKGROUNDS.map((bg) => [bg.id, bg] as const))(
           background.traits.length +
           optionPickCount +
           featureOptionChoices(race.optionChoices) +
-          featureOptionChoices(background.optionChoices),
+          featureOptionChoices(background.optionChoices) +
+          (draft.originFeat ? 1 : 0),
       );
 
       // Class proficiencies land on the character (T-20); race/background

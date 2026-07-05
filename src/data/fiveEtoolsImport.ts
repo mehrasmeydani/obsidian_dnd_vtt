@@ -215,6 +215,7 @@ export function raceFromFiveEtools(raw: unknown): RaceData {
   return {
     id: importId("race", race.name, race.source as string | undefined),
     name: race.name,
+    edition: race.edition === "one" || race.source === "XPHB" ? "2024" : "2014",
     speed,
     fixedBonuses,
     bonusChoice,
@@ -634,8 +635,16 @@ export function backgroundFromFiveEtools(raw: unknown): BackgroundData {
   return {
     id: importId("background", background.name, background.source as string | undefined),
     name: background.name,
+    edition:
+      background.edition === "one" || background.source === "XPHB"
+        ? "2024"
+        : "2014",
     grantedSkills,
     skillChoice,
+    // TODO(T-17): extract 2024 background ability increases + origin feat
+    // from the 5etools `ability`/`feats` fields; defaults for now.
+    fixedBonuses: {},
+    originFeat: false,
     description,
     traits,
     equipment,
@@ -656,6 +665,8 @@ export function featFromFiveEtools(raw: unknown): FeatData {
   return {
     id: importId("feat", feat.name, feat.source as string | undefined),
     name: feat.name,
+    // 5etools marks 2024 origin feats with category "O" (T-17).
+    origin: feat.category === "O",
     description: renderEntries(feat.entries) || undefined,
   };
 }

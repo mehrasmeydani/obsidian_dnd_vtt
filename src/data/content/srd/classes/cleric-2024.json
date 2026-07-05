@@ -1,0 +1,121 @@
+{
+  "id": "cleric-2024",
+  "name": "Cleric",
+  "edition": "2024",
+  "hitDie": 8,
+  "savingThrows": [
+    "wis",
+    "cha"
+  ],
+  "spellcastingAbility": "wis",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "history",
+      "insight",
+      "medicine",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "proficiencies": {
+    "armor": [
+      "Light armor",
+      "Medium armor",
+      "Shields"
+    ],
+    "weapons": [
+      "Simple weapons"
+    ],
+    "tools": []
+  },
+  "equipment": {
+    "fixed": [],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Chain shirt"
+            },
+            {
+              "name": "Shield"
+            },
+            {
+              "name": "Mace"
+            },
+            {
+              "name": "Holy symbol"
+            },
+            {
+              "name": "Priest's pack"
+            },
+            {
+              "name": "Gold (gp)",
+              "quantity": 7
+            }
+          ],
+          [
+            {
+              "name": "Gold (gp)",
+              "quantity": 110
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "You cast cleric spells using Wisdom, preparing them from the cleric spell list; you know cleric cantrips."
+    },
+    {
+      "level": 1,
+      "name": "Divine Order",
+      "description": "Choose the sacred role that shapes your calling."
+    }
+  ],
+  "featureChoices": [
+    {
+      "id": "divine-order",
+      "name": "Divine Order",
+      "level": 1,
+      "count": 1,
+      "kind": "options",
+      "description": "Choose your role as a cleric.",
+      "options": [
+        {
+          "name": "Protector",
+          "description": "Gain proficiency with martial weapons and heavy armor."
+        },
+        {
+          "name": "Thaumaturge",
+          "description": "Learn an extra cleric cantrip, and add your Wisdom modifier to Arcana and Religion checks."
+        }
+      ]
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "life-domain-2024",
+      "name": "Life Domain",
+      "features": [
+        {
+          "level": 3,
+          "name": "Disciple of Life",
+          "description": "When you restore hit points with a level-1+ spell, the target regains extra hit points equal to 2 + the spell's level."
+        }
+      ],
+      "featureChoices": []
+    }
+  ]
+}

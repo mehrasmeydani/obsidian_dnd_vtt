@@ -81,6 +81,7 @@ export const CHARACTER_PROJECTION: ProjectionField<Character>[] = [
   },
   { key: "ac", direction: "write-only", get: (c) => armorClass(c) },
   { key: "level", direction: "write-only", get: (c) => totalLevel(c) },
+  { key: "edition", direction: "write-only", get: (c) => c.edition },
   {
     key: "class",
     direction: "write-only",

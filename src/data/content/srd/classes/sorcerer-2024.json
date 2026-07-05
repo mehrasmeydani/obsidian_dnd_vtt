@@ -1,0 +1,97 @@
+{
+  "id": "sorcerer-2024",
+  "name": "Sorcerer",
+  "edition": "2024",
+  "hitDie": 6,
+  "savingThrows": [
+    "con",
+    "cha"
+  ],
+  "spellcastingAbility": "cha",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "arcana",
+      "deception",
+      "insight",
+      "intimidation",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "proficiencies": {
+    "armor": [],
+    "weapons": [
+      "Simple weapons"
+    ],
+    "tools": []
+  },
+  "equipment": {
+    "fixed": [],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Spear"
+            },
+            {
+              "name": "Dagger",
+              "quantity": 2
+            },
+            {
+              "name": "Arcane focus"
+            },
+            {
+              "name": "Dungeoneer's pack"
+            },
+            {
+              "name": "Gold (gp)",
+              "quantity": 28
+            }
+          ],
+          [
+            {
+              "name": "Gold (gp)",
+              "quantity": 50
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "You cast sorcerer spells using Charisma, knowing cantrips and spells from the sorcerer spell list."
+    },
+    {
+      "level": 1,
+      "name": "Innate Sorcery",
+      "description": "Bonus action: for 1 minute your sorcerer spell save DC increases by 1 and you have advantage on the attack rolls of your sorcerer spells. Two uses per long rest."
+    }
+  ],
+  "featureChoices": [],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "draconic-sorcery-2024",
+      "name": "Draconic Sorcery",
+      "features": [
+        {
+          "level": 3,
+          "name": "Draconic Resilience",
+          "description": "Your hit point maximum increases by 3 (and 1 per sorcerer level thereafter), and while you wear no armor your AC = 10 + Dexterity modifier + Charisma modifier."
+        }
+      ],
+      "featureChoices": []
+    }
+  ]
+}

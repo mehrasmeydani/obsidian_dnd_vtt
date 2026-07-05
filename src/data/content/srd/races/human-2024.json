@@ -1,0 +1,28 @@
+{
+  "id": "human-2024",
+  "name": "Human",
+  "edition": "2024",
+  "speed": 30,
+  "fixedBonuses": {},
+  "skillChoice": {
+    "count": 1,
+    "from": "any"
+  },
+  "traits": [
+    {
+      "name": "Resourceful",
+      "description": "You gain Heroic Inspiration whenever you finish a Long Rest."
+    },
+    {
+      "name": "Skillful",
+      "description": "You gain proficiency in one skill of your choice."
+    },
+    {
+      "name": "Versatile",
+      "description": "You gain an Origin feat of your choice (choose it on the Background step)."
+    }
+  ],
+  "languages": [
+    "Common"
+  ]
+}

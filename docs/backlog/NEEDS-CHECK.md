@@ -5,6 +5,30 @@ in Obsidian yet**. Test each item, then either flip its board status to
 `done` (and delete its line here) or drop a note in `todo` with what's
 wrong.
 
+## T-17 partial — 2024 classes + note edition (2026-07-05)
+
+- **T-17 2024 classes (SRD 5.2)** — all 11 remaining classes now appear in
+  the wizard with a 5.5e (2024) edition badge, at **level-1 depth** (Bard,
+  Cleric, Druid, Fighter, Monk, Paladin, Ranger, Rogue, Sorcerer, Warlock,
+  Wizard). Verify in Obsidian: build one of each, check hit die / saves /
+  skills / equipment A-B / Weapon Mastery / Fighting Style / Divine &
+  Primal Order / Rogue Expertise and the staged level-3 subclass. See the
+  T-17 ticket's "Needs further review" list for the specific data points
+  that want a rules pass (equipment gp values, skill lists, subclass
+  features). *(Still level-1 only; 2..20 progression backfill is a
+  follow-up. 2024 species/backgrounds are designed but not built.)*
+- **T-17 note edition** — character notes now carry a top-level
+  `edition` (2014/2024), also mirrored to the `edition:` frontmatter key.
+- **T-17 2024 species & backgrounds** — 5 species (Human, Elf, Dwarf,
+  Halfling, Orc) and 4 backgrounds (Acolyte, Criminal, Sage, Soldier) with
+  a 5.5e badge. In 2024, ability increases come from the **background**
+  (+1 to three abilities) and species give none; verify the Abilities step
+  shows "+N background" and that mixing a 2014 species with a 2024
+  background stacks both (by design). Each 2024 background offers an
+  **origin feat** dropdown on the Background step. See the T-17 ticket's
+  "review notes" for what's simplified (the +2/+1 split, feat effects,
+  gear-vs-gold).
+
 ## From the big backlog round (2026-07-04)
 
 - **T-10 Player notes** — "Create session note" command; visibility via

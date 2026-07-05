@@ -129,6 +129,12 @@ export const CharacterSchema = z.object({
   ownerId: z.string().optional(),
   race: z.string().default(""),
   background: z.string().default(""),
+  /**
+   * Rules edition the character was built with (T-17): "2014" (SRD 5.1) or
+   * "2024" (SRD 5.2). Stamped from the class at assembly; additive, so
+   * older notes default to "2014".
+   */
+  edition: z.enum(["2014", "2024"]).default("2014"),
   classes: z
     .array(
       z.object({

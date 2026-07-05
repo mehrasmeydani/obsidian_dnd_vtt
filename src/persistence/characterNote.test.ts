@@ -120,6 +120,7 @@ describe("frontmatter projection (T-23)", () => {
     const character = {
       ...sampleCharacter(),
       race: "Dwarf",
+      edition: "2024" as const,
       classes: [{ name: "Fighter", level: 3, subclass: "Champion" }],
     };
     const note = serializeCharacterNote(character);
@@ -130,6 +131,7 @@ describe("frontmatter projection (T-23)", () => {
     expect(frontmatter).toContain("race: Dwarf");
     expect(frontmatter).toContain("level: 3");
     expect(frontmatter).toContain("class: Fighter (Champion) 3");
+    expect(frontmatter).toContain("edition: 2024");
     expect(frontmatter).toMatch(/ac: \d+/);
   });
 

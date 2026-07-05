@@ -1,0 +1,103 @@
+{
+  "id": "warlock-2024",
+  "name": "Warlock",
+  "edition": "2024",
+  "hitDie": 8,
+  "savingThrows": [
+    "wis",
+    "cha"
+  ],
+  "spellcastingAbility": "cha",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "arcana",
+      "deception",
+      "history",
+      "intimidation",
+      "investigation",
+      "nature",
+      "religion"
+    ]
+  },
+  "proficiencies": {
+    "armor": [
+      "Light armor"
+    ],
+    "weapons": [
+      "Simple weapons"
+    ],
+    "tools": []
+  },
+  "equipment": {
+    "fixed": [],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Leather armor"
+            },
+            {
+              "name": "Sickle"
+            },
+            {
+              "name": "Dagger",
+              "quantity": 2
+            },
+            {
+              "name": "Arcane focus"
+            },
+            {
+              "name": "Scholar's pack"
+            },
+            {
+              "name": "Gold (gp)",
+              "quantity": 15
+            }
+          ],
+          [
+            {
+              "name": "Gold (gp)",
+              "quantity": 100
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "level": 1,
+      "name": "Pact Magic",
+      "description": "You cast warlock spells using Charisma. Your few spell slots are all the same (high) level and recharge on a short or long rest."
+    },
+    {
+      "level": 1,
+      "name": "Eldritch Invocations",
+      "description": "You learn Eldritch Invocations — fragments of forbidden knowledge that grant abilities; you can replace one when you gain a warlock level. (Invocation selection is not yet modeled.)"
+    }
+  ],
+  "featureChoices": [],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "fiend-patron-2024",
+      "name": "Fiend Patron",
+      "features": [
+        {
+          "level": 3,
+          "name": "Dark One's Blessing",
+          "description": "When you reduce an enemy to 0 hit points, or one dies within 10 feet of you, you gain temporary hit points equal to your Charisma modifier + your warlock level."
+        }
+      ],
+      "featureChoices": []
+    }
+  ]
+}

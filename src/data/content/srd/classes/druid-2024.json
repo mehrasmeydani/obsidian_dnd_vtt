@@ -1,0 +1,133 @@
+{
+  "id": "druid-2024",
+  "name": "Druid",
+  "edition": "2024",
+  "hitDie": 8,
+  "savingThrows": [
+    "int",
+    "wis"
+  ],
+  "spellcastingAbility": "wis",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "arcana",
+      "animalHandling",
+      "insight",
+      "medicine",
+      "nature",
+      "perception",
+      "religion",
+      "survival"
+    ]
+  },
+  "proficiencies": {
+    "armor": [
+      "Light armor",
+      "Shields"
+    ],
+    "weapons": [
+      "Simple weapons"
+    ],
+    "tools": [
+      "Herbalism kit"
+    ]
+  },
+  "equipment": {
+    "fixed": [],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Leather armor"
+            },
+            {
+              "name": "Shield"
+            },
+            {
+              "name": "Sickle"
+            },
+            {
+              "name": "Druidic focus"
+            },
+            {
+              "name": "Explorer's pack"
+            },
+            {
+              "name": "Herbalism kit"
+            },
+            {
+              "name": "Gold (gp)",
+              "quantity": 9
+            }
+          ],
+          [
+            {
+              "name": "Gold (gp)",
+              "quantity": 50
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "You cast druid spells using Wisdom, preparing them from the druid spell list; you know druid cantrips."
+    },
+    {
+      "level": 1,
+      "name": "Druidic",
+      "description": "You know Druidic, the secret language of druids, and can leave and read hidden messages in it."
+    },
+    {
+      "level": 1,
+      "name": "Primal Order",
+      "description": "Choose how your bond with nature expresses itself."
+    }
+  ],
+  "featureChoices": [
+    {
+      "id": "primal-order",
+      "name": "Primal Order",
+      "level": 1,
+      "count": 1,
+      "kind": "options",
+      "description": "Choose your druidic path.",
+      "options": [
+        {
+          "name": "Magician",
+          "description": "Learn an extra druid cantrip, and add your Wisdom modifier to Arcana and Nature checks."
+        },
+        {
+          "name": "Warden",
+          "description": "Gain proficiency with martial weapons and medium armor."
+        }
+      ]
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "circle-of-the-land-2024",
+      "name": "Circle of the Land",
+      "features": [
+        {
+          "level": 3,
+          "name": "Circle Spells",
+          "description": "You always have prepared additional spells drawn from a land type (arid, polar, temperate, or tropical) that don't count against your prepared count."
+        }
+      ],
+      "featureChoices": []
+    }
+  ]
+}

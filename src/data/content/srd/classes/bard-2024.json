@@ -1,0 +1,104 @@
+{
+  "id": "bard-2024",
+  "name": "Bard",
+  "edition": "2024",
+  "hitDie": 8,
+  "savingThrows": [
+    "dex",
+    "cha"
+  ],
+  "spellcastingAbility": "cha",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16
+  ],
+  "skillChoice": {
+    "count": 3,
+    "from": "any"
+  },
+  "proficiencies": {
+    "armor": [
+      "Light armor"
+    ],
+    "weapons": [
+      "Simple weapons"
+    ],
+    "tools": [
+      "Three musical instruments of your choice"
+    ]
+  },
+  "equipment": {
+    "fixed": [],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Leather armor"
+            },
+            {
+              "name": "Dagger",
+              "quantity": 2
+            },
+            {
+              "name": "Musical instrument"
+            },
+            {
+              "name": "Entertainer's pack"
+            },
+            {
+              "name": "Gold (gp)",
+              "quantity": 19
+            }
+          ],
+          [
+            {
+              "name": "Gold (gp)",
+              "quantity": 90
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "level": 1,
+      "name": "Bardic Inspiration",
+      "description": "Bonus action: give a creature a Bardic Inspiration die (d6) it can add to one d20 test, attack, or damage roll within the next hour. Uses equal to your Charisma modifier, regained on a long rest (a short rest from level 5)."
+    },
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "You cast bard spells using Charisma, drawing on the bard spell list; you know cantrips and prepared spells that scale with level."
+    }
+  ],
+  "featureChoices": [],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "college-of-lore-2024",
+      "name": "College of Lore",
+      "features": [
+        {
+          "level": 3,
+          "name": "Cutting Words",
+          "description": "Reaction: expend a Bardic Inspiration die to subtract it from a creature's attack roll, ability check, or damage roll."
+        }
+      ],
+      "featureChoices": [
+        {
+          "id": "bonus-proficiencies",
+          "name": "Bonus Proficiencies",
+          "level": 3,
+          "count": 3,
+          "kind": "skills",
+          "from": "any",
+          "description": "Gain proficiency in three skills of your choice."
+        }
+      ]
+    }
+  ]
+}

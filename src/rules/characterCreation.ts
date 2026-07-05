@@ -83,6 +83,10 @@ export interface CharacterDraft {
   baseScores: AbilityScores;
   /** Abilities picked for the race's "+N to X abilities of your choice". */
   racialBonusAbilities: Ability[];
+  /** Abilities picked for the background's "+N to X abilities" (2024). */
+  backgroundBonusAbilities: Ability[];
+  /** Origin feat chosen for a 2024 background (null until picked). */
+  originFeat: FeatData | null;
   /** +1s from Ability Score Improvements (2 points per ASI level reached). */
   asiBonuses: Partial<Record<Ability, number>>;
   /**
@@ -136,6 +140,8 @@ export function emptyDraft(): CharacterDraft {
     level: 1,
     baseScores: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
     racialBonusAbilities: [],
+    backgroundBonusAbilities: [],
+    originFeat: null,
     asiBonuses: {},
     asiFeats: {},
     raceOptions: {},
@@ -355,17 +361,38 @@ export function goldProblems(draft: CharacterDraft): string[] {
   return [];
 }
 
-/** Base scores plus racial bonuses (fixed and chosen) plus ASI points. */
+/**
+ * Base scores plus racial and background bonuses (fixed and chosen) plus
+ * ASI points. Race and background increases stack (2024 puts bumps on the
+ * background; editions mix freely, so both are applied — user decision).
+ */
 export function finalAbilityScores(draft: CharacterDraft): AbilityScores {
   const scores = { ...draft.baseScores };
-  if (draft.race) {
+  const applyBonuses = (
+    fixedBonuses: Partial<Record<Ability, number>> | undefined,
+    bonusAmount: number,
+    chosen: Ability[],
+  ) => {
     for (const ability of ABILITIES) {
-      scores[ability] += draft.race.fixedBonuses[ability] ?? 0;
+      scores[ability] += fixedBonuses?.[ability] ?? 0;
     }
-    const amount = draft.race.bonusChoice?.amount ?? 0;
-    for (const ability of draft.racialBonusAbilities) {
-      scores[ability] += amount;
+    for (const ability of chosen) {
+      scores[ability] += bonusAmount;
     }
+  };
+  if (draft.race) {
+    applyBonuses(
+      draft.race.fixedBonuses,
+      draft.race.bonusChoice?.amount ?? 0,
+      draft.racialBonusAbilities,
+    );
+  }
+  if (draft.background) {
+    applyBonuses(
+      draft.background.fixedBonuses,
+      draft.background.bonusChoice?.amount ?? 0,
+      draft.backgroundBonusAbilities,
+    );
   }
   for (const ability of ABILITIES) {
     scores[ability] += draft.asiBonuses[ability] ?? 0;
@@ -387,6 +414,73 @@ export function bonusSkillCount(draft: CharacterDraft): number {
     (draft.race?.skillChoice?.count ?? 0) +
     (draft.background?.skillChoice?.count ?? 0)
   );
+}
+
+/**
+ * Problems with a "+N to M abilities of your choice" pick, shared by the
+ * race and background ability bonuses (2024 puts them on the background).
+ * `adjective` qualifies the bonus in messages ("racial" / "background");
+ * the entity noun ("race" / "background") is derived from it.
+ */
+export function bonusChoiceProblems(
+  entity: {
+    bonusChoice?: { count: number; amount: number };
+    fixedBonuses: Partial<Record<Ability, number>>;
+  } | null,
+  picks: Ability[],
+  adjective: "racial" | "background",
+): string[] {
+  const errors: string[] = [];
+  if (entity?.bonusChoice) {
+    const { count } = entity.bonusChoice;
+    if (picks.length !== count) {
+      errors.push(`Pick ${count} abilities for the ${adjective} bonus.`);
+    }
+    if (new Set(picks).size !== picks.length) {
+      errors.push(`${capitalize(adjective)} bonus abilities must be different.`);
+    }
+    if (picks.some((a) => (entity.fixedBonuses[a] ?? 0) > 0)) {
+      errors.push(
+        `${capitalize(adjective)} bonus abilities must differ from the fixed ${adjective} bonuses.`,
+      );
+    }
+  } else if (picks.length > 0) {
+    const noun = adjective === "racial" ? "race" : "background";
+    errors.push(`This ${noun} has no ability bonus choice.`);
+  }
+  return errors;
+}
+
+/**
+ * Problems with the 2024 origin feat a background may grant (T-17). The pick
+ * must come from the origin-feat pool, and no feat may be taken twice (an
+ * origin feat can't also be an ASI feat).
+ */
+export function originFeatProblems(draft: CharacterDraft): string[] {
+  const errors: string[] = [];
+  const wanted = draft.background?.originFeat ?? false;
+  if (wanted && !draft.originFeat) {
+    errors.push("Choose an origin feat for your background.");
+  }
+  if (!wanted && draft.originFeat) {
+    errors.push("This background does not grant an origin feat.");
+  }
+  if (draft.originFeat && draft.originFeat.origin !== true) {
+    errors.push("The origin feat pick is not an origin feat.");
+  }
+  if (draft.originFeat) {
+    const asiFeatIds = Object.values(draft.asiFeats)
+      .filter((f): f is FeatData => f !== null)
+      .map((f) => f.id);
+    if (asiFeatIds.includes(draft.originFeat.id)) {
+      errors.push("Each feat can only be taken once.");
+    }
+  }
+  return errors;
+}
+
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /**
@@ -416,23 +510,17 @@ export function validateDraft(draft: CharacterDraft): string[] {
     }
   }
 
-  if (draft.race?.bonusChoice) {
-    const { count } = draft.race.bonusChoice;
-    const picks = draft.racialBonusAbilities;
-    if (picks.length !== count) {
-      errors.push(`Pick ${count} abilities for the racial bonus.`);
-    }
-    if (new Set(picks).size !== picks.length) {
-      errors.push("Racial bonus abilities must be different.");
-    }
-    if (picks.some((a) => (draft.race?.fixedBonuses[a] ?? 0) > 0)) {
-      errors.push(
-        "Racial bonus abilities must differ from the fixed racial bonuses.",
-      );
-    }
-  } else if (draft.racialBonusAbilities.length > 0) {
-    errors.push("This race has no ability bonus choice.");
-  }
+  errors.push(
+    ...bonusChoiceProblems(draft.race, draft.racialBonusAbilities, "racial"),
+  );
+  errors.push(
+    ...bonusChoiceProblems(
+      draft.background,
+      draft.backgroundBonusAbilities,
+      "background",
+    ),
+  );
+  errors.push(...originFeatProblems(draft));
 
   if (draft.charClass) {
     const total = asiPointsTotal(draft);
@@ -864,6 +952,16 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
       level: Number(levelKey),
     });
   }
+  // Origin feat from a 2024 background (T-17), sourced to the background;
+  // validation guarantees it isn't also an ASI feat.
+  if (draft.originFeat) {
+    features.push({
+      id: `feat-${draft.originFeat.id}`,
+      name: draft.originFeat.name,
+      source: backgroundName,
+      description: draft.originFeat.description,
+    });
+  }
   // "Options" picks become features of their own ("Fighting Style: Dueling"),
   // sourced to the class or subclass that offered the choice.
   for (const choice of activeFeatureChoices(draft)) {
@@ -937,6 +1035,7 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
     name: draft.name.trim(),
     race: race.name,
     background: backgroundName,
+    edition: charClass.edition,
     classes: [
       {
         name: charClass.name,

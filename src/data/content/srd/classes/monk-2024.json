@@ -1,0 +1,106 @@
+{
+  "id": "monk-2024",
+  "name": "Monk",
+  "edition": "2024",
+  "hitDie": 8,
+  "savingThrows": [
+    "str",
+    "dex"
+  ],
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "acrobatics",
+      "athletics",
+      "history",
+      "insight",
+      "religion",
+      "stealth"
+    ]
+  },
+  "proficiencies": {
+    "armor": [],
+    "weapons": [
+      "Simple weapons",
+      "Martial weapons with the Light property"
+    ],
+    "tools": [
+      "One type of artisan's tools or one musical instrument"
+    ]
+  },
+  "equipment": {
+    "fixed": [],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Spear"
+            },
+            {
+              "name": "Dart",
+              "quantity": 5
+            },
+            {
+              "name": "Artisan's tools"
+            },
+            {
+              "name": "Explorer's pack"
+            },
+            {
+              "name": "Gold (gp)",
+              "quantity": 11
+            }
+          ],
+          [
+            {
+              "name": "Gold (gp)",
+              "quantity": 50
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "level": 1,
+      "name": "Martial Arts",
+      "description": "While unarmed or wielding monk weapons and not wearing armor or a shield: use Dexterity for attack and damage, roll a Martial Arts die (1d6) for unarmed-strike damage, and make one unarmed strike as a bonus action after attacking."
+    },
+    {
+      "level": 1,
+      "name": "Unarmored Defense",
+      "description": "While wearing no armor and no shield, your AC = 10 + Dexterity modifier + Wisdom modifier.",
+      "effects": [
+        {
+          "kind": "unarmored-defense",
+          "ability": "wis",
+          "shield": false
+        }
+      ]
+    }
+  ],
+  "featureChoices": [],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "warrior-of-the-open-hand-2024",
+      "name": "Warrior of the Open Hand",
+      "features": [
+        {
+          "level": 3,
+          "name": "Open Hand Technique",
+          "description": "When you hit with a Flurry of Blows attack, you can impose one effect on the target: knock it prone, push it 15 feet, or deny it reactions until your next turn."
+        }
+      ],
+      "featureChoices": []
+    }
+  ]
+}

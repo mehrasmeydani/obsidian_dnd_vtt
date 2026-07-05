@@ -1,0 +1,29 @@
+{
+  "id": "halfling-2024",
+  "name": "Halfling",
+  "edition": "2024",
+  "speed": 30,
+  "fixedBonuses": {},
+  "traits": [
+    {
+      "name": "Brave",
+      "description": "You have advantage on saving throws you make to avoid or end the Frightened condition."
+    },
+    {
+      "name": "Halfling Nimbleness",
+      "description": "You can move through the space of any creature larger than you."
+    },
+    {
+      "name": "Luck",
+      "description": "When you roll a 1 on the d20 of a d20 Test, you can reroll and must use the new roll."
+    },
+    {
+      "name": "Naturally Stealthy",
+      "description": "You can take the Hide action even when obscured only by a creature at least one size larger."
+    }
+  ],
+  "languages": [
+    "Common",
+    "Halfling"
+  ]
+}

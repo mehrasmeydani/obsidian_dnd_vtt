@@ -46,6 +46,7 @@ import {
   languageToolProblems,
   hpRollsNeeded,
   optionChoiceProblems,
+  originFeatProblems,
   pointBuyTotal,
   pruneStaleExpertise,
   startingHp,
@@ -217,6 +218,7 @@ export function CharacterCreationWizard({
             draft={draft}
             update={update}
             backgrounds={content.backgrounds}
+            originFeats={content.feats.filter((f) => f.origin)}
           />
         )}
         {step === 4 && (
@@ -227,7 +229,7 @@ export function CharacterCreationWizard({
             switchMethod={switchMethod}
             assignments={assignments}
             assignStandard={assignStandard}
-            feats={content.feats}
+            feats={content.feats.filter((f) => !f.origin)}
           />
         )}
         {step === 5 && <SkillsStep draft={draft} update={update} />}
@@ -307,14 +309,23 @@ function stepBlockers(
       if (!draft.background) blockers.push("Select a background.");
       blockers.push(...optionChoiceProblems(draft, "background"));
       blockers.push(...languageToolProblems(draft));
+      blockers.push(...originFeatProblems(draft));
       break;
     case 4: {
-      // The racial bonus and ASI pickers live on this step, so they gate here.
+      // The racial/background bonus and ASI pickers live on this step, so
+      // they gate here.
       if (draft.race?.bonusChoice) {
         const { count, amount } = draft.race.bonusChoice;
         const left = count - draft.racialBonusAbilities.length;
         if (left > 0) {
           blockers.push(`Pick ${left} more abilit${left === 1 ? "y" : "ies"} for the racial +${amount}.`);
+        }
+      }
+      if (draft.background?.bonusChoice) {
+        const { count, amount } = draft.background.bonusChoice;
+        const left = count - draft.backgroundBonusAbilities.length;
+        if (left > 0) {
+          blockers.push(`Pick ${left} more abilit${left === 1 ? "y" : "ies"} for the background +${amount}.`);
         }
       }
       const asiLeft = asiPointsTotal(draft) - asiPointsSpent(draft);
@@ -426,7 +437,12 @@ function NameRaceStep({
             className={`dvtt-card${draft.race?.id === race.id ? " is-selected" : ""}`}
             onClick={() => selectRace(race)}
           >
-            <div className="dvtt-card__title">{race.name}</div>
+            <div className="dvtt-card__title">
+              {race.name}
+              <span className="dvtt-card__edition">
+                {race.edition === "2024" ? "5.5e (2024)" : "5e (2014)"}
+              </span>
+            </div>
             <div className="dvtt-card__meta">
               {describeBonuses(race)} · Speed {race.speed} ft
             </div>
@@ -536,7 +552,8 @@ function describeBonuses(race: RaceData): string {
       `+${race.bonusChoice.amount} to ${race.bonusChoice.count} others`,
     );
   }
-  return parts.join(", ");
+  // 2024 species grant no ability bonuses — those come from the background.
+  return parts.length > 0 ? parts.join(", ") : "Bonuses from background";
 }
 
 /** Ids of the feature choices active for a class/subclass pair at a level. */
@@ -1045,10 +1062,12 @@ function BackgroundStep({
   draft,
   update,
   backgrounds,
+  originFeats,
 }: {
   draft: CharacterDraft;
   update: (p: Partial<CharacterDraft>) => void;
   backgrounds: BackgroundData[];
+  originFeats: FeatData[];
 }) {
   const selectBackground = (background: BackgroundData) =>
     update({
@@ -1056,25 +1075,40 @@ function BackgroundStep({
       bonusSkills: [],
       backgroundName: "",
       backgroundOptions: {},
+      // A new background changes which ability bonuses / origin feat apply.
+      backgroundBonusAbilities: [],
+      originFeat: null,
     });
+
+  const bg = draft.background;
+  const fixed = bg
+    ? ABILITIES.filter((a) => (bg.fixedBonuses[a] ?? 0) > 0).map(
+        (a) => `+${bg.fixedBonuses[a]} ${ABILITY_LABELS[a]}`,
+      )
+    : [];
 
   return (
     <div>
       <h3>Background</h3>
       <div className="dvtt-cards">
-        {backgrounds.map((bg) => (
+        {backgrounds.map((background) => (
           <button
-            key={bg.id}
-            className={`dvtt-card${draft.background?.id === bg.id ? " is-selected" : ""}`}
-            onClick={() => selectBackground(bg)}
+            key={background.id}
+            className={`dvtt-card${draft.background?.id === background.id ? " is-selected" : ""}`}
+            onClick={() => selectBackground(background)}
           >
-            <div className="dvtt-card__title">{bg.name}</div>
-            <div className="dvtt-card__meta">
-              {bg.grantedSkills.length > 0
-                ? `Skills: ${bg.grantedSkills.map(humanizeSkill).join(", ")}`
-                : `Choose ${bg.skillChoice?.count ?? 0} skills`}
+            <div className="dvtt-card__title">
+              {background.name}
+              <span className="dvtt-card__edition">
+                {background.edition === "2024" ? "5.5e (2024)" : "5e (2014)"}
+              </span>
             </div>
-            <div className="dvtt-card__detail">{bg.description}</div>
+            <div className="dvtt-card__meta">
+              {background.grantedSkills.length > 0
+                ? `Skills: ${background.grantedSkills.map(humanizeSkill).join(", ")}`
+                : `Choose ${background.skillChoice?.count ?? 0} skills`}
+            </div>
+            <div className="dvtt-card__detail">{background.description}</div>
           </button>
         ))}
       </div>
@@ -1088,6 +1122,36 @@ function BackgroundStep({
             placeholder="e.g. Caravan Guard"
             onChange={(e) => update({ backgroundName: e.target.value })}
           />
+        </label>
+      )}
+
+      {fixed.length > 0 && (
+        <p className="dvtt-review__subtitle">
+          Ability score increases: {fixed.join(", ")} (set the rest on the
+          Abilities step)
+        </p>
+      )}
+
+      {bg?.originFeat && (
+        <label className="dvtt-field">
+          <span>Origin feat</span>
+          <select
+            aria-label="Origin feat"
+            value={draft.originFeat?.id ?? ""}
+            onChange={(e) =>
+              update({
+                originFeat:
+                  originFeats.find((f) => f.id === e.target.value) ?? null,
+              })
+            }
+          >
+            <option value="">Choose an origin feat…</option>
+            {originFeats.map((feat) => (
+              <option key={feat.id} value={feat.id} title={feat.description}>
+                {feat.name}
+              </option>
+            ))}
+          </select>
         </label>
       )}
 
@@ -1169,6 +1233,12 @@ function AbilitiesStep({
             draft.racialBonusAbilities.includes(ability)
               ? draft.race.bonusChoice.amount
               : 0);
+          const backgroundDelta =
+            (draft.background?.fixedBonuses[ability] ?? 0) +
+            (draft.background?.bonusChoice &&
+            draft.backgroundBonusAbilities.includes(ability)
+              ? draft.background.bonusChoice.amount
+              : 0);
           const asiDelta = draft.asiBonuses[ability] ?? 0;
           return (
             <div className="dvtt-ability-row" key={ability}>
@@ -1230,10 +1300,13 @@ function AbilitiesStep({
               )}
 
               <span className="dvtt-ability-row__final">
-                {(racialDelta > 0 || asiDelta > 0) && (
+                {(racialDelta > 0 || backgroundDelta > 0 || asiDelta > 0) && (
                   <span className="dvtt-ability-row__racial">
                     {[
                       racialDelta > 0 ? `+${racialDelta} racial` : null,
+                      backgroundDelta > 0
+                        ? `+${backgroundDelta} background`
+                        : null,
                       asiDelta > 0 ? `+${asiDelta} ASI` : null,
                     ]
                       .filter(Boolean)
@@ -1250,7 +1323,21 @@ function AbilitiesStep({
       </div>
 
       {draft.race?.bonusChoice && (
-        <RacialBonusPicker draft={draft} update={update} />
+        <AbilityBonusPicker
+          entity={draft.race}
+          picks={draft.racialBonusAbilities}
+          setPicks={(racialBonusAbilities) => update({ racialBonusAbilities })}
+        />
+      )}
+
+      {draft.background?.bonusChoice && (
+        <AbilityBonusPicker
+          entity={draft.background}
+          picks={draft.backgroundBonusAbilities}
+          setPicks={(backgroundBonusAbilities) =>
+            update({ backgroundBonusAbilities })
+          }
+        />
       )}
 
       {draft.charClass &&
@@ -1500,42 +1587,53 @@ function AsiPicker({
   );
 }
 
-function RacialBonusPicker({
-  draft,
-  update,
+/**
+ * The "+N to M abilities of your choice" checkboxes shared by the race and
+ * the 2024 background ability bonuses. Abilities already given a fixed bonus
+ * by the same entity are excluded (you can't stack the choice on them).
+ */
+function AbilityBonusPicker({
+  entity,
+  picks,
+  setPicks,
 }: {
-  draft: CharacterDraft;
-  update: (p: Partial<CharacterDraft>) => void;
-}) {
-  const race = draft.race;
-  if (!race?.bonusChoice) return null;
-  const { count, amount } = race.bonusChoice;
-  const picks = draft.racialBonusAbilities;
-
-  const toggle = (ability: Ability) => {
-    const next = picks.includes(ability)
-      ? picks.filter((a) => a !== ability)
-      : [...picks, ability];
-    update({ racialBonusAbilities: next });
+  entity: {
+    name: string;
+    fixedBonuses: Partial<Record<Ability, number>>;
+    bonusChoice?: { count: number; amount: number };
   };
+  picks: Ability[];
+  setPicks: (picks: Ability[]) => void;
+}) {
+  if (!entity.bonusChoice) return null;
+  const { count, amount } = entity.bonusChoice;
+
+  const toggle = (ability: Ability) =>
+    setPicks(
+      picks.includes(ability)
+        ? picks.filter((a) => a !== ability)
+        : [...picks, ability],
+    );
 
   return (
     <div className="dvtt-choice-group">
       <h4>
-        {race.name}: +{amount} to {count} abilities ({picks.length}/{count})
+        {entity.name}: +{amount} to {count} abilities ({picks.length}/{count})
       </h4>
       <div className="dvtt-checkboxes">
-        {ABILITIES.filter((a) => !(race.fixedBonuses[a] ?? 0)).map((ability) => (
-          <label key={ability}>
-            <input
-              type="checkbox"
-              checked={picks.includes(ability)}
-              disabled={!picks.includes(ability) && picks.length >= count}
-              onChange={() => toggle(ability)}
-            />
-            {ABILITY_LABELS[ability]}
-          </label>
-        ))}
+        {ABILITIES.filter((a) => !(entity.fixedBonuses[a] ?? 0)).map(
+          (ability) => (
+            <label key={ability}>
+              <input
+                type="checkbox"
+                checked={picks.includes(ability)}
+                disabled={!picks.includes(ability) && picks.length >= count}
+                onChange={() => toggle(ability)}
+              />
+              {ABILITY_LABELS[ability]}
+            </label>
+          ),
+        )}
       </div>
     </div>
   );

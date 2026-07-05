@@ -1,0 +1,57 @@
+{
+  "id": "elf-2024",
+  "name": "Elf",
+  "edition": "2024",
+  "speed": 30,
+  "fixedBonuses": {},
+  "grantedSkills": [
+    "perception"
+  ],
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "You can see in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light (grayscale)."
+    },
+    {
+      "name": "Fey Ancestry",
+      "description": "You have advantage on saving throws to avoid or end the Charmed condition."
+    },
+    {
+      "name": "Keen Senses",
+      "description": "You have proficiency in the Perception skill."
+    },
+    {
+      "name": "Trance",
+      "description": "You don't need to sleep and can't be magically put to sleep; a 4-hour Long Rest suffices."
+    }
+  ],
+  "languages": [
+    "Common",
+    "Elvish"
+  ],
+  "optionChoices": [
+    {
+      "id": "elf-lineage",
+      "name": "Elven Lineage",
+      "grants": "feature",
+      "description": "Choose the elven lineage that shapes your magic and senses.",
+      "options": [
+        {
+          "id": "drow",
+          "name": "Drow",
+          "description": "Superior Darkvision (120 ft) and lineage spells (Dancing Lights, later Faerie Fire, Darkness)."
+        },
+        {
+          "id": "high-elf",
+          "name": "High Elf",
+          "description": "You know a wizard cantrip and gain lineage spells (Detect Magic, Misty Step)."
+        },
+        {
+          "id": "wood-elf",
+          "name": "Wood Elf",
+          "description": "Your Speed rises to 35, and you gain lineage spells (Druidcraft, Longstrider, Pass without Trace)."
+        }
+      ]
+    }
+  ]
+}

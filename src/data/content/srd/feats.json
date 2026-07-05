@@ -3,5 +3,71 @@
     "id": "grappler",
     "name": "Grappler",
     "description": "Advantage on attack rolls against creatures you are grappling; you can try to pin a grappled creature (both restrained)."
+  },
+  {
+    "id": "alert",
+    "name": "Alert",
+    "origin": true,
+    "description": "Add your proficiency bonus to Initiative, and swap Initiative with a willing ally when you roll."
+  },
+  {
+    "id": "crafter",
+    "name": "Crafter",
+    "origin": true,
+    "description": "Gain proficiency with three artisan's tools, buy nonmagical gear at a discount, and craft faster during a rest."
+  },
+  {
+    "id": "healer",
+    "name": "Healer",
+    "origin": true,
+    "description": "Use a Healer's Kit as a bonus action to let a creature spend a Hit Die and regain that much plus your proficiency bonus in hit points."
+  },
+  {
+    "id": "lucky",
+    "name": "Lucky",
+    "origin": true,
+    "description": "You have Luck points equal to your proficiency bonus; spend one for advantage on a d20 test or to impose disadvantage on an attack against you."
+  },
+  {
+    "id": "magic-initiate-cleric",
+    "name": "Magic Initiate (Cleric)",
+    "origin": true,
+    "description": "Learn two cleric cantrips and one level-1 cleric spell you can cast once per long rest (or with slots you have)."
+  },
+  {
+    "id": "magic-initiate-wizard",
+    "name": "Magic Initiate (Wizard)",
+    "origin": true,
+    "description": "Learn two wizard cantrips and one level-1 wizard spell you can cast once per long rest (or with slots you have)."
+  },
+  {
+    "id": "musician",
+    "name": "Musician",
+    "origin": true,
+    "description": "Gain proficiency with three musical instruments; after a rest, grant Heroic Inspiration to allies up to your proficiency bonus."
+  },
+  {
+    "id": "savage-attacker",
+    "name": "Savage Attacker",
+    "origin": true,
+    "description": "Once per turn when you hit with a weapon, roll its damage dice twice and use either total."
+  },
+  {
+    "id": "skilled",
+    "name": "Skilled",
+    "origin": true,
+    "description": "Gain proficiency in any three skills or tools of your choice."
+  },
+  {
+    "id": "tavern-brawler",
+    "name": "Tavern Brawler",
+    "origin": true,
+    "description": "Your unarmed strikes deal 1d4 damage, you can shove or grapple as part of one, and you reroll 1s on unarmed and improvised-weapon damage."
+  },
+  {
+    "id": "tough",
+    "name": "Tough",
+    "origin": true,
+    "description": "Your hit point maximum increases by twice your character level, and by 2 each level gained thereafter."
   }
 ]

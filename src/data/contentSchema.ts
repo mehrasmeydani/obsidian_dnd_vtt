@@ -144,19 +144,31 @@ export const OptionChoiceSchema = z.object({
 });
 export type OptionChoice = z.infer<typeof OptionChoiceSchema>;
 
+/**
+ * Rules edition a piece of content belongs to: "2014" is the original 5e
+ * (SRD 5.1), "2024" the revised 5.5e rules (SRD 5.2). Entries may share a
+ * name across editions (e.g. two Barbarians, two Humans); ids stay unique.
+ * Editions mix freely in the wizard — no gating (user decision, 2026-07-05).
+ */
+export const EditionSchema = z.enum(["2014", "2024"]);
+export type Edition = z.infer<typeof EditionSchema>;
+
+/** A "+`amount` to `count` different abilities of your choice" increase. */
+export const BonusChoiceSchema = z.object({
+  count: z.number().int().positive(),
+  amount: z.number().int().positive(),
+});
+export type BonusChoice = z.infer<typeof BonusChoiceSchema>;
+
 export const RaceDataSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
+  edition: EditionSchema.default("2014"),
   speed: z.number().int().positive(),
   /** Fixed ability score increases, e.g. { con: 2, wis: 1 }. */
   fixedBonuses: z.record(AbilitySchema, z.number().int().positive()),
   /** Extra "+`amount` to `count` different abilities of your choice". */
-  bonusChoice: z
-    .object({
-      count: z.number().int().positive(),
-      amount: z.number().int().positive(),
-    })
-    .optional(),
+  bonusChoice: BonusChoiceSchema.optional(),
   /** Skill proficiencies granted outright (e.g. elf Keen Senses). */
   grantedSkills: z.array(SkillSchema).optional(),
   /** Skill proficiencies chosen freely (e.g. half-elf Skill Versatility). */
@@ -170,14 +182,6 @@ export const RaceDataSchema = z.object({
   optionChoices: z.array(OptionChoiceSchema).default([]),
 });
 export type RaceData = z.infer<typeof RaceDataSchema>;
-
-/**
- * Rules edition a piece of content belongs to: "2014" is the original 5e
- * (SRD 5.1), "2024" the revised 5.5e rules (SRD 5.2). Entries may share a
- * name across editions (e.g. two Barbarians); ids stay unique.
- */
-export const EditionSchema = z.enum(["2014", "2024"]);
-export type Edition = z.infer<typeof EditionSchema>;
 
 /**
  * A player decision attached to a class or subclass feature (Fighting Style,
@@ -277,14 +281,35 @@ export const FeatDataSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   description: z.string().optional(),
+  /**
+   * An "origin feat" (2024): the pool a background's level-1 feat is chosen
+   * from. Only origin feats appear in the Background step's origin-feat
+   * picker; general feats stay ASI-only.
+   */
+  origin: z.boolean().default(false),
 });
 export type FeatData = z.infer<typeof FeatDataSchema>;
 
 export const BackgroundDataSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
+  edition: EditionSchema.default("2014"),
   grantedSkills: z.array(SkillSchema),
   skillChoice: SkillChoiceSchema.optional(),
+  /**
+   * Ability score increases the background grants (T-17). In 2024 (SRD 5.2)
+   * ability bumps come from the background, not the species; applied
+   * additively on top of any racial bonuses (editions mix freely). 2024
+   * species carry empty `fixedBonuses`.
+   */
+  fixedBonuses: z.record(AbilitySchema, z.number().int().positive()).default({}),
+  bonusChoice: BonusChoiceSchema.optional(),
+  /**
+   * Whether the background grants a level-1 origin feat the player picks
+   * from the origin-feat pool (2024 backgrounds). The pick becomes a
+   * feature, like an ASI-alternative feat.
+   */
+  originFeat: z.boolean().default(false),
   /** Free-text name allowed (the "custom" background). */
   customName: z.boolean().optional(),
   description: z.string(),

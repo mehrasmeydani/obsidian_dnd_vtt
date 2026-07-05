@@ -1,0 +1,108 @@
+{
+  "id": "wizard-2024",
+  "name": "Wizard",
+  "edition": "2024",
+  "hitDie": 6,
+  "savingThrows": [
+    "int",
+    "wis"
+  ],
+  "spellcastingAbility": "int",
+  "asiLevels": [
+    4,
+    8,
+    12,
+    16
+  ],
+  "skillChoice": {
+    "count": 2,
+    "from": [
+      "arcana",
+      "history",
+      "insight",
+      "investigation",
+      "medicine",
+      "nature",
+      "religion"
+    ]
+  },
+  "proficiencies": {
+    "armor": [],
+    "weapons": [
+      "Simple weapons"
+    ],
+    "tools": []
+  },
+  "equipment": {
+    "fixed": [],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Dagger",
+              "quantity": 2
+            },
+            {
+              "name": "Arcane focus"
+            },
+            {
+              "name": "Spellbook"
+            },
+            {
+              "name": "Scholar's pack"
+            },
+            {
+              "name": "Gold (gp)",
+              "quantity": 5
+            }
+          ],
+          [
+            {
+              "name": "Gold (gp)",
+              "quantity": 55
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "level": 1,
+      "name": "Spellcasting",
+      "description": "You cast wizard spells using Intelligence, preparing them from your spellbook; you know wizard cantrips."
+    },
+    {
+      "level": 1,
+      "name": "Ritual Adept",
+      "description": "You can cast any spell in your spellbook that has the Ritual tag as a ritual, without preparing it."
+    },
+    {
+      "level": 1,
+      "name": "Arcane Recovery",
+      "description": "Once per day on a short rest, recover expended spell slots with a combined level up to half your wizard level (rounded up)."
+    }
+  ],
+  "featureChoices": [],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "evoker-2024",
+      "name": "Evoker",
+      "features": [
+        {
+          "level": 3,
+          "name": "Evocation Savant",
+          "description": "You can copy evocation spells into your spellbook for half the usual time and gold, and always have two evocation spells prepared for free."
+        },
+        {
+          "level": 3,
+          "name": "Sculpt Spells",
+          "description": "When you cast an evocation spell that affects others you can see, you can protect a number of them equal to 1 + the spell's level; they automatically succeed the save and take no damage from it."
+        }
+      ],
+      "featureChoices": []
+    }
+  ]
+}

@@ -1,0 +1,268 @@
+{
+  "id": "rogue-2024",
+  "name": "Rogue",
+  "edition": "2024",
+  "hitDie": 8,
+  "savingThrows": [
+    "dex",
+    "int"
+  ],
+  "asiLevels": [
+    4,
+    8,
+    10,
+    12,
+    16
+  ],
+  "skillChoice": {
+    "count": 4,
+    "from": [
+      "acrobatics",
+      "athletics",
+      "deception",
+      "insight",
+      "intimidation",
+      "investigation",
+      "perception",
+      "performance",
+      "persuasion",
+      "sleightOfHand",
+      "stealth"
+    ]
+  },
+  "proficiencies": {
+    "armor": [
+      "Light armor"
+    ],
+    "weapons": [
+      "Simple weapons",
+      "Martial weapons with the Finesse or Light property"
+    ],
+    "tools": [
+      "Thieves' tools"
+    ]
+  },
+  "equipment": {
+    "fixed": [
+      {
+        "name": "Thieves' tools"
+      }
+    ],
+    "choices": [
+      {
+        "options": [
+          [
+            {
+              "name": "Leather armor"
+            },
+            {
+              "name": "Dagger",
+              "quantity": 2
+            },
+            {
+              "name": "Shortsword"
+            },
+            {
+              "name": "Shortbow"
+            },
+            {
+              "name": "Arrows",
+              "quantity": 20
+            },
+            {
+              "name": "Burglar's pack"
+            },
+            {
+              "name": "Gold (gp)",
+              "quantity": 8
+            }
+          ],
+          [
+            {
+              "name": "Gold (gp)",
+              "quantity": 100
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "level": 1,
+      "name": "Expertise",
+      "description": "Choose two skill proficiencies to double your proficiency bonus for; two more at 6th level."
+    },
+    {
+      "level": 1,
+      "name": "Sneak Attack",
+      "description": "Once per turn, deal extra 1d6 damage (rising with level) to a creature you hit with a Finesse or ranged weapon when you have advantage, or when an ally of yours is within 5 feet of the target and you don't have disadvantage."
+    },
+    {
+      "level": 1,
+      "name": "Thieves' Cant",
+      "description": "You know the rogues' secret mix of dialect, code, and signs, and can hide short messages in seemingly normal speech and writing."
+    },
+    {
+      "level": 1,
+      "name": "Weapon Mastery",
+      "description": "You can use the mastery properties of two kinds of weapons you're proficient with; change choices on a long rest."
+    }
+  ],
+  "featureChoices": [
+    {
+      "id": "expertise",
+      "name": "Expertise",
+      "level": 1,
+      "count": 2,
+      "kind": "expertise",
+      "description": "Your proficiency bonus is doubled for the chosen skills."
+    },
+    {
+      "id": "expertise-6",
+      "name": "Expertise",
+      "level": 6,
+      "count": 2,
+      "kind": "expertise",
+      "description": "Your proficiency bonus is doubled for the chosen skills."
+    },
+    {
+      "id": "weapon-mastery",
+      "name": "Weapon Mastery",
+      "level": 1,
+      "count": 2,
+      "kind": "options",
+      "description": "Choose kinds of weapons whose mastery properties you can use; you can change choices on a long rest.",
+      "options": [
+        {
+          "name": "Club"
+        },
+        {
+          "name": "Dagger"
+        },
+        {
+          "name": "Greatclub"
+        },
+        {
+          "name": "Handaxe"
+        },
+        {
+          "name": "Javelin"
+        },
+        {
+          "name": "Light Hammer"
+        },
+        {
+          "name": "Mace"
+        },
+        {
+          "name": "Quarterstaff"
+        },
+        {
+          "name": "Sickle"
+        },
+        {
+          "name": "Spear"
+        },
+        {
+          "name": "Dart"
+        },
+        {
+          "name": "Light Crossbow"
+        },
+        {
+          "name": "Shortbow"
+        },
+        {
+          "name": "Sling"
+        },
+        {
+          "name": "Battleaxe"
+        },
+        {
+          "name": "Flail"
+        },
+        {
+          "name": "Glaive"
+        },
+        {
+          "name": "Greataxe"
+        },
+        {
+          "name": "Greatsword"
+        },
+        {
+          "name": "Halberd"
+        },
+        {
+          "name": "Lance"
+        },
+        {
+          "name": "Longsword"
+        },
+        {
+          "name": "Maul"
+        },
+        {
+          "name": "Morningstar"
+        },
+        {
+          "name": "Pike"
+        },
+        {
+          "name": "Rapier"
+        },
+        {
+          "name": "Scimitar"
+        },
+        {
+          "name": "Shortsword"
+        },
+        {
+          "name": "Trident"
+        },
+        {
+          "name": "War Pick"
+        },
+        {
+          "name": "Warhammer"
+        },
+        {
+          "name": "Whip"
+        },
+        {
+          "name": "Blowgun"
+        },
+        {
+          "name": "Hand Crossbow"
+        },
+        {
+          "name": "Heavy Crossbow"
+        },
+        {
+          "name": "Longbow"
+        }
+      ]
+    }
+  ],
+  "subclassLevel": 3,
+  "subclasses": [
+    {
+      "id": "thief-2024",
+      "name": "Thief",
+      "features": [
+        {
+          "level": 3,
+          "name": "Fast Hands",
+          "description": "Use the Cunning Action bonus action to make a Sleight of Hand check, use thieves' tools to disarm a trap or open a lock, or take the Utilize action."
+        },
+        {
+          "level": 3,
+          "name": "Second-Story Work",
+          "description": "You gain a climb speed equal to your speed, and figure a running jump using Dexterity instead of Strength."
+        }
+      ],
+      "featureChoices": []
+    }
+  ]
+}

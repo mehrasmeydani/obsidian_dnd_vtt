@@ -1,0 +1,29 @@
+{
+  "id": "dwarf-2024",
+  "name": "Dwarf",
+  "edition": "2024",
+  "speed": 30,
+  "fixedBonuses": {},
+  "traits": [
+    {
+      "name": "Darkvision",
+      "description": "You can see in dim light within 120 feet as if it were bright light, and in darkness as if it were dim light."
+    },
+    {
+      "name": "Dwarven Resilience",
+      "description": "You have Resistance to Poison damage and advantage on saves against the Poisoned condition."
+    },
+    {
+      "name": "Dwarven Toughness",
+      "description": "Your Hit Point maximum increases by 1, and by 1 again each level you gain."
+    },
+    {
+      "name": "Stonecunning",
+      "description": "As a Bonus Action, gain Tremorsense out to 60 feet for 10 minutes while on a stone surface."
+    }
+  ],
+  "languages": [
+    "Common",
+    "Dwarvish"
+  ]
+}

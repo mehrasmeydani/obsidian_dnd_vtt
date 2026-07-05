@@ -182,6 +182,175 @@
     ]
   },
   {
+    "id": "acolyte-2024",
+    "name": "Acolyte",
+    "edition": "2024",
+    "grantedSkills": [
+      "insight",
+      "religion"
+    ],
+    "fixedBonuses": {
+      "int": 1,
+      "wis": 1,
+      "cha": 1
+    },
+    "originFeat": true,
+    "description": "A servant of a temple, versed in rites and lore. (2024: +INT/WIS/CHA, an origin feat, Calligrapher's supplies.)",
+    "traits": [],
+    "tools": [
+      "Calligrapher's supplies"
+    ],
+    "equipment": [
+      {
+        "name": "Calligrapher's supplies"
+      },
+      {
+        "name": "Holy symbol"
+      },
+      {
+        "name": "Prayer book"
+      },
+      {
+        "name": "Parchment",
+        "quantity": 10
+      },
+      {
+        "name": "Robe"
+      },
+      {
+        "name": "Gold (gp)",
+        "quantity": 8
+      }
+    ]
+  },
+  {
+    "id": "criminal-2024",
+    "name": "Criminal",
+    "edition": "2024",
+    "grantedSkills": [
+      "sleightOfHand",
+      "stealth"
+    ],
+    "fixedBonuses": {
+      "dex": 1,
+      "con": 1,
+      "int": 1
+    },
+    "originFeat": true,
+    "description": "A practiced lawbreaker with underworld contacts. (2024: +DEX/CON/INT, an origin feat, Thieves' tools.)",
+    "traits": [],
+    "tools": [
+      "Thieves' tools"
+    ],
+    "equipment": [
+      {
+        "name": "Thieves' tools"
+      },
+      {
+        "name": "Dagger",
+        "quantity": 2
+      },
+      {
+        "name": "Crowbar"
+      },
+      {
+        "name": "Pouch",
+        "quantity": 2
+      },
+      {
+        "name": "Common clothes"
+      },
+      {
+        "name": "Gold (gp)",
+        "quantity": 16
+      }
+    ]
+  },
+  {
+    "id": "sage-2024",
+    "name": "Sage",
+    "edition": "2024",
+    "grantedSkills": [
+      "arcana",
+      "history"
+    ],
+    "fixedBonuses": {
+      "con": 1,
+      "int": 1,
+      "wis": 1
+    },
+    "originFeat": true,
+    "description": "A scholar steeped in arcane and historical study. (2024: +CON/INT/WIS, an origin feat, Calligrapher's supplies.)",
+    "traits": [],
+    "tools": [
+      "Calligrapher's supplies"
+    ],
+    "equipment": [
+      {
+        "name": "Calligrapher's supplies"
+      },
+      {
+        "name": "Book (history)"
+      },
+      {
+        "name": "Parchment",
+        "quantity": 8
+      },
+      {
+        "name": "Robe"
+      },
+      {
+        "name": "Gold (gp)",
+        "quantity": 8
+      }
+    ]
+  },
+  {
+    "id": "soldier-2024",
+    "name": "Soldier",
+    "edition": "2024",
+    "grantedSkills": [
+      "athletics",
+      "intimidation"
+    ],
+    "fixedBonuses": {
+      "str": 1,
+      "dex": 1,
+      "con": 1
+    },
+    "originFeat": true,
+    "description": "A trained veteran of an army or militia. (2024: +STR/DEX/CON, an origin feat, a gaming set.)",
+    "traits": [],
+    "tools": [
+      "Gaming set"
+    ],
+    "equipment": [
+      {
+        "name": "Spear"
+      },
+      {
+        "name": "Shortbow"
+      },
+      {
+        "name": "Arrows",
+        "quantity": 20
+      },
+      {
+        "name": "Gaming set"
+      },
+      {
+        "name": "Healer's kit"
+      },
+      {
+        "name": "Common clothes"
+      },
+      {
+        "name": "Gold (gp)",
+        "quantity": 14
+      }
+    ]
+  },
+  {
     "id": "custom",
     "name": "Custom",
     "grantedSkills": [],

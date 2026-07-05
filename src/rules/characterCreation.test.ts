@@ -11,6 +11,7 @@ import {
   emptyDraft,
   finalAbilityScores,
   grantedClassFeatures,
+  originFeatProblems,
   pointBuyCost,
   pointBuyTotal,
   pruneStaleExpertise,
@@ -100,6 +101,93 @@ describe("finalAbilityScores", () => {
     expect(scores.cha).toBe(12);
     expect(scores.dex).toBe(14);
     expect(scores.con).toBe(15);
+  });
+});
+
+/** A complete, valid 2024 draft: Human (2024) barbarian Acolyte (2024). */
+function validDraft2024(): CharacterDraft {
+  return {
+    ...emptyDraft(),
+    name: "Korra",
+    race: byId(RACES, "human-2024"), // no ability bonuses in 2024
+    charClass: byId(CLASSES, "barbarian-2024"),
+    background: byId(BACKGROUNDS, "acolyte-2024"), // +1 INT/WIS/CHA + origin feat
+    baseScores: { str: 15, dex: 13, con: 14, int: 8, wis: 12, cha: 10 },
+    classSkills: ["athletics", "perception"],
+    bonusSkills: ["acrobatics"], // Human 2024 "Skillful" grants one skill
+    equipmentChoices: [0],
+    featurePicks: { "weapon-mastery": ["Greataxe", "Handaxe"] },
+    originFeat: byId(FEATS, "alert"),
+  };
+}
+
+describe("2024 background ability bonuses and origin feats (T-17)", () => {
+  it("applies background ability bonuses (2024 puts them on the background)", () => {
+    const scores = finalAbilityScores(validDraft2024());
+    // Acolyte 2024: +1 INT/WIS/CHA; Human 2024 gives no racial bonus.
+    expect(scores.int).toBe(9);
+    expect(scores.wis).toBe(13);
+    expect(scores.cha).toBe(11);
+    expect(scores.str).toBe(15);
+  });
+
+  it("stacks racial and background bonuses when editions are mixed", () => {
+    const draft: CharacterDraft = {
+      ...validDraft2024(),
+      race: byId(RACES, "hill-dwarf"), // 2014: +2 CON, +1 WIS
+    };
+    const scores = finalAbilityScores(draft);
+    expect(scores.con).toBe(16); // 14 + 2 racial
+    expect(scores.wis).toBe(14); // 12 + 1 racial + 1 background (both stack)
+    expect(scores.int).toBe(9); // 8 + 1 background
+  });
+
+  it("accepts a complete 2024 draft", () => {
+    expect(validateDraft(validDraft2024())).toEqual([]);
+  });
+
+  it("requires an origin feat when the background grants one", () => {
+    const draft = { ...validDraft2024(), originFeat: null };
+    expect(validateDraft(draft)).toContain(
+      "Choose an origin feat for your background.",
+    );
+  });
+
+  it("rejects an origin feat when the background grants none", () => {
+    const draft: CharacterDraft = {
+      ...validDraft2024(),
+      background: byId(BACKGROUNDS, "acolyte"), // 2014, no origin feat
+    };
+    expect(originFeatProblems(draft)).toContain(
+      "This background does not grant an origin feat.",
+    );
+  });
+
+  it("rejects a non-origin feat as the origin feat", () => {
+    const draft = { ...validDraft2024(), originFeat: byId(FEATS, "grappler") };
+    expect(originFeatProblems(draft)).toContain(
+      "The origin feat pick is not an origin feat.",
+    );
+  });
+
+  it("rejects taking the same feat as both an origin feat and an ASI feat", () => {
+    const draft: CharacterDraft = {
+      ...validDraft2024(),
+      asiFeats: { 4: byId(FEATS, "alert") },
+      originFeat: byId(FEATS, "alert"),
+    };
+    expect(originFeatProblems(draft)).toContain(
+      "Each feat can only be taken once.",
+    );
+  });
+
+  it("assembles the origin feat as a background-sourced feature", () => {
+    const character = assembleCharacter(validDraft2024(), "id-2024");
+    const alert = character.features.find((f) => f.name === "Alert");
+    expect(alert).toBeDefined();
+    expect(alert?.source).toBe("Acolyte");
+    expect(character.edition).toBe("2024");
+    expect(character.abilityScores.int).toBe(9); // background +1 applied
   });
 });
 
@@ -310,6 +398,22 @@ describe("assembleCharacter", () => {
       perception: "proficient",
     });
     expect(character.spellcastingAbility).toBeUndefined();
+  });
+
+  it("stamps the class edition onto the character (T-17)", () => {
+    // 2014 class → "2014" (validDraft's fighter).
+    expect(assembleCharacter(validDraft(), "id-2014").edition).toBe("2014");
+
+    // 2024 class → "2024".
+    const draft2024: CharacterDraft = {
+      ...validDraft(),
+      charClass: byId(CLASSES, "barbarian-2024"),
+      classSkills: ["athletics", "perception"],
+      equipmentChoices: [0],
+      featurePicks: { "weapon-mastery": ["Greataxe", "Handaxe"] },
+    };
+    expect(validateDraft(draft2024)).toEqual([]);
+    expect(assembleCharacter(draft2024, "id-2024").edition).toBe("2024");
   });
 
   it("copies racial traits, class features, and background features onto the character", () => {

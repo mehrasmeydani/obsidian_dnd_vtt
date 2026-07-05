@@ -26,8 +26,9 @@ describe("ids", () => {
 });
 
 describe("races", () => {
-  it("covers the 9 SRD races", () => {
-    expect(RACES).toHaveLength(9);
+  it("covers the 9 SRD 5.1 races plus 5 SRD 5.2 (2024) species", () => {
+    expect(RACES.filter((r) => r.edition === "2014")).toHaveLength(9);
+    expect(RACES.filter((r) => r.edition === "2024")).toHaveLength(5);
   });
 
   it.each(RACES.map((r) => [r.id, r] as const))(
@@ -59,10 +60,27 @@ describe("races", () => {
 });
 
 describe("classes", () => {
-  it("covers the 12 SRD 5.1 classes plus the 2024 Barbarian", () => {
+  it("covers the 12 SRD 5.1 classes plus all 12 as 2024 variants", () => {
     expect(CLASSES.filter((c) => c.edition === "2014")).toHaveLength(12);
-    expect(CLASSES.filter((c) => c.edition === "2024").map((c) => c.id)).toEqual(
-      ["barbarian-2024"],
+    expect(
+      CLASSES.filter((c) => c.edition === "2024")
+        .map((c) => c.id)
+        .sort(),
+    ).toEqual(
+      [
+        "barbarian-2024",
+        "bard-2024",
+        "cleric-2024",
+        "druid-2024",
+        "fighter-2024",
+        "monk-2024",
+        "paladin-2024",
+        "ranger-2024",
+        "rogue-2024",
+        "sorcerer-2024",
+        "warlock-2024",
+        "wizard-2024",
+      ].sort(),
     );
   });
 
@@ -245,8 +263,9 @@ describe("leveled feature progressions for every class (T-21)", () => {
   it("every class carries features beyond level 1", () => {
     for (const cls of CLASSES) {
       const maxLevel = Math.max(...cls.features.map((f) => f.level));
-      // The 2024 Barbarian is level-1-only until T-17 finishes its backfill.
-      if (cls.id === "barbarian-2024") continue;
+      // The 2024 (SRD 5.2) classes ship at level-1 depth until T-17 finishes
+      // backfilling their 2..20 feature progressions.
+      if (cls.edition === "2024") continue;
       expect(maxLevel, `${cls.id} max feature level`).toBeGreaterThanOrEqual(18);
       expect(cls.features.length, `${cls.id} feature count`).toBeGreaterThanOrEqual(5);
     }

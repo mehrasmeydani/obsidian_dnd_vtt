@@ -1,0 +1,29 @@
+{
+  "id": "orc-2024",
+  "name": "Orc",
+  "edition": "2024",
+  "speed": 30,
+  "fixedBonuses": {},
+  "traits": [
+    {
+      "name": "Adrenaline Rush",
+      "description": "Take the Dash action as a Bonus Action and gain temporary Hit Points equal to your Proficiency Bonus; uses recover on a rest."
+    },
+    {
+      "name": "Darkvision",
+      "description": "You can see in dim light within 120 feet as if it were bright light, and in darkness as if it were dim light."
+    },
+    {
+      "name": "Relentless Endurance",
+      "description": "When reduced to 0 Hit Points but not killed outright, you can drop to 1 instead, once per Long Rest."
+    },
+    {
+      "name": "Powerful Build",
+      "description": "You count as one size larger for carrying capacity and for pushing, dragging, or lifting."
+    }
+  ],
+  "languages": [
+    "Common",
+    "Orc"
+  ]
+}
