@@ -36,6 +36,16 @@ wrong.
   PHB class file, then check the wizard shows one Barbarian 2014 with the
   full subclass list. Same-id bundles still override outright.
 
+- **Importer: nested feature refs + _copy subclass stubs** — imported
+  subclasses were missing their real mechanics (only flavor wrappers:
+  Berserker had no Frenzy, Wild Magic no Wild Surge), and XPHB re-listed
+  old subclasses as empty cards (Mastermind/Scout/Swashbuckler/Inquisitive
+  on the 2024 Rogue). Both fixed. **Re-run "Import 5etools data"** to
+  regenerate the bundle, then check a subclass's full 3/6/10/14 (or
+  3/9/13/17) progression on the Class options step. Note: subclasses that
+  only exist as XPHB stubs (no 2024 rewrite) now appear only on the 2014
+  card — by design until _copy resolution.
+
 ## From the big backlog round (2026-07-04)
 
 - **T-10 Player notes** — "Create session note" command; visibility via

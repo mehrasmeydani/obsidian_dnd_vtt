@@ -365,6 +365,60 @@ interface RawFeatureRecord {
   subclassShortName?: unknown;
 }
 
+/**
+ * Feature pointers nested inside a feature's own entries. 5etools wraps the
+ * real mechanics this way: the level-3 "Path of Wild Magic" record is flavor
+ * text plus refSubclassFeature pointers to Magic Awareness and Wild Surge,
+ * which live as separate records in the same lookup table. Missing these
+ * meant every imported subclass carried only its flavor wrappers.
+ */
+function nestedFeatureRefs(
+  entries: unknown,
+): { kind: "class" | "subclass"; ref: FeatureRef }[] {
+  if (!Array.isArray(entries)) return [];
+  const out: { kind: "class" | "subclass"; ref: FeatureRef }[] = [];
+  for (const entry of entries) {
+    if (!entry || typeof entry !== "object") continue;
+    const record = entry as Record<string, unknown>;
+    if (record.type === "refSubclassFeature") {
+      const ref = parseSubclassFeatureRef(record.subclassFeature);
+      if (ref) out.push({ kind: "subclass", ref });
+    } else if (record.type === "refClassFeature") {
+      const ref = parseClassFeatureRef(record.classFeature ?? record);
+      if (ref) out.push({ kind: "class", ref });
+    }
+  }
+  return out;
+}
+
+/**
+ * Resolve a feature ref into `into`, then follow any feature refs nested in
+ * its entries (recursively, cycle-safe). `lookup` finds the record for a ref
+ * of either kind; nested refs keep their own levels from the ref string.
+ */
+function resolveFeatureWithNested(
+  ref: FeatureRef,
+  kind: "class" | "subclass",
+  lookup: (kind: "class" | "subclass", ref: FeatureRef) => RawFeatureRecord | undefined,
+  into: ClassFeature[],
+  seen: Set<string>,
+): void {
+  const key = `${kind}|${ref.name}|${ref.level}`;
+  if (seen.has(key)) return;
+  seen.add(key);
+  const record = lookup(kind, ref);
+  into.push({
+    name: ref.name,
+    level: ref.level,
+    description: record ? renderEntries(record.entries) || undefined : undefined,
+    effects: [],
+  });
+  if (!record) return;
+  for (const nested of nestedFeatureRefs(record.entries)) {
+    resolveFeatureWithNested(nested.ref, nested.kind, lookup, into, seen);
+  }
+}
+
 function findFeature(
   table: RawFeatureRecord[],
   ref: FeatureRef,
@@ -452,7 +506,18 @@ export function classesFromFiveEtools(file: FiveEtoolsClassFile): {
         .filter((entry): entry is string => Boolean(entry));
 
       // Leveled features + ASI levels + subclass level, from the ref list.
+      // Class-feature lookups pin to this class; subclass lookups are only
+      // meaningful inside a subclass (bound below per subclass).
+      const classLookup = (kind: "class" | "subclass", ref: FeatureRef) =>
+        kind === "class"
+          ? findFeature(
+              classFeatureTable,
+              ref,
+              (candidate) => candidate.className === cls.name,
+            )
+          : undefined;
       const features: ClassFeature[] = [];
+      const classSeen = new Set<string>();
       const asiLevels: number[] = [];
       let subclassLevel: number | undefined;
       for (const refRaw of Array.isArray(cls.classFeatures) ? cls.classFeatures : []) {
@@ -469,17 +534,7 @@ export function classesFromFiveEtools(file: FiveEtoolsClassFile): {
           if (ref.level >= 2) asiLevels.push(ref.level);
           continue;
         }
-        const record = findFeature(
-          classFeatureTable,
-          ref,
-          (candidate) => candidate.className === cls.name,
-        );
-        features.push({
-          name: ref.name,
-          level: ref.level,
-          description: record ? renderEntries(record.entries) || undefined : undefined,
-          effects: [],
-        });
+        resolveFeatureWithNested(ref, "class", classLookup, features, classSeen);
       }
 
       const subclasses: SubclassData[] = [];
@@ -487,7 +542,36 @@ export function classesFromFiveEtools(file: FiveEtoolsClassFile): {
         const sub = subRaw as Record<string, unknown>;
         if (sub.className !== cls.name || sub.classSource !== cls.source) continue;
         if (typeof sub.name !== "string") continue;
+        // XPHB re-lists old subclasses under the 2024 class as `_copy` stubs
+        // with no features of their own ("use the XGE Mastermind here").
+        // Same policy as races/backgrounds: _copy is not resolved — skip,
+        // otherwise they arrive as empty subclass cards.
+        if (sub._copy) {
+          skipped.push(
+            skipLine(
+              "subclass",
+              subRaw,
+              "_copy variants are not supported",
+            ),
+          );
+          continue;
+        }
+        // Subclass lookups pin to this subclass; nested class refs (rare)
+        // fall back to the class table.
+        const subclassLookup = (kind: "class" | "subclass", ref: FeatureRef) =>
+          kind === "subclass"
+            ? findFeature(
+                subclassFeatureTable,
+                ref,
+                (candidate) => candidate.subclassShortName === sub.shortName,
+              )
+            : findFeature(
+                classFeatureTable,
+                ref,
+                (candidate) => candidate.className === cls.name,
+              );
         const subFeatures: ClassFeature[] = [];
+        const subSeen = new Set<string>();
         for (const refRaw of Array.isArray(sub.subclassFeatures)
           ? sub.subclassFeatures
           : []) {
@@ -496,17 +580,13 @@ export function classesFromFiveEtools(file: FiveEtoolsClassFile): {
             skipped.push(skipLine("subclass feature", refRaw, "unparseable feature ref"));
             continue;
           }
-          const record = findFeature(
-            subclassFeatureTable,
+          resolveFeatureWithNested(
             ref,
-            (candidate) => candidate.subclassShortName === sub.shortName,
+            "subclass",
+            subclassLookup,
+            subFeatures,
+            subSeen,
           );
-          subFeatures.push({
-            name: ref.name,
-            level: ref.level,
-            description: record ? renderEntries(record.entries) || undefined : undefined,
-            effects: [],
-          });
         }
         subclasses.push({
           id: importId(

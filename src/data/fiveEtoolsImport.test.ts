@@ -244,6 +244,83 @@ describe("classesFromFiveEtools", () => {
     expect(reasons[0]).toContain("ignored — sidekick classes are not supported");
   });
 
+  it("follows feature refs nested inside a wrapper feature's entries", () => {
+    // 5etools wraps a subclass's real mechanics: the level-3 "Path of X"
+    // record is flavor plus refSubclassFeature pointers (Wild Magic's
+    // Magic Awareness / Wild Surge). They must arrive as features too.
+    const file = {
+      class: [FIGHTER_FILE.class[0]],
+      subclass: [
+        {
+          name: "Wrapped",
+          shortName: "Wrapped",
+          source: "PHB",
+          className: "Fighter",
+          classSource: "PHB",
+          subclassFeatures: ["Wrapped|Fighter||Wrapped||3"],
+        },
+      ],
+      classFeature: FIGHTER_FILE.classFeature,
+      subclassFeature: [
+        {
+          name: "Wrapped",
+          className: "Fighter",
+          subclassShortName: "Wrapped",
+          level: 3,
+          source: "PHB",
+          entries: [
+            "Flavor text only.",
+            {
+              type: "refSubclassFeature",
+              subclassFeature: "Hidden Mechanic|Fighter||Wrapped|PHB|3",
+            },
+          ],
+        },
+        {
+          name: "Hidden Mechanic",
+          className: "Fighter",
+          subclassShortName: "Wrapped",
+          level: 3,
+          source: "PHB",
+          entries: ["The actual level-3 rules text."],
+        },
+      ],
+    };
+    const { classes } = classesFromFiveEtools(file);
+    const wrapped = classes[0].subclasses.find((s) => s.name === "Wrapped");
+    expect(wrapped?.features.map((f) => `${f.level}:${f.name}`)).toEqual([
+      "3:Wrapped",
+      "3:Hidden Mechanic",
+    ]);
+    expect(
+      wrapped?.features.find((f) => f.name === "Hidden Mechanic")?.description,
+    ).toContain("actual level-3 rules text");
+  });
+
+  it("skips _copy subclass stubs (XPHB re-listings) with a reason", () => {
+    const file = {
+      class: [FIGHTER_FILE.class[0]],
+      subclass: [
+        ...FIGHTER_FILE.subclass,
+        {
+          name: "Champion Reprint",
+          shortName: "Champion Reprint",
+          source: "XGE",
+          className: "Fighter",
+          classSource: "PHB",
+          _copy: { name: "Champion", source: "PHB" },
+        },
+      ],
+      classFeature: FIGHTER_FILE.classFeature,
+      subclassFeature: FIGHTER_FILE.subclassFeature,
+    };
+    const { classes, skipped } = classesFromFiveEtools(file);
+    expect(classes[0].subclasses.map((s) => s.name)).toEqual(["Champion"]);
+    expect(
+      skipped.find((line) => line.includes("Champion Reprint")),
+    ).toContain("_copy variants are not supported");
+  });
+
   it("maps 5etools editions: 'one' → 2024, 'classic'/absent → 2014", () => {
     const base = FIGHTER_FILE.class[0];
     const { classes } = classesFromFiveEtools({

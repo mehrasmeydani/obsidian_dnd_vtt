@@ -104,9 +104,15 @@ export class ContentStore {
           base.subclasses.map((s) => s.name.toLowerCase()),
         );
         const haveIds = new Set(base.subclasses.map((s) => s.id));
-        const folded = cls.subclasses.filter(
-          (s) => !haveNames.has(s.name.toLowerCase()) && !haveIds.has(s.id),
-        );
+        // Dedup against the card *and* within the incoming batch (imports
+        // can carry same-named subclass records; the first wins).
+        const folded = cls.subclasses.filter((s) => {
+          const name = s.name.toLowerCase();
+          if (haveNames.has(name) || haveIds.has(s.id)) return false;
+          haveNames.add(name);
+          haveIds.add(s.id);
+          return true;
+        });
         if (folded.length > 0) {
           byId.set(cardId, {
             ...base,
