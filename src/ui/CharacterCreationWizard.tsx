@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   ABILITIES,
   SKILLS,
@@ -430,8 +430,9 @@ function NameRaceStep({
       </label>
 
       <h3>Race</h3>
-      <div className="dvtt-cards">
-        {races.map((race) => (
+      <EditionSections entities={races}>
+        {(items) =>
+          items.map((race) => (
           <button
             key={race.id}
             className={`dvtt-card${draft.race?.id === race.id ? " is-selected" : ""}`}
@@ -450,8 +451,9 @@ function NameRaceStep({
               {race.traits.map((t) => t.name).join(", ")}
             </div>
           </button>
-        ))}
-      </div>
+          ))
+        }
+      </EditionSections>
 
       {draft.race && <GrantedLanguagesTools entity={draft.race} />}
 
@@ -464,6 +466,37 @@ function NameRaceStep({
         />
       )}
     </div>
+  );
+}
+
+/**
+ * Card grids grouped by edition (T-49): when both rule sets are present,
+ * 5.5e (2024) gets its own section on top and 5e (2014) below, instead of
+ * shuffling the two catalogs together. A single-edition list stays flat.
+ */
+function EditionSections<T extends { edition?: "2014" | "2024" }>({
+  entities,
+  children,
+}: {
+  entities: T[];
+  children: (items: T[]) => ReactNode;
+}) {
+  const groups = [
+    { label: "5.5e (2024)", items: entities.filter((e) => e.edition === "2024") },
+    { label: "5e (2014)", items: entities.filter((e) => e.edition !== "2024") },
+  ].filter((group) => group.items.length > 0);
+  if (groups.length < 2) {
+    return <div className="dvtt-cards">{children(entities)}</div>;
+  }
+  return (
+    <>
+      {groups.map((group) => (
+        <section key={group.label} className="dvtt-edition-section">
+          <h4 className="dvtt-edition-section__label">{group.label}</h4>
+          <div className="dvtt-cards">{children(group.items)}</div>
+        </section>
+      ))}
+    </>
   );
 }
 
@@ -655,8 +688,9 @@ function ClassStep({
           onBlur={() => setLevelText(String(draft.level))}
         />
       </label>
-      <div className="dvtt-cards">
-        {classes.map((c) => (
+      <EditionSections entities={classes}>
+        {(items) =>
+          items.map((c) => (
           <button
             key={c.id}
             className={`dvtt-card${draft.charClass?.id === c.id ? " is-selected" : ""}`}
@@ -685,8 +719,9 @@ function ClassStep({
                 .join(", ")}
             </div>
           </button>
-        ))}
-      </div>
+          ))
+        }
+      </EditionSections>
     </div>
   );
 }
@@ -1090,8 +1125,9 @@ function BackgroundStep({
   return (
     <div>
       <h3>Background</h3>
-      <div className="dvtt-cards">
-        {backgrounds.map((background) => (
+      <EditionSections entities={backgrounds}>
+        {(items) =>
+          items.map((background) => (
           <button
             key={background.id}
             className={`dvtt-card${draft.background?.id === background.id ? " is-selected" : ""}`}
@@ -1110,8 +1146,9 @@ function BackgroundStep({
             </div>
             <div className="dvtt-card__detail">{background.description}</div>
           </button>
-        ))}
-      </div>
+          ))
+        }
+      </EditionSections>
 
       {draft.background?.customName && (
         <label className="dvtt-field">

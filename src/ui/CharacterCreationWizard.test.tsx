@@ -183,6 +183,37 @@ describe("CharacterCreationWizard", () => {
     ).toBeNull();
   });
 
+  it("groups race/class/background cards into edition sections (T-49)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+
+    // Step 1: both editions present → two labeled sections, 2024 first.
+    const labels = () =>
+      screen.getAllByText(/^5\.5e \(2024\)$|^5e \(2014\)$/, {
+        selector: ".dvtt-edition-section__label",
+      });
+    expect(labels().map((el) => el.textContent)).toEqual([
+      "5.5e (2024)",
+      "5e (2014)",
+    ]);
+    // The 2024 Human lives in the 2024 section.
+    const section2024 = labels()[0].parentElement as HTMLElement;
+    expect(section2024.textContent).toContain("Human");
+    expect(section2024.textContent).not.toContain("Hill Dwarf");
+
+    // Class step sections too.
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Korra" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Human.*2014/ }));
+    fireEvent.click(nextButton());
+    expect(labels().map((el) => el.textContent)).toEqual([
+      "5.5e (2024)",
+      "5e (2014)",
+    ]);
+  });
+
   it("gates ability score improvements for higher starting levels", () => {
     render(
       <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
