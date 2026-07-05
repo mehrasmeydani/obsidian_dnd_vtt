@@ -77,7 +77,48 @@ export class ContentStore {
   }
 
   get classes(): ClassData[] {
-    return this.merged((b) => b.classes);
+    // Classes get one extra merge rule beyond override-by-id: a later class
+    // with a *new* id but the same name and edition as an existing card
+    // folds in — its unseen subclasses join the existing class instead of
+    // spawning a duplicate card. This is the 5etools-import case: the SRD
+    // ships one subclass per class (all CC-BY allows), and an imported PHB
+    // class carries the full list under a different entity id.
+    const byId = new Map<string, ClassData>();
+    const cardIdByNameEdition = new Map<string, string>();
+    for (const entry of this.entries) {
+      if (!entry.enabled) continue;
+      for (const cls of entry.bundle.classes) {
+        if (byId.has(cls.id)) {
+          byId.set(cls.id, cls); // same id: later bundle replaces outright
+          continue;
+        }
+        const key = `${cls.name.toLowerCase()}::${cls.edition}`;
+        const cardId = cardIdByNameEdition.get(key);
+        if (cardId === undefined) {
+          cardIdByNameEdition.set(key, cls.id);
+          byId.set(cls.id, cls);
+          continue;
+        }
+        const base = byId.get(cardId) as ClassData;
+        const haveNames = new Set(
+          base.subclasses.map((s) => s.name.toLowerCase()),
+        );
+        const haveIds = new Set(base.subclasses.map((s) => s.id));
+        const folded = cls.subclasses.filter(
+          (s) => !haveNames.has(s.name.toLowerCase()) && !haveIds.has(s.id),
+        );
+        if (folded.length > 0) {
+          byId.set(cardId, {
+            ...base,
+            subclasses: [...base.subclasses, ...folded],
+            // A base class without subclasses has no subclass level of its
+            // own; adopt the incoming one so the picks unlock.
+            subclassLevel: base.subclassLevel ?? cls.subclassLevel,
+          });
+        }
+      }
+    }
+    return [...byId.values()];
   }
 
   get backgrounds(): BackgroundData[] {

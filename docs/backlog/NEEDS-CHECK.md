@@ -29,6 +29,13 @@ wrong.
   "review notes" for what's simplified (the +2/+1 split, feat effects,
   gear-vs-gold).
 
+- **Subclass folding on import** — an imported class (5etools) with the
+  same name **and edition** as an existing card no longer shows as a
+  second card: its new subclasses fold into the existing class (same-named
+  subclasses keep the SRD version). Verify: run "Import 5etools data" on a
+  PHB class file, then check the wizard shows one Barbarian 2014 with the
+  full subclass list. Same-id bundles still override outright.
+
 ## From the big backlog round (2026-07-04)
 
 - **T-10 Player notes** — "Create session note" command; visibility via
