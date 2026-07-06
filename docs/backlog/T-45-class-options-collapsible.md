@@ -22,12 +22,12 @@ imported classes carry full 1–20 progressions.
   the red "!" convention from T-30).
 
 ## Acceptance criteria
-- [ ] Every section on the Class options step can be folded/unfolded by
+- [x] Every section on the Class options step can be folded/unfolded by
       clicking its title (chevron affordance, keyboard-accessible).
-- [ ] Collapsed sections with incomplete choices show an incomplete
+- [x] Collapsed sections with incomplete choices show an incomplete
       marker; the footer hint still names what's missing.
-- [ ] Wizard walkthrough test covers folding a section and completing a
+- [x] Wizard walkthrough test covers folding a section and completing a
       choice inside a re-opened one.
 - [ ] User verifies in Obsidian.
 
-## Status: todo
+## Status: needs-check

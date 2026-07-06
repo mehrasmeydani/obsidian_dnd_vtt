@@ -769,8 +769,10 @@ function ClassOptionsStep({
       <h3>Class options</h3>
 
       {hasSubclassSection && (
-        <div className="dvtt-choice-group">
-          <h4>{charClass.name} subclass</h4>
+        <CollapsibleGroup
+          title={`${charClass.name} subclass`}
+          incomplete={subclassRequired(draft) && !draft.subclass}
+        >
           {subclassRequired(draft) ? (
             <div className="dvtt-cards">
               {charClass.subclasses.map((s) => (
@@ -792,7 +794,7 @@ function ClassOptionsStep({
               or pick it up when levelling.
             </p>
           )}
-        </div>
+        </CollapsibleGroup>
       )}
 
       {choices.length === 0 && !subclassRequired(draft) && (
@@ -810,18 +812,29 @@ function ClassOptionsStep({
         />
       ))}
 
-      <GrantedProficiencies charClass={charClass} />
+      {/* Read-only grants fold away above level 3, where they get long. */}
+      <GrantedProficiencies
+        charClass={charClass}
+        defaultOpen={draft.level <= 3}
+      />
       <GrantedFeatureList
         charClass={charClass}
         subclass={subclassRequired(draft) ? draft.subclass : null}
         level={draft.level}
+        defaultOpen={draft.level <= 3}
       />
     </div>
   );
 }
 
 /** Armor/weapon/tool proficiencies the class grants — display only, not a pick. */
-function GrantedProficiencies({ charClass }: { charClass: ClassData }) {
+function GrantedProficiencies({
+  charClass,
+  defaultOpen,
+}: {
+  charClass: ClassData;
+  defaultOpen: boolean;
+}) {
   const groups = (
     [
       ["Armor", charClass.proficiencies.armor],
@@ -832,8 +845,7 @@ function GrantedProficiencies({ charClass }: { charClass: ClassData }) {
   if (groups.length === 0) return null;
 
   return (
-    <div className="dvtt-choice-group">
-      <h4>Proficiencies — granted</h4>
+    <CollapsibleGroup title="Proficiencies — granted" defaultOpen={defaultOpen}>
       {groups.map(([label, list]) => (
         <div className="dvtt-prof-group" key={label}>
           <span className="dvtt-prof-group__label">{label}</span>
@@ -846,7 +858,7 @@ function GrantedProficiencies({ charClass }: { charClass: ClassData }) {
           </span>
         </div>
       ))}
-    </div>
+    </CollapsibleGroup>
   );
 }
 
@@ -860,10 +872,12 @@ function GrantedFeatureList({
   charClass,
   subclass,
   level,
+  defaultOpen,
 }: {
   charClass: ClassData;
   subclass: SubclassData | null;
   level: number;
+  defaultOpen: boolean;
 }) {
   const granted = grantedClassFeatures(charClass, subclass, level);
   if (granted.length === 0 && charClass.resources.length === 0) return null;
@@ -877,11 +891,12 @@ function GrantedFeatureList({
   });
 
   return (
-    <div className="dvtt-choice-group">
-      <h4>
-        Features — granted at level {level}
-        {subclass ? ` (${charClass.name} · ${subclass.name})` : ""}
-      </h4>
+    <CollapsibleGroup
+      title={`Features — granted at level ${level}${
+        subclass ? ` (${charClass.name} · ${subclass.name})` : ""
+      }`}
+      defaultOpen={defaultOpen}
+    >
       {resources.length > 0 && (
         <div className="dvtt-chips">
           {resources.map(({ resource, row }) => (
@@ -918,6 +933,49 @@ function GrantedFeatureList({
           </li>
         ))}
       </ul>
+    </CollapsibleGroup>
+  );
+}
+
+/**
+ * A .dvtt-choice-group that folds behind its heading (T-45) — the wizard's
+ * lighter cousin of the sheet's CollapsibleTile. Collapsing never hides a
+ * problem: `incomplete` keeps the red "!" marker (T-30 convention) in the
+ * heading, and the footer hint still names what's missing.
+ */
+function CollapsibleGroup({
+  title,
+  defaultOpen = true,
+  incomplete = false,
+  children,
+}: {
+  title: ReactNode;
+  defaultOpen?: boolean;
+  incomplete?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className={`dvtt-choice-group${open ? "" : " is-collapsed"}`}>
+      <h4>
+        <button
+          type="button"
+          className="dvtt-choice-group__toggle"
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        >
+          <span className="dvtt-choice-group__chevron" aria-hidden="true">
+            {open ? "▾" : "▸"}
+          </span>
+          {title}
+          {incomplete && (
+            <span className="dvtt-wizard__step-warning" aria-label="incomplete">
+              !
+            </span>
+          )}
+        </button>
+      </h4>
+      {open && children}
     </div>
   );
 }
@@ -954,10 +1012,10 @@ function FeatureChoiceGroup({
     );
 
   return (
-    <div className="dvtt-choice-group">
-      <h4>
-        {choice.name} — level {choice.level} ({picks.length}/{choice.count})
-      </h4>
+    <CollapsibleGroup
+      title={`${choice.name} — level ${choice.level} (${picks.length}/${choice.count})`}
+      incomplete={picks.length !== choice.count}
+    >
       {choice.description && <p className="dvtt-note">{choice.description}</p>}
 
       {choice.kind === "options" && (
@@ -1012,7 +1070,7 @@ function FeatureChoiceGroup({
           toggle={toggle}
         />
       )}
-    </div>
+    </CollapsibleGroup>
   );
 }
 
@@ -1610,7 +1668,7 @@ function AsiPicker({
       )}
 
       {total > 0 && (
-        <div className="dvtt-checkboxes">
+        <div className="dvtt-asi-grid">
           {ABILITIES.map((ability) => {
             const points = draft.asiBonuses[ability] ?? 0;
             return (

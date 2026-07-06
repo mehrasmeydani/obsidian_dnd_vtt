@@ -9,6 +9,22 @@ wrong.
 25/26/27/28/30–35/37/43/44 to done; the reported problems became
 T-46…T-56 on the board.)*
 
+- **T-45 Collapsible creator sections** — every section on the Class
+  options step (subclass, each choice block, granted proficiencies and
+  features) now folds behind its heading with a chevron. Choice blocks
+  start open; the read-only grant lists start collapsed above level 3.
+  A collapsed section with an unresolved choice keeps the red "!"
+  marker and the footer hint. Expertise groups on the Skills step fold
+  the same way. **How to check:** make a level-5 warlock — grants
+  arrive folded, choices open; fold an unfinished invocations group and
+  confirm the "!" stays.
+
+- **T-46 ASI spacing** — the ability +/- steppers no longer reuse the
+  checkbox grid: wider columns with a real gap, uniform square buttons,
+  and the per-level feat dropdown shrinks instead of overflowing.
+  **How to check:** Abilities step with a level-8+ character at normal
+  and narrow pane widths.
+
 - **T-51 Class choices: Metamagic, invocations & co.** — all SRD
   choose-N-options grants above level 1 are now real pickers on the
   Class options step. **How to check:** create a 2014 sorcerer at

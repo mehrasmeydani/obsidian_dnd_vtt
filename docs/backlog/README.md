@@ -19,6 +19,8 @@ from the top), **Done**.
 
 | # | Ticket | Priority | Size | Phase | Depends on | Status |
 |---|--------|----------|------|-------|------------|--------|
+| [T-45](T-45-class-options-collapsible.md) | Creator sections collapsible (too busy) | P1 | S | 1 | T-32 | needs-check |
+| [T-46](T-46-asi-spacing.md) | Abilities step: ASI spacing broken | P1 | XS | 1 | — | needs-check |
 | [T-51](T-51-class-choice-audit.md) | Class choice audit (Metamagic & co.) | P1 | L | 1 | T-21 | needs-check |
 | [T-52](T-52-equip-toggle-regression.md) | Regression: equip toggle gone | P1 | S | 1 | T-22, T-36 | needs-check |
 | [T-10](T-10-player-notes.md) | Player notes with visibility | P2 | M | 1 | — | needs-check |
@@ -32,8 +34,6 @@ from the top), **Done**.
 
 | # | Ticket | Priority | Size | Phase | Depends on | Status |
 |---|--------|----------|------|-------|------------|--------|
-| [T-45](T-45-class-options-collapsible.md) | Creator sections collapsible (too busy) | P1 | S | 1 | T-32 | todo |
-| [T-46](T-46-asi-spacing.md) | Abilities step: ASI spacing broken | P1 | XS | 1 | — | todo |
 | [T-38](T-38-equipment-slots.md) | Equipment slots: hands, body, accessories | P1 | M | 1 | T-36 | todo |
 | [T-47](T-47-repeatable-feats.md) | Repeatable feats flag | P2 | S | 1 | T-04 | todo |
 | [T-54](T-54-skills-consolidated.md) | All skill/expertise picks on Skills step | P2 | S | 1 | T-28 | todo |
@@ -89,9 +89,8 @@ from the top), **Done**.
 
 ## Suggested order
 
-1. Quick P1 creator fixes: **T-45** collapsible sections, **T-46** ASI
-   spacing; then **T-38** equipment slots (now carries your left/right
-   hand + cape/shoes note).
+1. **T-38** equipment slots (now carries your left/right hand +
+   cape/shoes note).
 2. Creator polish band: T-47 → T-54 → T-41.
 3. Phase 2 track: T-14 content browser → T-15 spells (unblocks T-16) →
    T-48 loot picker; T-55/T-39 sheet play features in parallel.

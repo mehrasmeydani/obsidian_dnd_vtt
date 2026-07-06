@@ -562,11 +562,29 @@
   width: 96px;
 }
 
-/* Ability score improvement steppers */
+/* Ability score improvement steppers (T-46): own grid, not the checkbox
+   one — wider tracks and a real column gap so one row's +/- buttons never
+   crowd the next column's ability name. */
+.dvtt-asi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--size-2-2) var(--size-4-4);
+}
+
 .dvtt-asi-row {
   display: flex;
   align-items: center;
   gap: var(--size-2-2);
+}
+
+.dvtt-asi-row button {
+  width: var(--size-4-6);
+  height: var(--size-4-6);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
 }
 
 .dvtt-asi-row__name {
@@ -600,6 +618,37 @@
 
 .dvtt-choice-group h4 {
   margin: 0 0 var(--size-4-2);
+}
+
+.dvtt-choice-group.is-collapsed h4 {
+  margin-bottom: 0;
+}
+
+/* Fold toggle inside a choice-group heading (T-45): inherits the h4 look. */
+.dvtt-choice-group__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-2);
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dvtt-choice-group__toggle:hover {
+  color: var(--text-accent);
+}
+
+.dvtt-choice-group__chevron {
+  flex: none;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
 }
 
 .dvtt-checkboxes {
@@ -1101,4 +1150,11 @@ button.dvtt-chip--toggle.is-equipped {
   align-items: center;
   gap: var(--size-2-1);
   cursor: pointer;
+}
+
+/* The feat dropdown shares its row: shrink instead of overflowing (T-46). */
+.dvtt-asi-level select {
+  flex: 1 1 12em;
+  min-width: 0;
+  max-width: 100%;
 }

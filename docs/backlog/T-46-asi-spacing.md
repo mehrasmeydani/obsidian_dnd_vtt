@@ -14,8 +14,8 @@ don't crowd or misalign.
   level renders its own "+2 points or a feat" chooser.
 
 ## Acceptance criteria
-- [ ] ASI blocks on the Abilities step have consistent spacing at
+- [x] ASI blocks on the Abilities step have consistent spacing at
       normal and narrow pane widths.
 - [ ] User verifies in Obsidian.
 
-## Status: todo
+## Status: needs-check

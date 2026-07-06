@@ -39,7 +39,9 @@ function stepIncomplete(): boolean {
 
 /** The .dvtt-choice-group whose heading matches, for scoped queries. */
 function choiceGroup(heading: RegExp) {
-  const group = screen.getByText(heading).parentElement;
+  const group = screen
+    .getByText(heading)
+    .closest(".dvtt-choice-group") as HTMLElement | null;
   if (!group) throw new Error(`No choice group for ${heading}`);
   return within(group);
 }
@@ -467,6 +469,58 @@ describe("CharacterCreationWizard", () => {
     expect(stepIncomplete()).toBe(false);
   });
 
+  it("folds class-option sections; collapsed choices keep their incomplete marker (T-45)", () => {
+    render(
+      <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Borin/), {
+      target: { value: "Borin" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hill Dwarf/ }));
+    fireEvent.change(screen.getByLabelText("Tool proficiency"), {
+      target: { value: "smiths-tools" },
+    });
+    fireEvent.click(nextButton());
+    fireEvent.click(screen.getByRole("button", { name: /Fighter.*2014/ }));
+    fireEvent.change(screen.getByRole("spinbutton"), {
+      target: { value: "4" },
+    });
+    fireEvent.click(nextButton());
+
+    // Settle the subclass so the footer hint names the fighting style.
+    fireEvent.click(screen.getByRole("button", { name: /Champion/ }));
+
+    // Read-only grants start collapsed above level 3…
+    expect(screen.queryByText("Second Wind")).toBeNull();
+    expect(screen.queryByText("All armor")).toBeNull();
+    // …and unfold on click.
+    fireEvent.click(
+      screen.getByRole("button", { name: /Features — granted at level 4/ }),
+    );
+    expect(screen.getByText("Second Wind")).toBeTruthy();
+
+    // The unresolved Fighting Style group is open and flagged; folding it
+    // hides the options but keeps the marker and the footer hint.
+    const styleToggle = () =>
+      screen.getByRole("button", { name: /Fighting Style — level 1/ });
+    expect(screen.getByLabelText("Defense")).toBeTruthy();
+    expect(
+      within(styleToggle()).getByLabelText("incomplete"),
+    ).toBeTruthy();
+    fireEvent.click(styleToggle());
+    expect(screen.queryByLabelText("Defense")).toBeNull();
+    expect(
+      within(styleToggle()).getByLabelText("incomplete"),
+    ).toBeTruthy();
+    expect(screen.getByText(/Choose 1 option for Fighting Style/)).toBeTruthy();
+
+    // Re-open and complete the pick: the marker clears.
+    fireEvent.click(styleToggle());
+    fireEvent.click(screen.getByLabelText("Defense"));
+    expect(styleToggle().textContent).toContain("(1/1)");
+    expect(within(styleToggle()).queryByLabelText("incomplete")).toBeNull();
+  });
+
   it("shows invocation prerequisites and hides options taken in another group (T-51)", () => {
     render(
       <CharacterCreationWizard onComplete={vi.fn()} onCancel={() => {}} />,
@@ -666,6 +720,14 @@ describe("CharacterCreationWizard", () => {
       screen.getByRole("button", { name: /Path of the Berserker/ }),
     );
 
+    // Read-only grant sections default collapsed above level 3 (T-45).
+    fireEvent.click(
+      screen.getByRole("button", { name: /Proficiencies — granted/ }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Features — granted at level 20/ }),
+    );
+
     // Granted proficiencies render as chips, not picks.
     const profGroup = choiceGroup(/Proficiencies — granted/);
     expect(profGroup.getByText("Martial weapons")).toBeTruthy();
@@ -691,6 +753,9 @@ describe("CharacterCreationWizard", () => {
       target: { value: "4" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Class options" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Features — granted at level 4/ }),
+    );
     const trimmed = choiceGroup(/Features — granted at level 4/);
     expect(trimmed.getByText("Reckless Attack")).toBeTruthy();
     expect(trimmed.queryByText("Extra Attack")).toBeNull();
