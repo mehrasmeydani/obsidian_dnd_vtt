@@ -1055,6 +1055,11 @@ button.dvtt-tile__title--toggle {
   width: 6ch;
 }
 
+.dvtt-inv__slot {
+  font-size: var(--font-ui-smaller);
+  max-width: 14ch;
+}
+
 .dvtt-inv__equipped {
   display: flex;
   align-items: center;

@@ -28,13 +28,13 @@ from the top), **Done**.
 | [T-23](T-23-two-way-markdown-data.md) | Two-way Markdown data (frontmatter projection) | P2 | M | 1–2 | T-01 | needs-check |
 | [T-24](T-24-campaign-folder-structure.md) | Campaign folder structure managed by the plugin | P2 | M | 1–2 | — | needs-check |
 | [T-36](T-36-wearing-and-bags.md) | Equip only wearables; Wearing vs Bags | P2 | S | 1 | T-22 | needs-check |
+| [T-38](T-38-equipment-slots.md) | Equipment slots: hands, body, accessories | P1 | M | 1 | T-36 | needs-check |
 | [T-49](T-49-edition-sections.md) | Wizard lists: 5e / 5.5e sections | P2 | S | 1 | T-17 | needs-check |
 
 ### Todo
 
 | # | Ticket | Priority | Size | Phase | Depends on | Status |
 |---|--------|----------|------|-------|------------|--------|
-| [T-38](T-38-equipment-slots.md) | Equipment slots: hands, body, accessories | P1 | M | 1 | T-36 | todo |
 | [T-47](T-47-repeatable-feats.md) | Repeatable feats flag | P2 | S | 1 | T-04 | todo |
 | [T-54](T-54-skills-consolidated.md) | All skill/expertise picks on Skills step | P2 | S | 1 | T-28 | todo |
 | [T-41](T-41-rules-glossary.md) | Rules glossary: mechanics as content | P2 | M | 2 | T-11 | todo |
@@ -89,10 +89,8 @@ from the top), **Done**.
 
 ## Suggested order
 
-1. **T-38** equipment slots (now carries your left/right hand +
-   cape/shoes note).
-2. Creator polish band: T-47 → T-54 → T-41.
-3. Phase 2 track: T-14 content browser → T-15 spells (unblocks T-16) →
+1. Creator polish band: T-47 → T-54 → T-41.
+2. Phase 2 track: T-14 content browser → T-15 spells (unblocks T-16) →
    T-48 loot picker; T-55/T-39 sheet play features in parallel.
 
 Beyond this backlog, Phases 3–5 (sync server, battle map, dice/polish) stay

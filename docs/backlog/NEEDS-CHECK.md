@@ -67,8 +67,22 @@ T-46…T-56 on the board.)*
   are all clickable toggles; "Wearing" vs "In bags" follows them;
   equipping armor still moves AC (and a second body armor doffs the
   first) while non-armor gear never changes AC; an *old* character
-  note's armor also moves AC again (links heal on load). Slot limits
-  (one body armor, two hands…) remain future work under T-38.
+  note's armor also moves AC again (links heal on load). *(Superseded
+  in part by T-38 below: unslotted gear like rope/backpack is no
+  longer toggleable.)*
+
+- **T-38 Equipment slots** — items now carry an equip slot: **hand**
+  (weapons, shields, torches — max 2 equipped), **body** (armor,
+  clothes — max 1, equipping doffs the current), **accessory** (rings,
+  cloaks, boots — unlimited), or none (gold, rope, candles — inert
+  chips, no toggle). Starting gear is slotted automatically (armor
+  data + SRD weapon/name heuristics); old notes infer slots on the
+  fly. Edit mode adds a slot dropdown per item so homebrew gear works
+  — set rope to "Hand" and it becomes equippable. AC math unchanged.
+  **How to check:** new character with two weapons + shield — a third
+  held item's chip is blocked ("Hands full" tooltip) until you
+  unequip one; gold has no toggle; in edit mode change an item's slot
+  and confirm the Equipped checkbox follows.
 
 - **T-23 Frontmatter projection** — kept in progress at your request
   (`hp`/`hp_max`/`race` two-way; `ac`/`level`/`class` write-only).

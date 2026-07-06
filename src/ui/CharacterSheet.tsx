@@ -19,10 +19,12 @@ import {
   totalLevel,
 } from "../rules/abilityMath";
 import { armorClass } from "../rules/armorClass";
-import { ARMOR } from "../data/srd";
-
-/** Armor lookup for the equip toggle (same source `armorClass` defaults to). */
-const ARMOR_BY_ID = new Map(ARMOR.map((armor) => [armor.id, armor]));
+import {
+  equipProblem,
+  slotOf,
+  toggleEquipped as ruleToggleEquipped,
+  type EquipSlot,
+} from "../rules/equipment";
 
 const ABILITY_LABELS: Record<Ability, string> = {
   str: "Strength",
@@ -722,28 +724,14 @@ function InventoryTile({
         i === index ? { ...item, ...patch } : item,
       ),
     });
-  /** Body armor (not shields) can only be worn one at a time. */
-  const isBodyArmor = (item: Character["inventory"][number]) =>
-    item.armorId !== undefined &&
-    ARMOR_BY_ID.get(item.armorId) !== undefined &&
-    ARMOR_BY_ID.get(item.armorId)?.type !== "shield";
   /**
-   * The equip play control (T-22): always live, like HP and rests. AC is
-   * derived from equipped gear, so equipping new body armor doffs the old
-   * one — stacked body armor can never happen from the UI.
+   * The equip play control (T-22): always live, like HP and rests. Slot
+   * rules (T-38) live in rules/equipment.ts — one body armor (equipping
+   * doffs the old), two hands, unlimited accessories, no slot = inert.
    */
   const toggleEquipped = (index: number) => {
-    const target = character.inventory[index];
-    const equipping = !target.equipped;
-    apply({
-      inventory: character.inventory.map((item, i) => {
-        if (i === index) return { ...item, equipped: equipping };
-        if (equipping && item.equipped && isBodyArmor(target) && isBodyArmor(item)) {
-          return { ...item, equipped: false };
-        }
-        return item;
-      }),
-    });
+    const inventory = ruleToggleEquipped(character.inventory, index);
+    if (inventory !== null) apply({ inventory });
   };
   const remove = (index: number) =>
     apply({
@@ -764,7 +752,9 @@ function InventoryTile({
       )}
       {editing ? (
         <div className="dvtt-inv">
-          {character.inventory.map((item, index) => (
+          {character.inventory.map((item, index) => {
+            const problem = equipProblem(character.inventory, index);
+            return (
             <div className="dvtt-inv__row" key={item.id}>
               <input
                 type="text"
@@ -778,11 +768,30 @@ function InventoryTile({
                 value={item.quantity}
                 onCommit={(quantity) => update(index, { quantity })}
               />
-              <label className="dvtt-inv__equipped">
+              <select
+                aria-label={`Item ${index + 1} slot`}
+                className="dvtt-inv__slot"
+                value={item.slot ?? slotOf(item) ?? "none"}
+                onChange={(e) => {
+                  const slot = e.target.value as EquipSlot | "none";
+                  // An unequippable slot also takes the item off.
+                  update(index, {
+                    slot,
+                    ...(slot === "none" ? { equipped: false } : {}),
+                  });
+                }}
+              >
+                <option value="none">Not equippable</option>
+                <option value="hand">Hand</option>
+                <option value="body">Body</option>
+                <option value="accessory">Accessory</option>
+              </select>
+              <label className="dvtt-inv__equipped" title={problem}>
                 <input
                   type="checkbox"
                   aria-label={`Item ${index + 1} equipped`}
                   checked={item.equipped}
+                  disabled={!item.equipped && problem !== undefined}
                   onChange={() => toggleEquipped(index)}
                 />
                 Equipped
@@ -794,7 +803,8 @@ function InventoryTile({
                 ✕
               </button>
             </div>
-          ))}
+            );
+          })}
           <button className="dvtt-inv__add" onClick={add}>
             Add item
           </button>
@@ -810,10 +820,11 @@ function InventoryTile({
 }
 
 /**
- * Read-mode inventory (T-36/T-52): split into "Wearing" (equipped — on
- * your person) and "In bags" (stowed: pack, cart, horse…). Every item
- * can equip (a greataxe or backpack is carried, T-52 user rule); only
- * armor-linked items feed derived AC. Slot limits are T-38.
+ * Read-mode inventory (T-36/T-52/T-38): split into "Wearing" (equipped —
+ * on your person) and "In bags" (stowed). Only slotted items toggle —
+ * hand (max 2), body (max 1, auto-doff), accessory (unlimited); gold and
+ * other unslotted items render as inert chips. Only armor-linked items
+ * feed derived AC.
  */
 function InventoryChips({
   inventory,
@@ -837,16 +848,25 @@ function InventoryChips({
               const index = inventory.indexOf(item);
               const label =
                 item.quantity > 1 ? `${item.name} ×${item.quantity}` : item.name;
+              if (slotOf(item) === undefined) {
+                return (
+                  <span className="dvtt-chip" key={item.id}>
+                    {label}
+                  </span>
+                );
+              }
+              const problem = equipProblem(inventory, index);
               return (
                 <button
                   type="button"
                   className={`dvtt-chip dvtt-chip--toggle${item.equipped ? " is-equipped" : ""}`}
                   key={item.id}
                   aria-pressed={item.equipped}
+                  aria-disabled={problem !== undefined}
                   title={
                     item.equipped
                       ? "Equipped — click to take off"
-                      : "Click to equip"
+                      : problem ?? "Click to equip"
                   }
                   onClick={() => toggleEquipped(index)}
                 >

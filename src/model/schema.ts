@@ -74,6 +74,13 @@ export const ItemSchema = z.object({
   equipped: z.boolean().default(false),
   /** Content-bundle armor id when this item is armor/a shield (drives AC). */
   armorId: z.string().optional(),
+  /**
+   * Equip slot (T-38): hand (weapons, shields, torches), body (armor,
+   * clothes — one at a time), accessory (rings, cloaks — unlimited).
+   * "none" marks an item explicitly unequippable; absent means "infer
+   * from armor data / name" (rules/equipment.ts).
+   */
+  slot: z.enum(["hand", "body", "accessory", "none"]).optional(),
   notes: z.string().optional(),
 });
 export type Item = z.infer<typeof ItemSchema>;

@@ -287,15 +287,14 @@ describe("equip toggle (T-22, always live)", () => {
 
   const ac = () => screen.getByText("AC").nextElementSibling?.textContent;
 
-  it("renders every item as an equip toggle button (T-52)", () => {
-    const { last } = renderSheet(armoredCharacter());
+  it("renders slotted items as toggles; unslotted gear is inert (T-38)", () => {
+    renderSheet(armoredCharacter());
     const leather = screen.getByRole("button", { name: /Leather armor/ });
     expect(leather.getAttribute("aria-pressed")).toBe("true");
     expect(leather.classList.contains("is-equipped")).toBe(true);
-    // Non-armor gear equips too (carried on your person vs stowed) —
-    // it just doesn't feed AC.
-    fireEvent.click(screen.getByRole("button", { name: /^Rope/ }));
-    expect(last().inventory.find((i) => i.id === "rope")?.equipped).toBe(true);
+    // Rope has no equip slot — it lists as a plain chip, not a button.
+    expect(screen.queryByRole("button", { name: /^Rope/ })).toBeNull();
+    expect(screen.getByText("Rope")).toBeTruthy();
   });
 
   it("splits read mode into Wearing and In bags (T-36)", () => {
@@ -350,19 +349,83 @@ describe("equip toggle (T-22, always live)", () => {
     expect(last().inventory.find((i) => i.id === "leather")?.equipped).toBe(false);
   });
 
-  it("edit mode offers the Equipped checkbox on every item (T-52)", () => {
+  it("edit mode disables the Equipped checkbox on unslotted items (T-38)", () => {
     renderSheet(armoredCharacter());
     enterEditMode();
-    expect(screen.getByLabelText("Item 1 equipped")).toBeTruthy(); // leather
-    expect(screen.getByLabelText("Item 3 equipped")).toBeTruthy(); // shield
-    expect(screen.getByLabelText("Item 4 equipped")).toBeTruthy(); // rope
+    expect((screen.getByLabelText("Item 1 equipped") as HTMLInputElement).disabled).toBe(false); // leather
+    expect((screen.getByLabelText("Item 4 equipped") as HTMLInputElement).disabled).toBe(true); // rope
   });
 
-  it("equipping non-armor gear never changes AC (T-52)", () => {
-    renderSheet(armoredCharacter());
-    expect(ac()).toBe("14");
-    fireEvent.click(screen.getByRole("button", { name: "Rope" }));
-    expect(ac()).toBe("14");
+  it("edit mode slot dropdown makes homebrew gear equippable (T-38)", () => {
+    const { last } = renderSheet(armoredCharacter());
+    enterEditMode();
+    const slot = screen.getByLabelText("Item 4 slot") as HTMLSelectElement;
+    expect(slot.value).toBe("none"); // rope: nothing inferred
+    fireEvent.change(slot, { target: { value: "accessory" } });
+    expect(last().inventory.find((i) => i.id === "rope")?.slot).toBe("accessory");
+    fireEvent.click(screen.getByLabelText("Item 4 equipped"));
+    expect(last().inventory.find((i) => i.id === "rope")?.equipped).toBe(true);
+  });
+});
+
+describe("equip slots (T-38)", () => {
+  function slottedCharacter(): Character {
+    return CharacterSchema.parse({
+      ...sampleCharacter(),
+      armorClassOverride: undefined,
+      inventory: [
+        { id: "sword", name: "Longsword", quantity: 1, equipped: true },
+        { id: "axe", name: "Handaxe", quantity: 1, equipped: true },
+        { id: "dagger", name: "Dagger", quantity: 1, equipped: false },
+        { id: "ring1", name: "Ring of warmth", quantity: 1, equipped: false },
+        { id: "ring2", name: "Signet ring", quantity: 1, equipped: false },
+        { id: "cloak", name: "Cloak of billowing", quantity: 1, equipped: false },
+        { id: "gold", name: "Gold (gp)", quantity: 25, equipped: false },
+      ],
+    });
+  }
+  const item = (last: () => Character, id: string) =>
+    last().inventory.find((i) => i.id === id);
+
+  it("blocks a third held item until a hand frees up", () => {
+    const { changes, last } = renderSheet(slottedCharacter());
+    const dagger = screen.getByRole("button", { name: "Dagger" });
+    expect(dagger.getAttribute("aria-disabled")).toBe("true");
+    fireEvent.click(dagger);
+    // Blocked: no change was emitted at all.
+    expect(changes).toHaveLength(0);
+
+    // Sheathe the longsword; now the dagger fits.
+    fireEvent.click(screen.getByRole("button", { name: /Longsword/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Dagger" }));
+    expect(item(last, "dagger")?.equipped).toBe(true);
+  });
+
+  it("accessories are unlimited", () => {
+    const { last } = renderSheet(slottedCharacter());
+    for (const name of ["Ring of warmth", "Signet ring", "Cloak of billowing"]) {
+      fireEvent.click(screen.getByRole("button", { name }));
+    }
+    expect(item(last, "ring1")?.equipped).toBe(true);
+    expect(item(last, "ring2")?.equipped).toBe(true);
+    expect(item(last, "cloak")?.equipped).toBe(true);
+  });
+
+  it("gold is never toggleable", () => {
+    renderSheet(slottedCharacter());
+    expect(screen.queryByRole("button", { name: /Gold/ })).toBeNull();
+    enterEditMode();
+    expect((screen.getByLabelText("Item 7 equipped") as HTMLInputElement).disabled).toBe(true);
+  });
+
+  it("hand limit applies to edit-mode checkboxes too", () => {
+    const { last } = renderSheet(slottedCharacter());
+    enterEditMode();
+    const dagger = screen.getByLabelText("Item 3 equipped") as HTMLInputElement;
+    expect(dagger.disabled).toBe(true);
+    fireEvent.click(screen.getByLabelText("Item 1 equipped")); // sheathe longsword
+    fireEvent.click(screen.getByLabelText("Item 3 equipped"));
+    expect(item(last, "dagger")?.equipped).toBe(true);
   });
 });
 
@@ -619,7 +682,8 @@ describe("edit mode", () => {
     fireEvent.change(screen.getByLabelText("Item 3 quantity"), {
       target: { value: "2" },
     });
-    // Every item is equippable (T-52); a fresh one starts unequipped.
+    // A fresh item has no slot yet; its checkbox renders (disabled) and
+    // it starts unequipped (T-38).
     expect(screen.getByLabelText("Item 3 equipped")).toBeTruthy();
     expect(last().inventory[2]).toMatchObject({
       name: "Grappling hook",

@@ -10,6 +10,7 @@ import {
   type Skill,
 } from "../model/schema";
 import { linkArmorByName } from "./armorClass";
+import { inferSlot } from "./equipment";
 import {
   ARMOR,
   type BackgroundData,
@@ -1000,20 +1001,21 @@ export function assembleCharacter(draft: CharacterDraft, id: string): Character 
 
   // Class fixed gear + the chosen option from each choice + background gear.
   // Armor-like items are linked to their armor data by name (drives AC),
-  // via the same tolerant lookup that heals loaded notes (T-52).
+  // via the same tolerant lookup that heals loaded notes (T-52), then
+  // stamped with an equip slot where recognizable (T-38).
   const inventory: Item[] = [];
   const addGear = (items: EquipmentItem[]) => {
     for (const item of items) {
-      inventory.push(
-        ...linkArmorByName([
-          {
-            id: `${slugify(item.name)}-${inventory.length}`,
-            name: item.name,
-            quantity: item.quantity ?? 1,
-            equipped: false,
-          },
-        ]),
-      );
+      for (const linked of linkArmorByName([
+        {
+          id: `${slugify(item.name)}-${inventory.length}`,
+          name: item.name,
+          quantity: item.quantity ?? 1,
+          equipped: false,
+        } as Item,
+      ])) {
+        inventory.push({ ...linked, slot: inferSlot(linked) });
+      }
     }
   };
   if (draft.equipmentMode === "gold") {
