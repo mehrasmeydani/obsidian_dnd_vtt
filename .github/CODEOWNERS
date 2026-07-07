@@ -1,0 +1,9 @@
+# Every PR requests review from the owner(s) listed here automatically.
+# With "Require review from Code Owners" branch protection on, at least one
+# of these must approve before merge. Replace with real GitHub usernames.
+
+*                       @mehrasmeydani
+
+# Example of scoping ownership once the team grows:
+# src/rules/            @mehrasmeydani
+# src/data/content/     @some-content-collaborator

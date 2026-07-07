@@ -15,3 +15,6 @@ test-vault/
 # WotC-copyrighted reference data: local-only, never committed or shipped.
 # Drop your own 5etools JSON here for cross-checking; tests skip when absent.
 docs/reference/5etools/
+
+# Local Claude Code settings (moved to ~/.claude/settings.json)
+.claude/

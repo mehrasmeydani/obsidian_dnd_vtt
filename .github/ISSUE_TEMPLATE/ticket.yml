@@ -1,0 +1,37 @@
+name: Ticket (feature / task)
+description: A unit of work — user story plus acceptance criteria. Replaces the old T-XX backlog files.
+title: "[Ticket] "
+labels: ["ticket"]
+body:
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User story
+      description: As a <role>, I want <capability>, so that <benefit>.
+      placeholder: As a DM, I want to plan encounters, so that combat is balanced.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Checklist of observable outcomes. The issue is closeable only when all are true.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Technical notes
+      description: Files, schema changes, dependencies on other issues (use #123), design constraints.
+    validations:
+      required: false
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options: ["1", "1-2", "2", "2+", "3+", "post-MVP"]
+    validations:
+      required: false
