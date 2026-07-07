@@ -1,4 +1,10 @@
-# Backlog
+# Backlog (frozen — moved to GitHub Issues)
+
+> **This board is archived.** Active ticketing now lives in
+> [GitHub Issues](https://github.com/mehrasmeydani/obsidian_dnd_vtt/issues).
+> The open tickets below were migrated on 2026-07-07 (T-XX → issue #NN); the
+> `done` pile is kept here as history. Don't add new T-XX files — open an
+> Issue with the Ticket template instead. See [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 One file per ticket: user story, acceptance criteria, technical notes.
 Statuses: **todo · in-progress · blocked · needs-check · done**.
