@@ -2,16 +2,20 @@
 
 D&D 5e virtual tabletop as an Obsidian plugin (React + Zod + esbuild).
 Architecture and phased plan: `docs/ROADMAP.md`. The actionable work queue
-is `docs/backlog/README.md` — a board of T-XX ticket files (user story +
-acceptance criteria); pick from the top, update statuses as you go.
+is **[GitHub Issues](https://github.com/mehrasmeydani/obsidian_dnd_vtt/issues)**
+(each issue = a user story + acceptance criteria); pick by priority label
+(`p1`…`p4`), reference issues in commits the native way (`Fixes #NN`).
+`docs/backlog/README.md` explains the board and labels. The old `T-XX`
+ticket ids are frozen history — kept in migrated issue titles, commit
+messages, and this file; don't mint new ones.
 
 ## Status (as of 2026-07-04, end of the big backlog round)
 
-**Verification flow:** work the user hasn't confirmed in Obsidian sits at
-status `needs-check` on the board, itemized in
-`docs/backlog/NEEDS-CHECK.md` — the user flips items to `done` after
-testing. The user's raw testing notes arrive in the repo-root `todo`
-file; turn each into a T-XX ticket before fixing.
+**Verification flow:** work the user hasn't confirmed in Obsidian carries
+the `needs-check` label on GitHub Issues (query
+`is:open label:needs-check`) — the user closes the issue after testing.
+The user's raw testing notes arrive in the repo-root `todo` file; open a
+GitHub Issue (Ticket template) for each before fixing.
 
 **Shipped this round (all needs-check):** T-10 session notes ·
 T-12 Open5e refresh (spells/monsters/items schemas + store categories) ·
